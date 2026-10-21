@@ -476,7 +476,7 @@ function NpsScale({ value, onChange }: { value?: number; onChange: (v: number) =
   const nums = useMemo(() => Array.from({ length: 11 }, (_, i) => i), []);
   return (
     <div>
-      <div className="grid grid-cols-11 gap-1" role="radiogroup" aria-label="Nota de 0 a 10">
+      <div className="grid grid-cols-11 gap-1 sm:gap-2" role="radiogroup" aria-label="Nota de 0 a 10">
         {nums.map((n) => (
           <button
             key={n}
@@ -485,13 +485,18 @@ function NpsScale({ value, onChange }: { value?: number; onChange: (v: number) =
             aria-checked={value === n}
             onClick={() => onChange(n)}
             className={cn(
-              "flex h-12 items-center justify-center rounded-md border text-base",
-              value === n ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:bg-highlight",
+              "flex h-12 items-center justify-center rounded-md border text-base sm:h-14 sm:text-lg",
+              value === n ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:border-primary hover:bg-highlight",
             )}
           >
             {n}
           </button>
         ))}
+      </div>
+      <div className="mt-2 grid grid-cols-11 gap-1 sm:gap-2" aria-hidden>
+        <div className="col-span-7 h-1 rounded-full bg-negative-bg" />
+        <div className="col-span-2 h-1 rounded-full bg-attention-bg" />
+        <div className="col-span-2 h-1 rounded-full bg-positive-bg" />
       </div>
       <div className="mt-3 flex justify-between text-sm text-muted-foreground">
         <span>Nada provável</span>
