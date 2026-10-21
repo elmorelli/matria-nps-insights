@@ -17,3 +17,5 @@
 - Follow-ups are created by a database trigger on response insert, so SLA rules live in SQL.
 - tsconfig extra-strict flags (exactOptionalPropertyTypes etc.) are off to keep form/data code simple.
 - Contact timeline lives in contact_events, written only by DB triggers on contacts/invitations/followups and by survey_confirm/survey_decline, so every step is timestamped server-side.
+- Admin pages load one dataset via allDataQuery (src/lib/analytics.ts) and compute every metric client-side with shared helpers (cycleStats, targetFor, cycleReading). Mutations invalidate allDataKey. Why: one source of truth for results, overview, clients and PDF.
+- PDF exports use browser print: /relatorio (16:9 slides, filters in search params) and print styles on the client card page. Why: charts render exactly as on screen.
