@@ -69,6 +69,17 @@ function SurveyPage() {
   useEffect(() => {
     if (preview) {
       setInfo({ state: "open", name: "Visitante de teste", account: "Instituição de teste" });
+      const qid = new URLSearchParams(window.location.search).get("q");
+      if (qid) {
+        supabase
+          .from("questions")
+          .select("key,kind,text,required,min_chars,block,block_note")
+          .eq("questionnaire_id", qid)
+          .order("position")
+          .then(({ data }) => {
+            if (data?.length) setQuestions(data as Question[]);
+          });
+      }
       return;
     }
     if (!/^[0-9a-f-]{36}$/i.test(token)) {
