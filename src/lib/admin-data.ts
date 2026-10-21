@@ -6,12 +6,6 @@ export async function fetchCycles() {
   return data;
 }
 
-export async function fetchSettings() {
-  const { data, error } = await supabase.from("settings").select("*").eq("id", 1).single();
-  if (error) throw error;
-  return data;
-}
-
 export async function fetchContacts() {
   const { data, error } = await supabase
     .from("contacts")
