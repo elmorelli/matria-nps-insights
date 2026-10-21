@@ -231,8 +231,8 @@ export function Evolution({ days, height = 256 }: { days: { dia: string; Enviado
           {days.filter((d) => d.lembrete).map((d) => (
             <ReferenceLine key={d.dia} x={d.dia} stroke="var(--brand-light)" strokeDasharray="4 4" />
           ))}
-          <Line type="monotone" dataKey="Enviados" stroke="var(--chart-3)" strokeWidth={2} dot={false} isAnimationActive={false} />
-          <Line type="monotone" dataKey="Abertos" stroke="var(--chart-2)" strokeWidth={2} dot={false} isAnimationActive={false} />
+          <Line type="monotone" dataKey="Enviados" stroke="var(--brand-light)" strokeWidth={2} dot={false} isAnimationActive={false} />
+          <Line type="monotone" dataKey="Abertos" stroke="var(--info)" strokeWidth={2} dot={false} isAnimationActive={false} />
           <Line type="monotone" dataKey="Respondidos" stroke="var(--primary)" strokeWidth={3} dot={false} isAnimationActive={false} />
         </LineChart>
       </ResponsiveContainer>

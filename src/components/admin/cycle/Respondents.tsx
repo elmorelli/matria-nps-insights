@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { STATUS_LABEL } from "@/lib/admin-data";
 import { npsBand } from "@/lib/nps";
 import { EMPTY_FILTERS, answerLabel, cycleRows, questionsOf, type AllData, type Cycle, type Row, type QuestionRow } from "@/lib/analytics";
-import { BAND_LABEL, BAND_TEXT, ScorePill, TableWrap } from "@/components/admin/charts";
+import { BAND_TEXT, ScorePill, TableWrap } from "@/components/admin/charts";
 import { FiltersBar } from "@/components/admin/FiltersBar";
 import { cn } from "@/lib/utils";
 
@@ -122,7 +122,6 @@ export function Respondents({ d, cycle }: { d: AllData; cycle: Cycle }) {
           </tbody>
         </table>
       </TableWrap>
-      <p className="hidden">{BAND_LABEL.high}</p>
     </div>
   );
 }
