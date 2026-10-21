@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Clock, ListChecks, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MatriaLogo } from "@/components/MatriaLogo";
-import { STEPS, LIKERT_LABELS, isStepAnswered, type Answers } from "@/lib/survey";
+import { STEPS, BLOCKS, LIKERT_LABELS, blockOf, isStepAnswered, type Answers } from "@/lib/survey";
 import { firstName } from "@/lib/contacts";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +30,8 @@ function SurveyPage() {
   const [ident, setIdent] = useState({ first: "", email: "" });
   const [gateErr, setGateErr] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
-  const [stage, setStage] = useState<"intro" | "q" | "done">("intro");
+  const [stage, setStage] = useState<"intro" | "q" | "review" | "done">("intro");
+  const [returnToReview, setReturnToReview] = useState(false);
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [submitting, setSubmitting] = useState(false);
