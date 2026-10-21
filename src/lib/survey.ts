@@ -44,3 +44,15 @@ export function isStepAnswered(step: Step, a: Answers): boolean {
       return typeof a[step.key] === "number" || a[step.nrKey] === true;
   }
 }
+
+export const BLOCKS = [
+  { title: "Sua nota", from: 0, to: 1, note: "Obrigatório" },
+  { title: "Relacionamento", from: 2, to: 7, note: "Escala de 1 a 5" },
+  { title: "Solução", from: 8, to: 9, note: "Escala de 1 a 5 ou 'Ainda não chegamos nesta etapa'" },
+  { title: "Para fechar", from: 10, to: 11, note: "Opcional" },
+] as const;
+
+export function blockOf(idx: number) {
+  const i = BLOCKS.findIndex((b) => idx >= b.from && idx <= b.to);
+  return { ...BLOCKS[i], index: i };
+}
