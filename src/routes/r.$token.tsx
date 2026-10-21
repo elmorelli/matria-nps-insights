@@ -223,13 +223,37 @@ function SurveyPage() {
     return (
       <Shell account={info.account}>
         {preview && <PreviewBadge />}
-        <h1 className="text-2xl leading-snug">Olá, {name}.</h1>
+        <p className="text-sm text-primary">Pesquisa de relacionamento</p>
+        <h1 className="mt-2 text-3xl leading-tight">Olá, {name}.</h1>
         <p className="mt-4 text-base leading-relaxed">
           Esta pesquisa é sobre a experiência de {info.account} com a Matria como parceira, desde o início da nossa relação. Leva uns 3 minutos. Se alguma pergunta falar de uma etapa que a sua organização ainda não viveu conosco, marque a opção 'Ainda não chegamos nesta etapa'.
         </p>
-        <p className="mt-6 text-sm text-muted-foreground">A sua resposta é identificada e lida pela liderança da Matria.</p>
+        <div className="mt-8 grid grid-cols-3 gap-2 text-center">
+          {[
+            [<Clock key="c" />, "3 minutos"],
+            [<ListChecks key="l" />, "12 perguntas"],
+            [<Save key="s" />, "Salva sozinha"],
+          ].map(([icon, label], i) => (
+            <div key={i} className="rounded-lg bg-highlight px-2 py-4 text-sm text-primary [&_svg]:mx-auto [&_svg]:mb-2 [&_svg]:h-5 [&_svg]:w-5">
+              {icon}
+              {label}
+            </div>
+          ))}
+        </div>
+        <ol className="mt-8 space-y-3">
+          {BLOCKS.map((b, i) => (
+            <li key={b.title} className="flex items-center gap-3">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-brand-light text-sm text-primary">{i + 1}</span>
+              <span>{b.title}</span>
+              <span className="ml-auto text-sm text-muted-foreground">
+                {b.to - b.from + 1} {b.to - b.from === 0 ? "pergunta" : "perguntas"}
+              </span>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-8 text-sm text-muted-foreground">A sua resposta é identificada e lida pela liderança da Matria.</p>
         <PrimaryButton
-          className="mt-8"
+          className="mt-6"
           onClick={() => {
             startRef.current = Date.now();
             setStage("q");
@@ -241,12 +265,72 @@ function SurveyPage() {
       </Shell>
     );
 
+  if (stage === "review")
+    return (
+      <Shell account={info.account}>
+        {preview && <PreviewBadge />}
+        <p className="text-sm text-primary">Último passo</p>
+        <h1 className="mt-2 text-2xl leading-snug">Confira as suas respostas</h1>
+        <p className="mt-2 text-muted-foreground">Se quiser mudar algo, toque em Alterar. Depois é só confirmar o envio.</p>
+        <div className="mt-8 space-y-8">
+          {BLOCKS.map((b) => (
+            <section key={b.title}>
+              <h2 className="text-sm text-muted-foreground">{b.title}</h2>
+              <ul className="mt-3 divide-y divide-border rounded-lg border">
+                {STEPS.slice(b.from, b.to + 1).map((s, i) => {
+                  const qi = b.from + i;
+                  return (
+                    <li key={s.key} className="flex items-start gap-4 p-4">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm text-muted-foreground">
+                          {qi + 1}. {s.text}
+                        </p>
+                        <p className="mt-1 break-words">{reviewAnswer(s, answers)}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setReturnToReview(true);
+                          setStage("q");
+                          goto(qi);
+                        }}
+                        className="shrink-0 rounded-md px-2 py-1 text-sm text-primary hover:bg-highlight"
+                      >
+                        Alterar
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ))}
+        </div>
+        {err && <p className="mt-6 rounded-md bg-negative-bg p-3 text-sm text-foreground">{err}</p>}
+        <PrimaryButton className="mt-10" disabled={submitting} onClick={submit}>
+          {submitting ? "Enviando…" : "Confirmar e enviar"}
+        </PrimaryButton>
+      </Shell>
+    );
+
   const step = STEPS[idx];
   const ok = isStepAnswered(step, answers);
   const last = idx === STEPS.length - 1;
+  const blk = blockOf(idx);
+  const advance = () => {
+    if (returnToReview || last) {
+      setReturnToReview(false);
+      setStage("review");
+      window.scrollTo({ top: 0 });
+    } else goto(idx + 1);
+  };
+  const autoAdvance = () => {
+    if (returnToReview) return;
+    window.setTimeout(() => goto(idx + 1), 280);
+  };
 
   return (
     <Shell account={info.account} footer={false}>
+      {preview && <PreviewBadge />}
       <div className="mb-8">
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <button
@@ -257,29 +341,64 @@ function SurveyPage() {
             <ArrowLeft className="h-4 w-4" /> Voltar
           </button>
           <span>
-            {idx + 1} de {STEPS.length}
+            Pergunta {idx + 1} de {STEPS.length}
           </span>
         </div>
-        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-offwhite" aria-hidden>
-          <div className="h-full bg-primary transition-all" style={{ width: `${((idx + 1) / STEPS.length) * 100}%` }} />
+        <div className="mt-2 flex gap-1" aria-hidden>
+          {BLOCKS.map((b, bi) => {
+            const total = b.to - b.from + 1;
+            const done = Math.min(total, Math.max(0, idx - b.from + 1));
+            return (
+              <div key={b.title} className="h-1.5 overflow-hidden rounded-full bg-offwhite" style={{ flex: total }}>
+                <div className="h-full bg-primary transition-all" style={{ width: `${(done / total) * 100}%`, opacity: bi === blk.index ? 1 : 0.85 }} />
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      <h2 className="text-xl leading-snug">{step.text}</h2>
+      <p className="inline-flex rounded-full bg-highlight px-3 py-1 text-sm text-primary">
+        Bloco {blk.index + 1} · {blk.title}
+      </p>
+      <h2 className="mt-4 text-xl leading-snug sm:text-2xl">{step.text}</h2>
 
       <div className="mt-8">
-        {step.kind === "nps" && <NpsScale value={answers.q1_nps} onChange={(v) => update({ q1_nps: v })} />}
-        {step.kind === "likert" && <Likert value={answers[step.key]} onChange={(v) => update({ [step.key]: v })} />}
+        {step.kind === "nps" && (
+          <NpsScale
+            value={answers.q1_nps}
+            onChange={(v) => {
+              update({ q1_nps: v });
+            }}
+          />
+        )}
+        {step.kind === "likert" && (
+          <Likert
+            value={answers[step.key]}
+            onChange={(v) => {
+              update({ [step.key]: v });
+              autoAdvance();
+            }}
+          />
+        )}
         {step.kind === "likert_nr" && (
           <>
-            <Likert value={answers[step.key] ?? undefined} onChange={(v) => update({ [step.key]: v, [step.nrKey]: false })} />
+            <Likert
+              value={answers[step.key] ?? undefined}
+              onChange={(v) => {
+                update({ [step.key]: v, [step.nrKey]: false });
+                autoAdvance();
+              }}
+            />
             <button
               type="button"
-              onClick={() => update({ [step.key]: null, [step.nrKey]: true })}
+              onClick={() => {
+                update({ [step.key]: null, [step.nrKey]: true });
+                autoAdvance();
+              }}
               aria-pressed={answers[step.nrKey] === true}
               className={cn(
-                "mt-6 w-full rounded-md border border-dashed px-4 py-4 text-left text-base",
-                answers[step.nrKey] ? "border-primary bg-highlight text-primary" : "border-border bg-subtle",
+                "mt-6 w-full rounded-lg border border-dashed px-4 py-4 text-left text-base",
+                answers[step.nrKey] ? "border-primary bg-highlight text-primary" : "border-border bg-subtle hover:bg-offwhite",
               )}
             >
               Ainda não chegamos nesta etapa
@@ -292,54 +411,50 @@ function SurveyPage() {
               value={answers[step.key] ?? ""}
               onChange={(e) => update({ [step.key]: e.target.value })}
               rows={6}
-              className="w-full rounded-md border border-input bg-background p-4 text-base outline-none focus:border-primary focus:ring-2 focus:ring-highlight"
-              placeholder={step.required ? "Escreva aqui" : "Opcional"}
+              className="w-full rounded-lg border border-input bg-background p-4 text-base outline-none focus:border-primary focus:ring-2 focus:ring-highlight"
+              placeholder={step.required ? "Conte com as suas palavras" : "Opcional. Pode deixar em branco"}
             />
             {step.required && step.min && (
               <p className="mt-2 text-sm text-muted-foreground">
-                {Math.max(0, step.min - (answers[step.key] ?? "").trim().length) > 0
-                  ? `Escreva pelo menos ${step.min} caracteres.`
-                  : " "}
+                {Math.max(0, step.min - (answers[step.key] ?? "").trim().length) > 0 ? `Escreva pelo menos ${step.min} caracteres.` : " "}
               </p>
             )}
           </>
         )}
       </div>
 
-      {err && <p className="mt-6 rounded-md bg-negative-bg p-3 text-sm text-foreground">{err}</p>}
-
-      <PrimaryButton className="mt-10" disabled={!ok || submitting} onClick={() => (last ? submit() : goto(idx + 1))}>
-        {last ? (submitting ? "Enviando…" : "Enviar respostas") : "Continuar"}
+      <PrimaryButton className="mt-10" disabled={!ok} onClick={advance}>
+        {returnToReview || last ? "Revisar respostas" : "Continuar"}
       </PrimaryButton>
     </Shell>
   );
 }
 
+function reviewAnswer(s: (typeof STEPS)[number], a: Answers): string {
+  if (s.kind === "nps") return a.q1_nps != null ? String(a.q1_nps) : "Sem resposta";
+  if (s.kind === "likert_nr" && a[s.nrKey]) return "Ainda não chegamos nesta etapa";
+  if (s.kind === "likert" || s.kind === "likert_nr") {
+    const v = a[s.key];
+    return typeof v === "number" ? `${v} · ${LIKERT_LABELS[v - 1]}` : "Sem resposta";
+  }
+  const t = (a[s.key] ?? "").trim();
+  return t || "Sem resposta";
+}
+
 function Shell({ children, account, footer = true }: { children: React.ReactNode; account?: string; footer?: boolean }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="bg-primary">
-        <div className="mx-auto flex max-w-xl items-center justify-between gap-4 px-4 py-2">
+    <div className="flex min-h-screen flex-col bg-subtle">
+      <header className="bg-primary pb-16 sm:pb-24">
+        <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-4 py-2">
           <MatriaLogo variant="negativo" className="h-12" />
           {account && <span className="truncate text-sm text-primary-foreground">{account}</span>}
         </div>
       </header>
-      <main className="mx-auto w-full max-w-xl flex-1 px-6 py-10">{children}</main>
-      {footer && (
-        <footer className="py-8 text-center text-sm text-muted-foreground">Data for Better Care</footer>
-      )}
+      <main className="mx-auto -mt-12 w-full max-w-2xl flex-1 px-3 sm:-mt-16 sm:px-6">
+        <div className="rounded-xl border bg-background px-5 py-8 sm:px-12 sm:py-12">{children}</div>
+      </main>
+      <footer className="py-8 text-center text-sm text-muted-foreground">{footer ? "Data for Better Care" : " "}</footer>
     </div>
-  );
-}
-
-function ThankYou({ name, account }: { name: string; account?: string }) {
-  return (
-    <Shell account={account}>
-      <h1 className="text-2xl leading-snug">Obrigado, {name}.</h1>
-      <p className="mt-4 text-base leading-relaxed">
-        Você vai receber da Matria, por escrito, o que ouvimos e o que vamos fazer a respeito.
-      </p>
-    </Shell>
   );
 }
 
