@@ -3,7 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useRef, useState } from "react";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
-import { Copy, MessageCircle, Send, Upload, Download, Plus, Link2 } from "lucide-react";
+import { Copy, MessageCircle, Send, Upload, Download, Plus, Link2, History } from "lucide-react";
+import { ContactTimeline } from "@/components/admin/ContactTimeline";
 import { supabase } from "@/integrations/supabase/client";
 import {
   fetchContacts,
@@ -55,6 +56,7 @@ function ContactsPage() {
   const [importRows, setImportRows] = useState<ImportRow[] | null>(null);
   const [confirm, setConfirm] = useState<{ inv: Inv; name: string } | null>(null);
   const [statusEdit, setStatusEdit] = useState<ContactRow | null>(null);
+  const [timelineOf, setTimelineOf] = useState<ContactRow | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["contacts"] });
@@ -328,6 +330,9 @@ function ContactsPage() {
                     )}
                   </td>
                   <td className="px-3 py-2">
+                    <IconBtn label="Linha do tempo" onClick={() => setTimelineOf(c)}>
+                      <History />
+                    </IconBtn>
                     {inv && !inactive && (
                       <div className="flex gap-1">
                         <IconBtn label="Copiar link" onClick={() => copyText(surveyLink(inv.token), "Link copiado.")}>
@@ -370,6 +375,7 @@ function ContactsPage() {
         </table>
       </div>
 
+      <ContactTimeline contact={timelineOf} onClose={() => setTimelineOf(null)} />
       <ImportDialog rows={importRows} setRows={setImportRows} onDone={refresh} />
 
       <Dialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(null)}>
