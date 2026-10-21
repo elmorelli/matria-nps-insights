@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Clock, ListChecks, Save } from "lucide-react";
+import { ArrowLeft, Check, Clock, ListChecks, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MatriaLogo } from "@/components/MatriaLogo";
 import { STEPS, BLOCKS, LIKERT_LABELS, blockOf, isStepAnswered, type Answers } from "@/lib/survey";
@@ -545,5 +545,19 @@ function PreviewBadge() {
     <p className="mb-6 rounded-md bg-highlight px-3 py-2 text-sm text-info">
       Modo de teste. Nada do que você responder aqui será salvo.
     </p>
+  );
+}
+
+function ThankYou({ name, account }: { name: string; account?: string }) {
+  return (
+    <Shell account={account}>
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-positive-bg text-positive">
+        <Check className="h-7 w-7" />
+      </div>
+      <h1 className="mt-6 text-2xl leading-snug">Obrigado, {name}.</h1>
+      <p className="mt-4 text-base leading-relaxed">
+        Você vai receber da Matria, por escrito, o que ouvimos e o que vamos fazer a respeito.
+      </p>
+    </Shell>
   );
 }
