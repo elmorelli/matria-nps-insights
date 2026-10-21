@@ -2,8 +2,8 @@
 - [x] 1a. Estrutura de questionários, mensagens por ciclo, dados de instituição
 - [x] 1b. Login sem criação de conta, logo maior
 - [x] 1c. Pesquisa com tela "Sou eu, começar" e perguntas vindas do questionário
-- [ ] 1d. Logos em SVG (aguardando os arquivos SVG do Eduardo)
-- [ ] 2. Menu lateral azul, adaptado ao celular
+- [x] 1d. Logos em SVG
+- [x] 2. Menu lateral azul, adaptado ao celular
 - [ ] 3. Ciclos com abas: Resultados, Respondentes, Envios, Mensagens, Configurações
 - [ ] 4. Contatos só de cadastro e nova área Clientes
 - [ ] 5. Questionários com versões
