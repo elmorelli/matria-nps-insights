@@ -19,6 +19,8 @@ import { Route as AuthenticatedAdminConfiguracoesRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminContatosRouteImport } from './routes/_authenticated/admin.contatos'
 import { Route as AuthenticatedAdminPesquisasRouteImport } from './routes/_authenticated/admin.pesquisas'
 import { Route as AuthenticatedAdminRespostasRouteImport } from './routes/_authenticated/admin.respostas'
+import { Route as AuthenticatedAdminCiclosIndexRouteImport } from './routes/_authenticated/admin.ciclos.index'
+import { Route as AuthenticatedAdminCiclosIdRouteImport } from './routes/_authenticated/admin.ciclos.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -73,6 +75,18 @@ const AuthenticatedAdminRespostasRoute =
     path: '/respostas',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminCiclosIndexRoute =
+  AuthenticatedAdminCiclosIndexRouteImport.update({
+    id: '/ciclos/',
+    path: '/ciclos/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCiclosIdRoute =
+  AuthenticatedAdminCiclosIdRouteImport.update({
+    id: '/ciclos/$id',
+    path: '/ciclos/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -84,6 +98,8 @@ export interface FileRoutesByFullPath {
   '/admin/pesquisas': typeof AuthenticatedAdminPesquisasRoute
   '/admin/respostas': typeof AuthenticatedAdminRespostasRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/ciclos/$id': typeof AuthenticatedAdminCiclosIdRoute
+  '/admin/ciclos/': typeof AuthenticatedAdminCiclosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +110,8 @@ export interface FileRoutesByTo {
   '/admin/pesquisas': typeof AuthenticatedAdminPesquisasRoute
   '/admin/respostas': typeof AuthenticatedAdminRespostasRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/ciclos/$id': typeof AuthenticatedAdminCiclosIdRoute
+  '/admin/ciclos': typeof AuthenticatedAdminCiclosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +125,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/pesquisas': typeof AuthenticatedAdminPesquisasRoute
   '/_authenticated/admin/respostas': typeof AuthenticatedAdminRespostasRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/ciclos/$id': typeof AuthenticatedAdminCiclosIdRoute
+  '/_authenticated/admin/ciclos/': typeof AuthenticatedAdminCiclosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,6 +140,8 @@ export interface FileRouteTypes {
     | '/admin/pesquisas'
     | '/admin/respostas'
     | '/admin/'
+    | '/admin/ciclos/$id'
+    | '/admin/ciclos/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -130,6 +152,8 @@ export interface FileRouteTypes {
     | '/admin/pesquisas'
     | '/admin/respostas'
     | '/admin'
+    | '/admin/ciclos/$id'
+    | '/admin/ciclos'
   id:
     | '__root__'
     | '/'
@@ -142,6 +166,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/pesquisas'
     | '/_authenticated/admin/respostas'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/ciclos/$id'
+    | '/_authenticated/admin/ciclos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -223,6 +249,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRespostasRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/ciclos/': {
+      id: '/_authenticated/admin/ciclos/'
+      path: '/ciclos'
+      fullPath: '/admin/ciclos/'
+      preLoaderRoute: typeof AuthenticatedAdminCiclosIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/ciclos/$id': {
+      id: '/_authenticated/admin/ciclos/$id'
+      path: '/ciclos/$id'
+      fullPath: '/admin/ciclos/$id'
+      preLoaderRoute: typeof AuthenticatedAdminCiclosIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
@@ -232,6 +272,8 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminPesquisasRoute: typeof AuthenticatedAdminPesquisasRoute
   AuthenticatedAdminRespostasRoute: typeof AuthenticatedAdminRespostasRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminCiclosIdRoute: typeof AuthenticatedAdminCiclosIdRoute
+  AuthenticatedAdminCiclosIndexRoute: typeof AuthenticatedAdminCiclosIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -240,6 +282,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminPesquisasRoute: AuthenticatedAdminPesquisasRoute,
   AuthenticatedAdminRespostasRoute: AuthenticatedAdminRespostasRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminCiclosIdRoute: AuthenticatedAdminCiclosIdRoute,
+  AuthenticatedAdminCiclosIndexRoute: AuthenticatedAdminCiclosIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
