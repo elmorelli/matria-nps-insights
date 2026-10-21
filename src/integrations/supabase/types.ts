@@ -17,26 +17,41 @@ export type Database = {
       accounts: {
         Row: {
           active: boolean
+          city: string | null
+          country: string | null
           created_at: string
           estimated_annual_revenue: number | null
           id: string
+          logo_url: string | null
           name: string
+          notes: string | null
+          owner_name: string | null
           segment: string | null
         }
         Insert: {
           active?: boolean
+          city?: string | null
+          country?: string | null
           created_at?: string
           estimated_annual_revenue?: number | null
           id?: string
+          logo_url?: string | null
           name: string
+          notes?: string | null
+          owner_name?: string | null
           segment?: string | null
         }
         Update: {
           active?: boolean
+          city?: string | null
+          country?: string | null
           created_at?: string
           estimated_annual_revenue?: number | null
           id?: string
+          logo_url?: string | null
           name?: string
+          notes?: string | null
+          owner_name?: string | null
           segment?: string | null
         }
         Relationships: []
@@ -175,11 +190,16 @@ export type Database = {
           end_date: string | null
           id: string
           name: string
+          questionnaire_id: string | null
           reference_nps: number | null
           reference_response_rate: number | null
           start_date: string
           target_nps: number
           target_response_rate: number
+          template_initial: string
+          template_reminder_1: string
+          template_reminder_2: string
+          template_reminder_3: string
         }
         Insert: {
           closed?: boolean
@@ -187,11 +207,16 @@ export type Database = {
           end_date?: string | null
           id?: string
           name: string
+          questionnaire_id?: string | null
           reference_nps?: number | null
           reference_response_rate?: number | null
           start_date: string
           target_nps?: number
           target_response_rate?: number
+          template_initial?: string
+          template_reminder_1?: string
+          template_reminder_2?: string
+          template_reminder_3?: string
         }
         Update: {
           closed?: boolean
@@ -199,13 +224,26 @@ export type Database = {
           end_date?: string | null
           id?: string
           name?: string
+          questionnaire_id?: string | null
           reference_nps?: number | null
           reference_response_rate?: number | null
           start_date?: string
           target_nps?: number
           target_response_rate?: number
+          template_initial?: string
+          template_reminder_1?: string
+          template_reminder_2?: string
+          template_reminder_3?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "cycles_questionnaire_id_fkey"
+            columns: ["questionnaire_id"]
+            isOneToOne: false
+            referencedRelation: "questionnaires"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       followups: {
         Row: {
@@ -310,6 +348,125 @@ export type Database = {
             columns: ["cycle_id"]
             isOneToOne: false
             referencedRelation: "cycles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      questionnaires: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
+      questions: {
+        Row: {
+          block: string
+          block_note: string | null
+          id: string
+          key: string
+          kind: Database["public"]["Enums"]["question_kind"]
+          min_chars: number | null
+          position: number
+          questionnaire_id: string
+          required: boolean
+          text: string
+        }
+        Insert: {
+          block: string
+          block_note?: string | null
+          id?: string
+          key: string
+          kind: Database["public"]["Enums"]["question_kind"]
+          min_chars?: number | null
+          position: number
+          questionnaire_id: string
+          required?: boolean
+          text: string
+        }
+        Update: {
+          block?: string
+          block_note?: string | null
+          id?: string
+          key?: string
+          kind?: Database["public"]["Enums"]["question_kind"]
+          min_chars?: number | null
+          position?: number
+          questionnaire_id?: string
+          required?: boolean
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_questionnaire_id_fkey"
+            columns: ["questionnaire_id"]
+            isOneToOne: false
+            referencedRelation: "questionnaires"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      response_answers: {
+        Row: {
+          id: string
+          not_reached: boolean
+          question_id: string | null
+          question_key: string
+          response_id: string
+          value_num: number | null
+          value_text: string | null
+        }
+        Insert: {
+          id?: string
+          not_reached?: boolean
+          question_id?: string | null
+          question_key: string
+          response_id: string
+          value_num?: number | null
+          value_text?: string | null
+        }
+        Update: {
+          id?: string
+          not_reached?: boolean
+          question_id?: string | null
+          question_key?: string
+          response_id?: string
+          value_num?: number | null
+          value_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "response_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "response_answers_response_id_fkey"
+            columns: ["response_id"]
+            isOneToOne: false
+            referencedRelation: "responses"
             referencedColumns: ["id"]
           },
         ]
@@ -450,24 +607,13 @@ export type Database = {
         Returns: boolean
       }
       norm_txt: { Args: { _t: string }; Returns: string }
+      survey_confirm: { Args: { _token: string }; Returns: Json }
+      survey_decline: { Args: { _token: string }; Returns: Json }
       survey_get: { Args: { _token: string }; Returns: Json }
-      survey_identity_ok: {
-        Args: {
-          _c_email: string
-          _c_full_name: string
-          _email: string
-          _first: string
-        }
-        Returns: boolean
-      }
       survey_status: { Args: { _token: string }; Returns: Json }
       survey_submit: { Args: { _a: Json; _token: string }; Returns: Json }
-      survey_submit_verified: {
-        Args: { _a: Json; _email: string; _first: string; _token: string }
-        Returns: Json
-      }
-      survey_verify: {
-        Args: { _email: string; _first: string; _token: string }
+      survey_submit_by_token: {
+        Args: { _a: Json; _token: string }
         Returns: Json
       }
     }
@@ -479,6 +625,7 @@ export type Database = {
       invite_channel: "WhatsApp" | "Email" | "Presencial"
       invite_status: "not_sent" | "sent" | "opened" | "answered" | "invalid"
       mom_stage: "Handoff" | "Implantação" | "Go-live" | "Sustentação"
+      question_kind: "nps" | "likert" | "likert_nr" | "text"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -613,6 +760,7 @@ export const Constants = {
       invite_channel: ["WhatsApp", "Email", "Presencial"],
       invite_status: ["not_sent", "sent", "opened", "answered", "invalid"],
       mom_stage: ["Handoff", "Implantação", "Go-live", "Sustentação"],
+      question_kind: ["nps", "likert", "likert_nr", "text"],
     },
   },
 } as const

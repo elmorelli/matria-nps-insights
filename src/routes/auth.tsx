@@ -13,6 +13,8 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Acesso ao painel NPS da Matria." },
       { property: "og:title", content: "Entrar | Matria NPS" },
       { property: "og:description", content: "Acesso ao painel NPS da Matria." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -21,7 +23,6 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const nav = useNavigate();
-  const [mode, setMode] = useState<"in" | "up">("in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
@@ -31,25 +32,16 @@ function AuthPage() {
     e.preventDefault();
     setBusy(true);
     setMsg(null);
-    if (mode === "in") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      setBusy(false);
-      if (error) return setMsg("E-mail ou senha incorretos.");
-      nav({ to: "/admin" });
-    } else {
-      const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + "/admin" } });
-      setBusy(false);
-      if (error) return setMsg(error.message);
-      setMsg("Conta criada. Confirme pelo link enviado ao seu e-mail e depois entre aqui.");
-      setMode("in");
-    }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setBusy(false);
+    if (error) return setMsg("E-mail ou senha incorretos.");
+    nav({ to: "/admin" });
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-subtle px-4">
       <form onSubmit={submit} className="w-full max-w-sm rounded-lg border bg-background p-8">
-        <MatriaLogo className="-ml-3 h-14" />
-        <h1 className="mt-4 text-xl">{mode === "in" ? "Entrar no painel NPS" : "Criar acesso"}</h1>
+        <MatriaLogo className="-ml-3 h-16" />
         <div className="mt-6 space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">E-mail</Label>
@@ -62,11 +54,8 @@ function AuthPage() {
         </div>
         {msg && <p className="mt-4 text-sm text-muted-foreground">{msg}</p>}
         <Button type="submit" className="mt-6 w-full" disabled={busy}>
-          {mode === "in" ? "Entrar" : "Criar conta"}
+          Entrar
         </Button>
-        <button type="button" className="mt-4 w-full text-sm text-primary" onClick={() => setMode(mode === "in" ? "up" : "in")}>
-          {mode === "in" ? "Primeiro acesso? Criar conta" : "Já tenho conta"}
-        </button>
       </form>
     </div>
   );

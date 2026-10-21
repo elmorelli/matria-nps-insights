@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Check, Clock, ListChecks, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MatriaLogo } from "@/components/MatriaLogo";
-import { STEPS, BLOCKS, LIKERT_LABELS, blockOf, isStepAnswered, type Answers } from "@/lib/survey";
+import { LIKERT_LABELS, SEED_QUESTIONS, groupBlocks, isAnswered, type AnswerMap, type Question } from "@/lib/survey";
 import { firstName } from "@/lib/contacts";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +14,8 @@ export const Route = createFileRoute("/r/$token")({
       { name: "description", content: "Conte como tem sido a parceria com a Matria." },
       { property: "og:title", content: "Pesquisa Matria" },
       { property: "og:description", content: "Conte como tem sido a parceria com a Matria. Leva uns 3 minutos." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -26,49 +28,50 @@ function SurveyPage() {
   const { token } = Route.useParams();
   const preview = token === "teste";
   const [info, setInfo] = useState<Info>({ state: "loading" });
-  const [verified, setVerified] = useState(false);
-  const [ident, setIdent] = useState({ first: "", email: "" });
-  const [gateErr, setGateErr] = useState<string | null>(null);
-  const [checking, setChecking] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+  const [declined, setDeclined] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [questions, setQuestions] = useState<Question[]>(SEED_QUESTIONS);
   const [stage, setStage] = useState<"intro" | "q" | "review" | "done">("intro");
   const [returnToReview, setReturnToReview] = useState(false);
   const [idx, setIdx] = useState(0);
-  const [answers, setAnswers] = useState<Answers>({});
+  const [answers, setAnswers] = useState<AnswerMap>({});
   const [submitting, setSubmitting] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const startRef = useRef<number>(Date.now());
-  const draftKey = `matria-nps-draft-${token}`;
-  const idKey = `matria-nps-id-${token}`;
+  const draftKey = `matria-nps-draft2-${token}`;
+  const okKey = `matria-nps-ok-${token}`;
+  const blocks = useMemo(() => groupBlocks(questions), [questions]);
 
-  const verify = async (first: string, email: string, silent = false) => {
+  const confirm = async () => {
     if (preview) {
-      setInfo({ state: "open", name: first || "Visitante", account: "Instituição de teste" });
-      setVerified(true);
+      setConfirmed(true);
       return;
     }
-    setChecking(true);
-    setGateErr(null);
-    const { data, error } = await supabase.rpc("survey_verify", { _token: token, _first: first, _email: email });
-    setChecking(false);
-    const d = data as unknown as { ok: boolean; name?: string; account?: string; answered?: boolean } | null;
-    if (error || !d?.ok) {
-      if (!silent) setGateErr("Não encontramos esses dados para este link. Confira o primeiro nome e o e-mail.");
-      localStorage.removeItem(idKey);
-      return;
-    }
-    localStorage.setItem(idKey, JSON.stringify({ first, email }));
-    setIdent({ first, email });
-    setInfo({ state: d.answered ? "answered" : "open", name: d.name, account: d.account });
-    setVerified(true);
+    setBusy(true);
+    const { data, error } = await supabase.rpc("survey_confirm", { _token: token });
+    setBusy(false);
+    const d = data as unknown as (Info & { questions?: Question[] }) | null;
+    if (error || !d) return setInfo({ state: "error" });
+    if (d.state !== "open") return setInfo(d);
+    if (d.questions?.length) setQuestions(d.questions);
+    setInfo({ state: "open", name: d.name, account: d.account });
+    localStorage.setItem(okKey, "1");
+    setConfirmed(true);
+  };
+
+  const decline = async () => {
+    if (!preview) await supabase.rpc("survey_decline", { _token: token });
+    localStorage.removeItem(okKey);
+    setDeclined(true);
   };
 
   useEffect(() => {
     if (preview) {
-      setInfo({ state: "open", account: "Instituição de teste" });
+      setInfo({ state: "open", name: "Visitante de teste", account: "Instituição de teste" });
       return;
     }
-    const isUuid = /^[0-9a-f-]{36}$/i.test(token);
-    if (!isUuid) {
+    if (!/^[0-9a-f-]{36}$/i.test(token)) {
       setInfo({ state: "not_found" });
       return;
     }
@@ -76,14 +79,7 @@ function SurveyPage() {
       if (error) return setInfo({ state: "error" });
       const s = data as unknown as Info;
       setInfo(s);
-      if (s.state === "open") {
-        try {
-          const saved = JSON.parse(localStorage.getItem(idKey) ?? "null");
-          if (saved?.first) verify(saved.first, saved.email ?? "", true);
-        } catch {
-          /* ignore */
-        }
-      }
+      if (s.state === "open" && localStorage.getItem(okKey)) confirm();
     });
     try {
       const raw = localStorage.getItem(draftKey);
@@ -102,7 +98,7 @@ function SurveyPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, draftKey]);
 
-  const save = (a: Answers, i: number) => {
+  const save = (a: AnswerMap, i: number) => {
     if (preview) return;
     try {
       localStorage.setItem(draftKey, JSON.stringify({ answers: a, idx: i, started: startRef.current }));
@@ -111,9 +107,9 @@ function SurveyPage() {
     }
   };
 
-  const update = (patch: Partial<Answers>) => {
+  const update = (key: string, patch: AnswerMap[string]) => {
     setAnswers((prev) => {
-      const next = { ...prev, ...patch };
+      const next = { ...prev, [key]: { ...prev[key], ...patch } };
       save(next, idx);
       return next;
     });
@@ -130,16 +126,11 @@ function SurveyPage() {
     setSubmitting(true);
     setErr(null);
     const payload = {
-      ...answers,
+      answers,
       duration_seconds: Math.round((Date.now() - startRef.current) / 1000),
       user_agent: navigator.userAgent,
     };
-    const { error } = await supabase.rpc("survey_submit_verified", {
-      _token: token,
-      _first: ident.first,
-      _email: ident.email,
-      _a: payload as never,
-    });
+    const { error } = await supabase.rpc("survey_submit_by_token", { _token: token, _a: payload as never });
     setSubmitting(false);
     if (error) {
       setErr("Não conseguimos enviar agora. Verifique a conexão e tente de novo.");
@@ -151,7 +142,7 @@ function SurveyPage() {
 
   const name = info.name ? firstName(info.name) : "";
 
-  if (info.state === "loading") return <Shell account={undefined}><p className="text-muted-foreground">Carregando…</p></Shell>;
+  if (info.state === "loading") return <Shell><p className="text-muted-foreground">Carregando…</p></Shell>;
   if (info.state === "not_found" || info.state === "error")
     return (
       <Shell>
@@ -161,62 +152,41 @@ function SurveyPage() {
     );
   if (info.state === "closed")
     return (
-      <Shell account={info.account}>
+      <Shell>
         <h1 className="text-2xl">Esta pesquisa foi encerrada</h1>
         <p className="mt-3 text-muted-foreground">Obrigado pelo interesse.</p>
       </Shell>
     );
-  if (info.state === "answered" && !verified)
+  if (info.state === "answered" && stage !== "done")
     return (
-      <Shell account={info.account}>
+      <Shell>
         <h1 className="text-2xl leading-snug">Obrigado.</h1>
         <p className="mt-4 text-base leading-relaxed">Esta pesquisa já foi respondida. Você vai receber da Matria, por escrito, o que ouvimos e o que vamos fazer a respeito.</p>
       </Shell>
     );
-  if (info.state === "answered" || stage === "done") return <ThankYou name={name} account={info.account} />;
+  if (stage === "done") return <ThankYou name={name} account={info.account} />;
 
-  if (!verified)
+  if (declined)
     return (
-      <Shell account={info.account}>
+      <Shell>
+        <p className="text-base leading-relaxed">Obrigado por avisar. Vamos corrigir isso com o seu contato na Matria.</p>
+      </Shell>
+    );
+
+  if (!confirmed)
+    return (
+      <Shell>
         {preview && <PreviewBadge />}
-        <h1 className="text-2xl leading-snug">Pesquisa de relacionamento Matria</h1>
-        <p className="mt-4 text-base leading-relaxed">Para começar, confirme o seu primeiro nome e o e-mail em que você recebe as comunicações da Matria.</p>
-        <form
-          className="mt-8 space-y-5"
-          onSubmit={(e) => {
-            e.preventDefault();
-            verify(ident.first.trim(), ident.email.trim());
-          }}
-        >
-          <div>
-            <label htmlFor="g-first" className="text-sm">Primeiro nome</label>
-            <input
-              id="g-first"
-              required
-              autoComplete="given-name"
-              value={ident.first}
-              onChange={(e) => setIdent({ ...ident, first: e.target.value })}
-              className="mt-2 h-12 w-full rounded-md border border-input bg-background px-4 text-base outline-none focus:border-primary focus:ring-2 focus:ring-highlight"
-            />
-          </div>
-          <div>
-            <label htmlFor="g-email" className="text-sm">E-mail completo</label>
-            <input
-              id="g-email"
-              type="email"
-              required
-              autoComplete="email"
-              inputMode="email"
-              value={ident.email}
-              onChange={(e) => setIdent({ ...ident, email: e.target.value })}
-              className="mt-2 h-12 w-full rounded-md border border-input bg-background px-4 text-base outline-none focus:border-primary focus:ring-2 focus:ring-highlight"
-            />
-          </div>
-          {gateErr && <p className="rounded-md bg-negative-bg p-3 text-sm text-foreground">{gateErr}</p>}
-          <PrimaryButton type="submit" disabled={checking}>
-            {checking ? "Conferindo…" : "Acessar a pesquisa"}
-          </PrimaryButton>
-        </form>
+        <p className="text-sm text-primary">Pesquisa de relacionamento</p>
+        <h1 className="mt-2 text-2xl leading-snug">
+          Olá. Esta pesquisa foi enviada para {info.name}, de {info.account}.
+        </h1>
+        <PrimaryButton className="mt-8" disabled={busy} onClick={confirm}>
+          {busy ? "Abrindo…" : "Sou eu, começar"}
+        </PrimaryButton>
+        <button type="button" onClick={decline} className="mt-4 min-h-11 w-full text-sm text-primary underline-offset-4 hover:underline">
+          Não sou eu
+        </button>
       </Shell>
     );
 
@@ -232,7 +202,7 @@ function SurveyPage() {
         <div className="mt-8 grid grid-cols-3 gap-2 text-center">
           {[
             [<Clock key="c" />, "3 minutos"],
-            [<ListChecks key="l" />, "12 perguntas"],
+            [<ListChecks key="l" />, `${questions.length} perguntas`],
             [<Save key="s" />, "Salva sozinha"],
           ].map(([icon, label], i) => (
             <div key={i} className="rounded-lg bg-highlight px-2 py-4 text-sm text-primary [&_svg]:mx-auto [&_svg]:mb-2 [&_svg]:h-5 [&_svg]:w-5">
@@ -242,7 +212,7 @@ function SurveyPage() {
           ))}
         </div>
         <ol className="mt-8 space-y-3">
-          {BLOCKS.map((b, i) => (
+          {blocks.map((b, i) => (
             <li key={b.title} className="flex items-center gap-3">
               <span className="flex h-7 w-7 items-center justify-center rounded-full border border-brand-light text-sm text-primary">{i + 1}</span>
               <span>{b.title}</span>
@@ -274,11 +244,11 @@ function SurveyPage() {
         <h1 className="mt-2 text-2xl leading-snug">Confira as suas respostas</h1>
         <p className="mt-2 text-muted-foreground">Se quiser mudar algo, toque em Alterar. Depois é só confirmar o envio.</p>
         <div className="mt-8 space-y-8">
-          {BLOCKS.map((b) => (
+          {blocks.map((b) => (
             <section key={b.title}>
               <h2 className="text-sm text-muted-foreground">{b.title}</h2>
               <ul className="mt-3 divide-y divide-border rounded-lg border">
-                {STEPS.slice(b.from, b.to + 1).map((s, i) => {
+                {questions.slice(b.from, b.to + 1).map((s, i) => {
                   const qi = b.from + i;
                   return (
                     <li key={s.key} className="flex items-start gap-4 p-4">
@@ -313,10 +283,12 @@ function SurveyPage() {
       </Shell>
     );
 
-  const step = STEPS[idx];
-  const ok = isStepAnswered(step, answers);
-  const last = idx === STEPS.length - 1;
-  const blk = blockOf(idx);
+  const step = questions[Math.min(idx, questions.length - 1)];
+  const cur = answers[step.key] ?? {};
+  const ok = isAnswered(step, answers);
+  const last = idx >= questions.length - 1;
+  const blkIndex = blocks.findIndex((b) => idx >= b.from && idx <= b.to);
+  const blk = blocks[blkIndex];
   const advance = () => {
     if (returnToReview || last) {
       setReturnToReview(false);
@@ -325,7 +297,7 @@ function SurveyPage() {
     } else goto(idx + 1);
   };
   const autoAdvance = () => {
-    if (returnToReview) return;
+    if (returnToReview || last) return;
     window.setTimeout(() => goto(idx + 1), 280);
   };
 
@@ -342,16 +314,16 @@ function SurveyPage() {
             <ArrowLeft className="h-4 w-4" /> Voltar
           </button>
           <span>
-            Pergunta {idx + 1} de {STEPS.length}
+            Pergunta {idx + 1} de {questions.length}
           </span>
         </div>
         <div className="mt-2 flex gap-1" aria-hidden>
-          {BLOCKS.map((b, bi) => {
+          {blocks.map((b) => {
             const total = b.to - b.from + 1;
             const done = Math.min(total, Math.max(0, idx - b.from + 1));
             return (
               <div key={b.title} className="h-1.5 overflow-hidden rounded-full bg-offwhite" style={{ flex: total }}>
-                <div className="h-full bg-primary transition-all" style={{ width: `${(done / total) * 100}%`, opacity: bi === blk.index ? 1 : 0.85 }} />
+                <div className="h-full bg-primary transition-all" style={{ width: `${(done / total) * 100}%` }} />
               </div>
             );
           })}
@@ -359,24 +331,17 @@ function SurveyPage() {
       </div>
 
       <p className="inline-flex rounded-full bg-highlight px-3 py-1 text-sm text-primary">
-        Bloco {blk.index + 1} · {blk.title}
+        Bloco {blkIndex + 1} · {blk?.title}
       </p>
       <h2 className="mt-4 text-xl leading-snug sm:text-2xl">{step.text}</h2>
 
       <div className="mt-8">
-        {step.kind === "nps" && (
-          <NpsScale
-            value={answers.q1_nps}
-            onChange={(v) => {
-              update({ q1_nps: v });
-            }}
-          />
-        )}
+        {step.kind === "nps" && <NpsScale value={cur.num ?? undefined} onChange={(v) => update(step.key, { num: v })} />}
         {step.kind === "likert" && (
           <Likert
-            value={answers[step.key]}
+            value={cur.num ?? undefined}
             onChange={(v) => {
-              update({ [step.key]: v });
+              update(step.key, { num: v });
               autoAdvance();
             }}
           />
@@ -384,22 +349,21 @@ function SurveyPage() {
         {step.kind === "likert_nr" && (
           <>
             <Likert
-              value={answers[step.key] ?? undefined}
+              value={cur.num ?? undefined}
               onChange={(v) => {
-                update({ [step.key]: v, [step.nrKey]: false });
+                update(step.key, { num: v, nr: false });
                 autoAdvance();
               }}
             />
             <button
               type="button"
               onClick={() => {
-                update({ [step.key]: null, [step.nrKey]: true });
+                update(step.key, { num: null, nr: true });
                 autoAdvance();
               }}
-              aria-pressed={answers[step.nrKey] === true}
               className={cn(
                 "mt-6 w-full rounded-lg border border-dashed px-4 py-4 text-left text-base",
-                answers[step.nrKey] ? "border-primary bg-highlight text-primary" : "border-border bg-subtle hover:bg-offwhite",
+                cur.nr ? "border-primary bg-highlight text-primary" : "border-border bg-subtle hover:bg-offwhite",
               )}
             >
               Ainda não chegamos nesta etapa
@@ -409,15 +373,15 @@ function SurveyPage() {
         {step.kind === "text" && (
           <>
             <textarea
-              value={answers[step.key] ?? ""}
-              onChange={(e) => update({ [step.key]: e.target.value })}
+              value={cur.text ?? ""}
+              onChange={(e) => update(step.key, { text: e.target.value })}
               rows={6}
               className="w-full rounded-lg border border-input bg-background p-4 text-base outline-none focus:border-primary focus:ring-2 focus:ring-highlight"
               placeholder={step.required ? "Conte com as suas palavras" : "Opcional. Pode deixar em branco"}
             />
-            {step.required && step.min && (
+            {step.required && step.min_chars && (
               <p className="mt-2 text-sm text-muted-foreground">
-                {Math.max(0, step.min - (answers[step.key] ?? "").trim().length) > 0 ? `Escreva pelo menos ${step.min} caracteres.` : " "}
+                {Math.max(0, step.min_chars - (cur.text ?? "").trim().length) > 0 ? `Escreva pelo menos ${step.min_chars} caracteres.` : " "}
               </p>
             )}
           </>
@@ -431,15 +395,12 @@ function SurveyPage() {
   );
 }
 
-function reviewAnswer(s: (typeof STEPS)[number], a: Answers): string {
-  if (s.kind === "nps") return a.q1_nps != null ? String(a.q1_nps) : "Sem resposta";
-  if (s.kind === "likert_nr" && a[s.nrKey]) return "Ainda não chegamos nesta etapa";
-  if (s.kind === "likert" || s.kind === "likert_nr") {
-    const v = a[s.key];
-    return typeof v === "number" ? `${v} · ${LIKERT_LABELS[v - 1]}` : "Sem resposta";
-  }
-  const t = (a[s.key] ?? "").trim();
-  return t || "Sem resposta";
+function reviewAnswer(s: Question, a: AnswerMap): string {
+  const v = a[s.key] ?? {};
+  if (s.kind === "nps") return typeof v.num === "number" ? String(v.num) : "Sem resposta";
+  if (s.kind === "likert_nr" && v.nr) return "Ainda não chegamos nesta etapa";
+  if (s.kind === "likert" || s.kind === "likert_nr") return typeof v.num === "number" ? `${v.num} · ${LIKERT_LABELS[v.num - 1]}` : "Sem resposta";
+  return (v.text ?? "").trim() || "Sem resposta";
 }
 
 function Shell({ children, account, footer = true }: { children: React.ReactNode; account?: string; footer?: boolean }) {

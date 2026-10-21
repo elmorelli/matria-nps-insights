@@ -1,8 +1,11 @@
-# Matria NPS roadmap
-- [x] 1. Dados e login
-- [x] 2. Pesquisa pública com marca, confirmação de nome e e-mail, revisão final
-- [x] 3. Central de contatos: planilha, validação, links, WhatsApp, linha do tempo
-- [x] 4. Visão geral: NPS vs meta, taxa de resposta, funil, evolução, NPS por instituição
-- [x] Bloco de pesquisas (ciclos) e questionário
-- [ ] 5. Resultados detalhados: NPS por papel e estágio, direcionadores, matriz de correlação
-- [ ] 6. Fechamento do ciclo (kanban de retornos) e exportação CSV/PDF
+# Matria NPS roadmap (Prompt 2)
+- [x] 1a. Estrutura de questionários, mensagens por ciclo, dados de instituição
+- [x] 1b. Login sem criação de conta, logo maior
+- [x] 1c. Pesquisa com tela "Sou eu, começar" e perguntas vindas do questionário
+- [ ] 1d. Logos em SVG (aguardando os arquivos SVG do Eduardo)
+- [ ] 2. Menu lateral azul, adaptado ao celular
+- [ ] 3. Ciclos com abas: Resultados, Respondentes, Envios, Mensagens, Configurações
+- [ ] 4. Contatos só de cadastro e nova área Clientes
+- [ ] 5. Questionários com versões
+- [ ] 6. Nova Visão geral entre ciclos com regra de metas
+- [ ] 7. Exportações em PDF e ajustes finais
