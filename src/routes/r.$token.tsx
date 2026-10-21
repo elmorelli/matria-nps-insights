@@ -24,7 +24,12 @@ type Info = { state: "loading" | "open" | "answered" | "closed" | "not_found" | 
 
 function SurveyPage() {
   const { token } = Route.useParams();
+  const preview = token === "teste";
   const [info, setInfo] = useState<Info>({ state: "loading" });
+  const [verified, setVerified] = useState(false);
+  const [ident, setIdent] = useState({ first: "", email: "" });
+  const [gateErr, setGateErr] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
   const [stage, setStage] = useState<"intro" | "q" | "done">("intro");
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
@@ -32,16 +37,52 @@ function SurveyPage() {
   const [err, setErr] = useState<string | null>(null);
   const startRef = useRef<number>(Date.now());
   const draftKey = `matria-nps-draft-${token}`;
+  const idKey = `matria-nps-id-${token}`;
+
+  const verify = async (first: string, email: string, silent = false) => {
+    if (preview) {
+      setInfo({ state: "open", name: first || "Visitante", account: "Instituição de teste" });
+      setVerified(true);
+      return;
+    }
+    setChecking(true);
+    setGateErr(null);
+    const { data, error } = await supabase.rpc("survey_verify", { _token: token, _first: first, _email: email });
+    setChecking(false);
+    const d = data as unknown as { ok: boolean; name?: string; account?: string; answered?: boolean } | null;
+    if (error || !d?.ok) {
+      if (!silent) setGateErr("Não encontramos esses dados para este link. Confira o primeiro nome e o e-mail.");
+      localStorage.removeItem(idKey);
+      return;
+    }
+    localStorage.setItem(idKey, JSON.stringify({ first, email }));
+    setIdent({ first, email });
+    setInfo({ state: d.answered ? "answered" : "open", name: d.name, account: d.account });
+    setVerified(true);
+  };
 
   useEffect(() => {
+    if (preview) {
+      setInfo({ state: "open", account: "Instituição de teste" });
+      return;
+    }
     const isUuid = /^[0-9a-f-]{36}$/i.test(token);
     if (!isUuid) {
       setInfo({ state: "not_found" });
       return;
     }
-    supabase.rpc("survey_get", { _token: token }).then(({ data, error }) => {
+    supabase.rpc("survey_status", { _token: token }).then(({ data, error }) => {
       if (error) return setInfo({ state: "error" });
-      setInfo(data as unknown as Info);
+      const s = data as unknown as Info;
+      setInfo(s);
+      if (s.state === "open") {
+        try {
+          const saved = JSON.parse(localStorage.getItem(idKey) ?? "null");
+          if (saved?.first) verify(saved.first, saved.email ?? "", true);
+        } catch {
+          /* ignore */
+        }
+      }
     });
     try {
       const raw = localStorage.getItem(draftKey);
@@ -57,9 +98,11 @@ function SurveyPage() {
     } catch {
       /* ignore */
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, draftKey]);
 
   const save = (a: Answers, i: number) => {
+    if (preview) return;
     try {
       localStorage.setItem(draftKey, JSON.stringify({ answers: a, idx: i, started: startRef.current }));
     } catch {
@@ -82,6 +125,7 @@ function SurveyPage() {
   };
 
   const submit = async () => {
+    if (preview) return setStage("done");
     setSubmitting(true);
     setErr(null);
     const payload = {
@@ -89,7 +133,12 @@ function SurveyPage() {
       duration_seconds: Math.round((Date.now() - startRef.current) / 1000),
       user_agent: navigator.userAgent,
     };
-    const { error } = await supabase.rpc("survey_submit", { _token: token, _a: payload as never });
+    const { error } = await supabase.rpc("survey_submit_verified", {
+      _token: token,
+      _first: ident.first,
+      _email: ident.email,
+      _a: payload as never,
+    });
     setSubmitting(false);
     if (error) {
       setErr("Não conseguimos enviar agora. Verifique a conexão e tente de novo.");
@@ -116,7 +165,59 @@ function SurveyPage() {
         <p className="mt-3 text-muted-foreground">Obrigado pelo interesse.</p>
       </Shell>
     );
+  if (info.state === "answered" && !verified)
+    return (
+      <Shell account={info.account}>
+        <h1 className="text-2xl leading-snug">Obrigado.</h1>
+        <p className="mt-4 text-base leading-relaxed">Esta pesquisa já foi respondida. Você vai receber da Matria, por escrito, o que ouvimos e o que vamos fazer a respeito.</p>
+      </Shell>
+    );
   if (info.state === "answered" || stage === "done") return <ThankYou name={name} account={info.account} />;
+
+  if (!verified)
+    return (
+      <Shell account={info.account}>
+        {preview && <PreviewBadge />}
+        <h1 className="text-2xl leading-snug">Pesquisa de relacionamento Matria</h1>
+        <p className="mt-4 text-base leading-relaxed">Para começar, confirme o seu primeiro nome e o e-mail em que você recebe as comunicações da Matria.</p>
+        <form
+          className="mt-8 space-y-5"
+          onSubmit={(e) => {
+            e.preventDefault();
+            verify(ident.first.trim(), ident.email.trim());
+          }}
+        >
+          <div>
+            <label htmlFor="g-first" className="text-sm">Primeiro nome</label>
+            <input
+              id="g-first"
+              required
+              autoComplete="given-name"
+              value={ident.first}
+              onChange={(e) => setIdent({ ...ident, first: e.target.value })}
+              className="mt-2 h-12 w-full rounded-md border border-input bg-background px-4 text-base outline-none focus:border-primary focus:ring-2 focus:ring-highlight"
+            />
+          </div>
+          <div>
+            <label htmlFor="g-email" className="text-sm">E-mail completo</label>
+            <input
+              id="g-email"
+              type="email"
+              required
+              autoComplete="email"
+              inputMode="email"
+              value={ident.email}
+              onChange={(e) => setIdent({ ...ident, email: e.target.value })}
+              className="mt-2 h-12 w-full rounded-md border border-input bg-background px-4 text-base outline-none focus:border-primary focus:ring-2 focus:ring-highlight"
+            />
+          </div>
+          {gateErr && <p className="rounded-md bg-negative-bg p-3 text-sm text-foreground">{gateErr}</p>}
+          <PrimaryButton type="submit" disabled={checking}>
+            {checking ? "Conferindo…" : "Acessar a pesquisa"}
+          </PrimaryButton>
+        </form>
+      </Shell>
+    );
 
   if (stage === "intro")
     return (
