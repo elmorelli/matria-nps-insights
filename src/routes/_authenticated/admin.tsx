@@ -39,9 +39,15 @@ function AdminLayout() {
             <Link to="/admin/contatos" className={linkCls} activeProps={active}>
               Contatos e links
             </Link>
+            <Link to="/admin/respostas" className={linkCls} activeProps={active}>
+              Respostas
+            </Link>
             <Link to="/admin/configuracoes" className={linkCls} activeProps={active}>
               Mensagens
             </Link>
+            <a href="/r/teste" target="_blank" rel="noopener" className={linkCls}>
+              Ver pesquisa (teste)
+            </a>
           </nav>
           <button onClick={signOut} className="ml-auto text-sm text-muted-foreground hover:text-foreground">
             Sair
