@@ -41,6 +41,48 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_events: {
+        Row: {
+          contact_id: string
+          created_at: string
+          cycle_id: string | null
+          details: string | null
+          event: string
+          id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          cycle_id?: string | null
+          details?: string | null
+          event: string
+          id?: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          cycle_id?: string | null
+          details?: string | null
+          event?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_events_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_events_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "cycles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_products: {
         Row: {
           contact_id: string

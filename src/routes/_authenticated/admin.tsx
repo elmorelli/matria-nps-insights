@@ -39,6 +39,9 @@ function AdminLayout() {
             <Link to="/admin/contatos" className={linkCls} activeProps={active}>
               Contatos e links
             </Link>
+            <Link to="/admin/pesquisas" className={linkCls} activeProps={active}>
+              Pesquisas
+            </Link>
             <Link to="/admin/respostas" className={linkCls} activeProps={active}>
               Respostas
             </Link>
