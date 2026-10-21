@@ -4,8 +4,8 @@
 - [x] 1c. Pesquisa com tela "Sou eu, começar" e perguntas vindas do questionário
 - [x] 1d. Logos em SVG
 - [x] 2. Menu lateral azul, adaptado ao celular
-- [ ] 3. Ciclos com abas: Resultados, Respondentes, Envios, Mensagens, Configurações
-- [ ] 4. Contatos só de cadastro e nova área Clientes
-- [ ] 5. Questionários com versões
-- [ ] 6. Nova Visão geral entre ciclos com regra de metas
-- [ ] 7. Exportações em PDF e ajustes finais
+- [x] 3. Ciclos com abas: Resultados, Respondentes, Envios, Mensagens, Configurações
+- [x] 4. Contatos só de cadastro e nova área Clientes
+- [x] 5. Questionários com versões
+- [x] 6. Nova Visão geral entre ciclos com regra de metas
+- [x] 7. Exportações em PDF e ajustes finais
