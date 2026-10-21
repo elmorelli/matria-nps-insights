@@ -10,7 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Matria NPS
-- Public survey reads/writes only through security-definer RPCs (survey_get, survey_submit) keyed by token; anon has no table grants. Why: links are public, data must not be.
+- Public survey reads/writes only through security-definer RPCs (survey_status, survey_verify, survey_submit_verified) keyed by token plus first name + email check; anon has no table grants. /r/teste is a client-only preview that saves nothing. Why: links are public, data must not be.
 - Admin pages query tables directly from the browser; RLS allows only users with the admin role in user_roles.
 - Follow-ups are created by a database trigger on response insert, so SLA rules live in SQL.
 - tsconfig extra-strict flags (exactOptionalPropertyTypes etc.) are off to keep form/data code simple.

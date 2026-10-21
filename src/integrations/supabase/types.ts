@@ -407,8 +407,27 @@ export type Database = {
         }
         Returns: boolean
       }
+      norm_txt: { Args: { _t: string }; Returns: string }
       survey_get: { Args: { _token: string }; Returns: Json }
+      survey_identity_ok: {
+        Args: {
+          _c_email: string
+          _c_full_name: string
+          _email: string
+          _first: string
+        }
+        Returns: boolean
+      }
+      survey_status: { Args: { _token: string }; Returns: Json }
       survey_submit: { Args: { _a: Json; _token: string }; Returns: Json }
+      survey_submit_verified: {
+        Args: { _a: Json; _email: string; _first: string; _token: string }
+        Returns: Json
+      }
+      survey_verify: {
+        Args: { _email: string; _first: string; _token: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin"

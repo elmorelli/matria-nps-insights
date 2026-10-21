@@ -8,6 +8,13 @@
       "when": 1792555552311,
       "tag": "0000_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792556620600,
+      "tag": "0001_survey_identity_gate",
+      "breakpoints": true
     }
   ]
 }
