@@ -99,7 +99,7 @@ function Report() {
         <div className="grid h-full grid-cols-4 gap-6">
           {[
             ["NPS", fmt(main.nps), band ? BAND_LABEL[band] : "", band ? BAND_TEXT[band] : ""],
-            ["Meta de NPS", fmt(target.nps), need === 0 ? "Meta atingida" : `Faltam ${need} promotores`, ""],
+            ["Meta de NPS", fmt(target.nps), main.s.n === 0 ? "Aguardando respostas" : need === 0 ? "Meta atingida" : `Faltam ${need} promotores`, ""],
             ["Taxa de resposta", `${main.rate ?? 0}%`, `${main.s.n} de ${main.base} contatos válidos. Meta ${target.rate}%`, ""],
             ["Variação", prev?.nps != null && main.nps != null ? fmt(main.nps - prev.nps) : "–", prev ? `Em relação ao ${prev.cycle.name} (${fmt(prev.nps)})` : "Sem ciclo anterior", ""],
           ].map(([l, v, sub, c]) => (

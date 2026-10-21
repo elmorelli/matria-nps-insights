@@ -83,7 +83,7 @@ export function Results({ d, cycle }: { d: AllData; cycle: Cycle }) {
               <div className="absolute -top-1 h-5 w-0.5 bg-foreground" style={{ left: `${targetRate}%` }} />
             </div>
             <div className="mt-2 flex justify-between text-sm text-muted-foreground">
-              <span>{needAns === 0 ? "Meta atingida" : `Faltam ${needAns} respostas`}</span>
+              <span>{st.base === 0 ? "Aguardando links" : needAns === 0 ? "Meta atingida" : `Faltam ${needAns} respostas`}</span>
               <span>Meta {targetRate}%</span>
             </div>
           </Card>
