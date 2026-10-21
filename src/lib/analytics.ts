@@ -298,3 +298,15 @@ export function answerLabel(q: Pick<QuestionRow, "kind">, a: AnswerVal | undefin
 export function distinctProducts(d: AllData) {
   return [...new Set(d.contacts.flatMap((c) => c.contact_products.map((p) => p.product)))].sort();
 }
+
+/* ---------- per institution ---------- */
+
+export function accountHistory(d: AllData, accountId: string) {
+  return [...d.cycles]
+    .sort((a, b) => a.start_date.localeCompare(b.start_date))
+    .map((c) => {
+      const st = cycleStats(d, c, { ...EMPTY_FILTERS, account: accountId });
+      return { cycle: c, st, nps: st.s.n ? st.s.nps : null, rate: st.rows.length ? st.rate : null };
+    });
+}
+

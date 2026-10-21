@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import { Line, LineChart, ResponsiveContainer, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
-import { allDataKey, allDataQuery, EMPTY_FILTERS, cycleStats, fmt, type AllData } from "@/lib/analytics";
+import { accountHistory, allDataKey, allDataQuery, fmt } from "@/lib/analytics";
 import { npsBand } from "@/lib/nps";
 import { BAND_TEXT } from "@/components/admin/charts";
 import { Select } from "@/components/admin/FiltersBar";
@@ -19,15 +19,6 @@ export const Route = createFileRoute("/_authenticated/admin/clientes/")({
   head: () => ({ meta: [{ title: "Clientes | Matria NPS" }, { name: "robots", content: "noindex" }] }),
   component: ClientsPage,
 });
-
-export function accountHistory(d: AllData, accountId: string) {
-  return [...d.cycles]
-    .sort((a, b) => a.start_date.localeCompare(b.start_date))
-    .map((c) => {
-      const st = cycleStats(d, c, { ...EMPTY_FILTERS, account: accountId });
-      return { cycle: c, st, nps: st.s.n ? st.s.nps : null, rate: st.rows.length ? st.rate : null };
-    });
-}
 
 const EMPTY = { name: "", segment: "", country: "BR", city: "", owner_name: "", estimated_annual_revenue: "", notes: "" };
 
