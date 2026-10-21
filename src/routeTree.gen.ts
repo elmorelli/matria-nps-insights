@@ -18,7 +18,12 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminConfiguracoesRouteImport } from './routes/_authenticated/admin.configuracoes'
 import { Route as AuthenticatedAdminContatosRouteImport } from './routes/_authenticated/admin.contatos'
 import { Route as AuthenticatedAdminPesquisasRouteImport } from './routes/_authenticated/admin.pesquisas'
+import { Route as AuthenticatedAdminQuestionariosRouteImport } from './routes/_authenticated/admin.questionarios'
 import { Route as AuthenticatedAdminRespostasRouteImport } from './routes/_authenticated/admin.respostas'
+import { Route as AuthenticatedAdminCiclosIndexRouteImport } from './routes/_authenticated/admin.ciclos.index'
+import { Route as AuthenticatedAdminCiclosIdRouteImport } from './routes/_authenticated/admin.ciclos.$id'
+import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated/admin.clientes.index'
+import { Route as AuthenticatedAdminClientesIdRouteImport } from './routes/_authenticated/admin.clientes.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -67,10 +72,40 @@ const AuthenticatedAdminPesquisasRoute =
     path: '/pesquisas',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminQuestionariosRoute =
+  AuthenticatedAdminQuestionariosRouteImport.update({
+    id: '/questionarios',
+    path: '/questionarios',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminRespostasRoute =
   AuthenticatedAdminRespostasRouteImport.update({
     id: '/respostas',
     path: '/respostas',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCiclosIndexRoute =
+  AuthenticatedAdminCiclosIndexRouteImport.update({
+    id: '/ciclos/',
+    path: '/ciclos/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCiclosIdRoute =
+  AuthenticatedAdminCiclosIdRouteImport.update({
+    id: '/ciclos/$id',
+    path: '/ciclos/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminClientesIndexRoute =
+  AuthenticatedAdminClientesIndexRouteImport.update({
+    id: '/clientes/',
+    path: '/clientes/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminClientesIdRoute =
+  AuthenticatedAdminClientesIdRouteImport.update({
+    id: '/clientes/$id',
+    path: '/clientes/$id',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 
@@ -82,8 +117,13 @@ export interface FileRoutesByFullPath {
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/admin/contatos': typeof AuthenticatedAdminContatosRoute
   '/admin/pesquisas': typeof AuthenticatedAdminPesquisasRoute
+  '/admin/questionarios': typeof AuthenticatedAdminQuestionariosRoute
   '/admin/respostas': typeof AuthenticatedAdminRespostasRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/ciclos/$id': typeof AuthenticatedAdminCiclosIdRoute
+  '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/admin/ciclos/': typeof AuthenticatedAdminCiclosIndexRoute
+  '/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -92,8 +132,13 @@ export interface FileRoutesByTo {
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/admin/contatos': typeof AuthenticatedAdminContatosRoute
   '/admin/pesquisas': typeof AuthenticatedAdminPesquisasRoute
+  '/admin/questionarios': typeof AuthenticatedAdminQuestionariosRoute
   '/admin/respostas': typeof AuthenticatedAdminRespostasRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/ciclos/$id': typeof AuthenticatedAdminCiclosIdRoute
+  '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/admin/ciclos': typeof AuthenticatedAdminCiclosIndexRoute
+  '/admin/clientes': typeof AuthenticatedAdminClientesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -105,8 +150,13 @@ export interface FileRoutesById {
   '/_authenticated/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/_authenticated/admin/contatos': typeof AuthenticatedAdminContatosRoute
   '/_authenticated/admin/pesquisas': typeof AuthenticatedAdminPesquisasRoute
+  '/_authenticated/admin/questionarios': typeof AuthenticatedAdminQuestionariosRoute
   '/_authenticated/admin/respostas': typeof AuthenticatedAdminRespostasRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/ciclos/$id': typeof AuthenticatedAdminCiclosIdRoute
+  '/_authenticated/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/_authenticated/admin/ciclos/': typeof AuthenticatedAdminCiclosIndexRoute
+  '/_authenticated/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -118,8 +168,13 @@ export interface FileRouteTypes {
     | '/admin/configuracoes'
     | '/admin/contatos'
     | '/admin/pesquisas'
+    | '/admin/questionarios'
     | '/admin/respostas'
     | '/admin/'
+    | '/admin/ciclos/$id'
+    | '/admin/clientes/$id'
+    | '/admin/ciclos/'
+    | '/admin/clientes/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -128,8 +183,13 @@ export interface FileRouteTypes {
     | '/admin/configuracoes'
     | '/admin/contatos'
     | '/admin/pesquisas'
+    | '/admin/questionarios'
     | '/admin/respostas'
     | '/admin'
+    | '/admin/ciclos/$id'
+    | '/admin/clientes/$id'
+    | '/admin/ciclos'
+    | '/admin/clientes'
   id:
     | '__root__'
     | '/'
@@ -140,8 +200,13 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/configuracoes'
     | '/_authenticated/admin/contatos'
     | '/_authenticated/admin/pesquisas'
+    | '/_authenticated/admin/questionarios'
     | '/_authenticated/admin/respostas'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/ciclos/$id'
+    | '/_authenticated/admin/clientes/$id'
+    | '/_authenticated/admin/ciclos/'
+    | '/_authenticated/admin/clientes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -216,11 +281,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPesquisasRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/questionarios': {
+      id: '/_authenticated/admin/questionarios'
+      path: '/questionarios'
+      fullPath: '/admin/questionarios'
+      preLoaderRoute: typeof AuthenticatedAdminQuestionariosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/respostas': {
       id: '/_authenticated/admin/respostas'
       path: '/respostas'
       fullPath: '/admin/respostas'
       preLoaderRoute: typeof AuthenticatedAdminRespostasRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/ciclos/': {
+      id: '/_authenticated/admin/ciclos/'
+      path: '/ciclos'
+      fullPath: '/admin/ciclos/'
+      preLoaderRoute: typeof AuthenticatedAdminCiclosIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/ciclos/$id': {
+      id: '/_authenticated/admin/ciclos/$id'
+      path: '/ciclos/$id'
+      fullPath: '/admin/ciclos/$id'
+      preLoaderRoute: typeof AuthenticatedAdminCiclosIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/clientes/': {
+      id: '/_authenticated/admin/clientes/'
+      path: '/clientes'
+      fullPath: '/admin/clientes/'
+      preLoaderRoute: typeof AuthenticatedAdminClientesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/clientes/$id': {
+      id: '/_authenticated/admin/clientes/$id'
+      path: '/clientes/$id'
+      fullPath: '/admin/clientes/$id'
+      preLoaderRoute: typeof AuthenticatedAdminClientesIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
   }
@@ -230,16 +330,26 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminConfiguracoesRoute: typeof AuthenticatedAdminConfiguracoesRoute
   AuthenticatedAdminContatosRoute: typeof AuthenticatedAdminContatosRoute
   AuthenticatedAdminPesquisasRoute: typeof AuthenticatedAdminPesquisasRoute
+  AuthenticatedAdminQuestionariosRoute: typeof AuthenticatedAdminQuestionariosRoute
   AuthenticatedAdminRespostasRoute: typeof AuthenticatedAdminRespostasRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminCiclosIdRoute: typeof AuthenticatedAdminCiclosIdRoute
+  AuthenticatedAdminClientesIdRoute: typeof AuthenticatedAdminClientesIdRoute
+  AuthenticatedAdminCiclosIndexRoute: typeof AuthenticatedAdminCiclosIndexRoute
+  AuthenticatedAdminClientesIndexRoute: typeof AuthenticatedAdminClientesIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminConfiguracoesRoute: AuthenticatedAdminConfiguracoesRoute,
   AuthenticatedAdminContatosRoute: AuthenticatedAdminContatosRoute,
   AuthenticatedAdminPesquisasRoute: AuthenticatedAdminPesquisasRoute,
+  AuthenticatedAdminQuestionariosRoute: AuthenticatedAdminQuestionariosRoute,
   AuthenticatedAdminRespostasRoute: AuthenticatedAdminRespostasRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminCiclosIdRoute: AuthenticatedAdminCiclosIdRoute,
+  AuthenticatedAdminClientesIdRoute: AuthenticatedAdminClientesIdRoute,
+  AuthenticatedAdminCiclosIndexRoute: AuthenticatedAdminCiclosIndexRoute,
+  AuthenticatedAdminClientesIndexRoute: AuthenticatedAdminClientesIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
