@@ -127,14 +127,14 @@ function ContactsPage() {
     if (!nf) return toast.info("Todos os lembretes já foram registrados.");
     const patch: Record<string, string> = { [nf[0]]: new Date().toISOString() };
     if (inv.status === "not_sent") patch.status = "sent";
-    const { error } = await supabase.from("invitations").update(patch).eq("id", inv.id);
+    const { error } = await supabase.from("invitations").update(patch as never).eq("id", inv.id);
     if (error) return toast.error("Não foi possível registrar.");
     toast.success(`Registrado: ${nf[1]}.`);
     refresh();
   };
 
   const updateContact = async (id: string, patch: Record<string, unknown>) => {
-    const { error } = await supabase.from("contacts").update(patch).eq("id", id);
+    const { error } = await supabase.from("contacts").update(patch as never).eq("id", id);
     if (error) return toast.error("Não foi possível salvar.");
     refresh();
   };
