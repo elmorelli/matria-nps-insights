@@ -222,6 +222,7 @@ function SurveyPage() {
   if (stage === "intro")
     return (
       <Shell account={info.account}>
+        {preview && <PreviewBadge />}
         <h1 className="text-2xl leading-snug">Olá, {name}.</h1>
         <p className="mt-4 text-base leading-relaxed">
           Esta pesquisa é sobre a experiência de {info.account} com a Matria como parceira, desde o início da nossa relação. Leva uns 3 minutos. Se alguma pergunta falar de uma etapa que a sua organização ainda não viveu conosco, marque a opção 'Ainda não chegamos nesta etapa'.
@@ -415,5 +416,13 @@ function Likert({ value, onChange }: { value?: number; onChange: (v: number) => 
         );
       })}
     </div>
+  );
+}
+
+function PreviewBadge() {
+  return (
+    <p className="mb-6 rounded-md bg-highlight px-3 py-2 text-sm text-info">
+      Modo de teste. Nada do que você responder aqui será salvo.
+    </p>
   );
 }
