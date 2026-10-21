@@ -1,5 +1,5 @@
-import positivo from "@/assets/matria-logo-positivo.jpg.asset.json";
-import negativo from "@/assets/matria-logo-negativo.jpg.asset.json";
+import positivo from "@/assets/matria-logo-positivo.svg.asset.json";
+import negativo from "@/assets/matria-logo-negativo.svg.asset.json";
 import { cn } from "@/lib/utils";
 
 /** Official Matria logo. The source files include clear space around the mark. */
