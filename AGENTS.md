@@ -14,3 +14,4 @@
 - Admin pages query tables directly from the browser; RLS allows only users with the admin role in user_roles.
 - Follow-ups are created by a database trigger on response insert, so SLA rules live in SQL.
 - tsconfig extra-strict flags (exactOptionalPropertyTypes etc.) are off to keep form/data code simple.
+- Contact timeline lives in contact_events, written only by DB triggers on contacts/invitations/followups and by survey_verify, so every step is timestamped server-side.
