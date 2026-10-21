@@ -56,3 +56,48 @@ export function blockOf(idx: number) {
   const i = BLOCKS.findIndex((b) => idx >= b.from && idx <= b.to);
   return { ...BLOCKS[i], index: i };
 }
+
+// ---- Generic questionnaire model (questions come from the cycle's questionnaire) ----
+export type QKind = "nps" | "likert" | "likert_nr" | "text";
+export type Question = { key: string; kind: QKind; text: string; required: boolean; min_chars: number | null; block: string; block_note: string | null };
+export type Answer = { num?: number | null; text?: string; nr?: boolean };
+export type AnswerMap = Record<string, Answer>;
+
+/** Seed questionnaire v1, same texts and order as STEPS. Used by the /r/teste preview. */
+const SEED_KEYS = ["nps", "motivo", "clareza", "confianca", "agilidade", "qualidade", "entende", "facilidade", "estavel", "resultados", "comecar", "manter"];
+export const SEED_QUESTIONS: Question[] = STEPS.map((s, i) => {
+  const b = blockOf(i);
+  return {
+    key: SEED_KEYS[i],
+    kind: s.kind,
+    text: s.text,
+    required: s.kind === "text" ? s.required : true,
+    min_chars: s.kind === "text" ? (s.min ?? null) : null,
+    block: b.title,
+    block_note: b.note,
+  };
+});
+
+export function isAnswered(q: Question, a: AnswerMap): boolean {
+  const v = a[q.key] ?? {};
+  switch (q.kind) {
+    case "nps":
+    case "likert":
+      return typeof v.num === "number" || !q.required;
+    case "likert_nr":
+      return typeof v.num === "number" || v.nr === true || !q.required;
+    case "text":
+      if (!q.required) return true;
+      return (v.text ?? "").trim().length >= (q.min_chars ?? 1);
+  }
+}
+
+export function groupBlocks(qs: Question[]) {
+  const out: { title: string; note: string | null; from: number; to: number }[] = [];
+  qs.forEach((q, i) => {
+    const last = out[out.length - 1];
+    if (last && last.title === q.block) last.to = i;
+    else out.push({ title: q.block, note: q.block_note, from: i, to: i });
+  });
+  return out;
+}
