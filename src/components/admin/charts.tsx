@@ -1,4 +1,4 @@
-import { Bar, BarChart, CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, LabelList, ZAxis, Label as RLabel } from "recharts";
+import { Bar, BarChart, Cell, CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, LabelList, ZAxis, Label as RLabel } from "recharts";
 import { npsBand, type Band, type NpsSummary } from "@/lib/nps";
 import { BAND_LABEL, fmt, fmt1, type Driver, type GroupStat } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
@@ -97,7 +97,10 @@ export function Histogram({ data, height = 200 }: { data: { nota: string; n: num
           <CartesianGrid stroke="var(--border)" vertical={false} />
           <XAxis dataKey="nota" tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} />
           <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} />
-          <Bar dataKey="n" isAnimationActive={false} shape={(p: { x: number; y: number; width: number; height: number; payload: { nota: string } }) => <rect x={p.x} y={p.y} width={p.width} height={p.height} rx={3} fill={color(Number(p.payload.nota))} />}>
+          <Bar dataKey="n" isAnimationActive={false} radius={[3, 3, 0, 0]}>
+            {data.map((x) => (
+              <Cell key={x.nota} fill={color(Number(x.nota))} />
+            ))}
             <LabelList dataKey="n" position="top" style={{ fontSize: 11, fill: "var(--foreground)" }} formatter={(v: number) => (v ? v : "")} />
           </Bar>
         </BarChart>
