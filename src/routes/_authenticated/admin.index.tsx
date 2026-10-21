@@ -283,17 +283,19 @@ function Gauge({ value, target, previous }: { value: number | null; target: numb
     return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth={3} strokeLinecap="round" />;
   };
   return (
-    <div className="relative mx-auto w-full max-w-xs">
+    <div className="mx-auto w-full max-w-xs">
+      <div className="relative">
       <svg viewBox="0 0 220 130" className="w-full">
         <path d={arc(-100, 100)} stroke="var(--offwhite)" strokeWidth={18} fill="none" strokeLinecap="round" />
         {value !== null && band && <path d={arc(-100, Math.max(-99.5, value))} stroke={BAND_FILL[band]} strokeWidth={18} fill="none" strokeLinecap="round" />}
         {previous !== null && marker(previous, "var(--brand-light)")}
         {marker(target, "var(--foreground)")}
       </svg>
-      <div className="absolute inset-x-0 bottom-1 text-center">
+      <div className="absolute inset-x-0 bottom-0 text-center">
         <p className={cn("text-5xl font-semibold", band ? BAND_TEXT[band] : "text-muted-foreground")}>{fmt(value)}</p>
       </div>
-      <div className="mt-2 flex justify-center gap-4 text-sm text-muted-foreground">
+      </div>
+      <div className="mt-4 flex justify-center gap-4 text-sm text-muted-foreground">
         <span className="flex items-center gap-1">
           <span className="h-3 w-0.5 bg-foreground" /> Meta
         </span>
