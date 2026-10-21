@@ -329,7 +329,7 @@ function ContactsPage() {
                       </div>
                     )}
                   </td>
-                  <td className="px-3 py-2">
+                  <td className="flex gap-1 px-3 py-2">
                     <IconBtn label="Linha do tempo" onClick={() => setTimelineOf(c)}>
                       <History />
                     </IconBtn>
