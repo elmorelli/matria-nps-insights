@@ -24,7 +24,7 @@ function Overview() {
   const selected = picked.length ? sorted.filter((c) => picked.includes(c.id)) : sorted;
   const stats = useMemo(() => (d ? selected.map((c) => cycleStats(d, c, f)) : []), [d, selected, f]);
   const target = targetFor(selected);
-  const latest = [...stats].reverse().find((s) => s.s.n > 0) ?? stats[stats.length - 1];
+  const latest = [...stats].reverse().find((s) => s.s.n > 0 || s.nps != null) ?? stats[stats.length - 1];
   const latestIdx = latest ? sorted.findIndex((c) => c.id === latest.cycle.id) : -1;
   const prevCycle = latestIdx > 0 ? sorted[latestIdx - 1] : undefined;
   const prev = d && prevCycle ? cycleStats(d, prevCycle, f) : null;
@@ -160,13 +160,13 @@ function Overview() {
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={trend} margin={{ left: -16, right: 16, top: 16 }}>
                 <CartesianGrid stroke="var(--border)" vertical={false} />
-                <XAxis dataKey="ciclo" tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} />
+                <XAxis dataKey="ciclo" interval={0} padding={{ left: 40, right: 40 }} tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} />
                 <YAxis domain={[-100, 100]} tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} />
                 <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid var(--border)" }} />
                 <Line type="stepAfter" dataKey="Meta do ciclo" stroke="var(--foreground)" strokeWidth={1.5} dot={false} isAnimationActive={false} />
                 <ReferenceLine y={target.nps} stroke="var(--brand-light)" strokeDasharray="6 4" />
                 <Line dataKey="NPS" stroke="var(--primary)" strokeWidth={3} connectNulls isAnimationActive={false} label={({ x, y, index }: { x: number; y: number; index: number }) => (
-                  <text x={x} y={y - 10} textAnchor="middle" fontSize={11} fill="var(--foreground)">{trend[index]?.NPS != null ? `${fmt(trend[index].NPS)} (n=${trend[index].n})` : ""}</text>
+                  <text x={x} y={y - 10} textAnchor="middle" fontSize={11} fill="var(--foreground)">{trend[index]?.NPS != null ? `${fmt(trend[index].NPS)} ${trend[index].n ? `(n=${trend[index].n})` : "(referência)"}` : ""}</text>
                 )} />
               </ComposedChart>
             </ResponsiveContainer>
@@ -177,7 +177,7 @@ function Overview() {
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={trend} margin={{ left: -16, right: 16, top: 16 }}>
                 <CartesianGrid stroke="var(--border)" vertical={false} />
-                <XAxis dataKey="ciclo" tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} />
+                <XAxis dataKey="ciclo" interval={0} padding={{ left: 40, right: 40 }} tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} unit="%" />
                 <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid var(--border)" }} />
                 <Line type="stepAfter" dataKey="Meta de resposta" stroke="var(--foreground)" strokeWidth={1.5} dot={false} isAnimationActive={false} />
