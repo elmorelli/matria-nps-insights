@@ -90,6 +90,16 @@ function Overview() {
         <FiltersBar d={d} f={f} set={setF} country />
       </div>
 
+      {!f.showTest && d.contacts.length > 0 && d.contacts.every((c) => c.is_test) && (
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-attention bg-background p-4 text-sm">
+          <AlertTriangle className="h-5 w-5 shrink-0 text-attention" />
+          <span className="flex-1">Todos os contatos cadastrados hoje são de teste, por isso os números aparecem vazios. Desmarque "Ocultar dados de teste" para ver os dados de exemplo, ou importe os contatos reais em Contatos.</span>
+          <Button size="sm" variant="outline" onClick={() => setF({ ...f, showTest: true })}>
+            Mostrar dados de teste
+          </Button>
+        </div>
+      )}
+
       {totalN > 0 && totalN < 10 && (
         <div className="flex items-center gap-3 rounded-lg border bg-background p-4 text-sm">
           <AlertTriangle className="h-5 w-5 shrink-0 text-attention" /> Amostra pequena: {totalN} respostas no recorte. Leia com cautela.
