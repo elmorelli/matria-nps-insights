@@ -41,7 +41,7 @@ function AdminLayout() {
   const sidebar = (
     <div className="flex h-full flex-col bg-primary px-4 py-6">
       <div className="flex items-center justify-between px-2">
-        <MatriaLogo variant="negativo" className="h-10" />
+        <MatriaLogo variant="negativo" className="h-14" />
         <button className="text-primary-foreground lg:hidden" onClick={() => setOpen(false)} aria-label="Fechar menu">
           <X className="h-5 w-5" />
         </button>
