@@ -13,12 +13,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
-import { Route as AuthenticatedRelatorioRouteImport } from './routes/_authenticated/relatorio'
 import { Route as RTokenRouteImport } from './routes/r.$token'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminConfiguracoesRouteImport } from './routes/_authenticated/admin.configuracoes'
 import { Route as AuthenticatedAdminContatosRouteImport } from './routes/_authenticated/admin.contatos'
 import { Route as AuthenticatedAdminQuestionariosRouteImport } from './routes/_authenticated/admin.questionarios'
+import { Route as AuthenticatedAdminRelatorioRouteImport } from './routes/_authenticated/admin_.relatorio'
 import { Route as AuthenticatedAdminCiclosIndexRouteImport } from './routes/_authenticated/admin.ciclos.index'
 import { Route as AuthenticatedAdminCiclosIdRouteImport } from './routes/_authenticated/admin.ciclos.$id'
 import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated/admin.clientes.index'
@@ -41,11 +41,6 @@ const AuthRoute = AuthRouteImport.update({
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedRelatorioRoute = AuthenticatedRelatorioRouteImport.update({
-  id: '/relatorio',
-  path: '/relatorio',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const RTokenRoute = RTokenRouteImport.update({
@@ -76,6 +71,12 @@ const AuthenticatedAdminQuestionariosRoute =
     path: '/questionarios',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminRelatorioRoute =
+  AuthenticatedAdminRelatorioRouteImport.update({
+    id: '/admin_/relatorio',
+    path: '/admin/relatorio',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminCiclosIndexRoute =
   AuthenticatedAdminCiclosIndexRouteImport.update({
     id: '/ciclos/',
@@ -105,11 +106,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/relatorio': typeof AuthenticatedRelatorioRoute
   '/r/$token': typeof RTokenRoute
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/admin/contatos': typeof AuthenticatedAdminContatosRoute
   '/admin/questionarios': typeof AuthenticatedAdminQuestionariosRoute
+  '/admin/relatorio': typeof AuthenticatedAdminRelatorioRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/ciclos/$id': typeof AuthenticatedAdminCiclosIdRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
@@ -119,11 +120,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/relatorio': typeof AuthenticatedRelatorioRoute
   '/r/$token': typeof RTokenRoute
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/admin/contatos': typeof AuthenticatedAdminContatosRoute
   '/admin/questionarios': typeof AuthenticatedAdminQuestionariosRoute
+  '/admin/relatorio': typeof AuthenticatedAdminRelatorioRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/ciclos/$id': typeof AuthenticatedAdminCiclosIdRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
@@ -136,11 +137,11 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/_authenticated/relatorio': typeof AuthenticatedRelatorioRoute
   '/r/$token': typeof RTokenRoute
   '/_authenticated/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/_authenticated/admin/contatos': typeof AuthenticatedAdminContatosRoute
   '/_authenticated/admin/questionarios': typeof AuthenticatedAdminQuestionariosRoute
+  '/_authenticated/admin_/relatorio': typeof AuthenticatedAdminRelatorioRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/ciclos/$id': typeof AuthenticatedAdminCiclosIdRoute
   '/_authenticated/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
@@ -153,11 +154,11 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
-    | '/relatorio'
     | '/r/$token'
     | '/admin/configuracoes'
     | '/admin/contatos'
     | '/admin/questionarios'
+    | '/admin/relatorio'
     | '/admin/'
     | '/admin/ciclos/$id'
     | '/admin/clientes/$id'
@@ -167,11 +168,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
-    | '/relatorio'
     | '/r/$token'
     | '/admin/configuracoes'
     | '/admin/contatos'
     | '/admin/questionarios'
+    | '/admin/relatorio'
     | '/admin'
     | '/admin/ciclos/$id'
     | '/admin/clientes/$id'
@@ -183,11 +184,11 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/admin'
-    | '/_authenticated/relatorio'
     | '/r/$token'
     | '/_authenticated/admin/configuracoes'
     | '/_authenticated/admin/contatos'
     | '/_authenticated/admin/questionarios'
+    | '/_authenticated/admin_/relatorio'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/ciclos/$id'
     | '/_authenticated/admin/clientes/$id'
@@ -232,13 +233,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/relatorio': {
-      id: '/_authenticated/relatorio'
-      path: '/relatorio'
-      fullPath: '/relatorio'
-      preLoaderRoute: typeof AuthenticatedRelatorioRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/r/$token': {
       id: '/r/$token'
       path: '/r/$token'
@@ -273,6 +267,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/questionarios'
       preLoaderRoute: typeof AuthenticatedAdminQuestionariosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin_/relatorio': {
+      id: '/_authenticated/admin_/relatorio'
+      path: '/admin/relatorio'
+      fullPath: '/admin/relatorio'
+      preLoaderRoute: typeof AuthenticatedAdminRelatorioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/ciclos/': {
       id: '/_authenticated/admin/ciclos/'
@@ -332,12 +333,12 @@ const AuthenticatedAdminRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
-  AuthenticatedRelatorioRoute: typeof AuthenticatedRelatorioRoute
+  AuthenticatedAdminRelatorioRoute: typeof AuthenticatedAdminRelatorioRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
-  AuthenticatedRelatorioRoute: AuthenticatedRelatorioRoute,
+  AuthenticatedAdminRelatorioRoute: AuthenticatedAdminRelatorioRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

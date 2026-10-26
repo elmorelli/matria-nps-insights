@@ -51,15 +51,17 @@ function ClientPage() {
   return (
     <div className="space-y-6 print:space-y-4">
       <div className="hidden items-center justify-between border-b pb-3 print:flex">
-        <MatriaLogo variant="pb" className="h-8" />
+        <MatriaLogo className="h-8" />
         <p className="text-sm text-muted-foreground">Card da instituição · gerado em {new Date().toLocaleDateString("pt-BR")}</p>
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2 print:hidden">
         <Link to="/admin/clientes" className="inline-flex items-center gap-1 text-sm text-primary">
           <ArrowLeft className="h-4 w-4" /> Clientes
         </Link>
-        <Button variant="outline" onClick={() => window.print()}>
-          <FileDown /> Exportar card (PDF)
+        <Button variant="outline" asChild>
+          <Link to="/admin/clientes/$id/card" params={{ id: acc.id }}>
+            <FileDown /> Exportar card (PDF)
+          </Link>
         </Button>
       </div>
 
