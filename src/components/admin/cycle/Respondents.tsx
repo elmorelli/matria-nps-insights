@@ -70,7 +70,7 @@ export function Respondents({ d, cycle }: { d: AllData; cycle: Cycle }) {
                     </td>
                     <td className="px-3 py-3">{r.account?.name}</td>
                     <td className="px-3 py-3">{r.contact.job_title}</td>
-                    <td className="whitespace-nowrap px-3 py-3">{r.contact.role}</td>
+                    <td className="whitespace-nowrap px-3 py-3">{r.contact.papel}</td>
                     <td className="px-3 py-3">
                       {r.contact.contact_products.map((p) => (
                         <div key={p.id} className="whitespace-nowrap">

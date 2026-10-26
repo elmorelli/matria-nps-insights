@@ -80,7 +80,7 @@ export function Sends({ d, cycle }: { d: AllData; cycle: Cycle }) {
       Telefone: r.contact.phone ?? "",
       "E-mail": r.contact.email ?? "",
       Instituição: r.account?.name ?? "",
-      Papel: r.contact.role ?? "",
+      Papel: r.contact.papel ?? "",
       Link: surveyLink(r.inv.token),
       Mensagem: message(r),
     }));

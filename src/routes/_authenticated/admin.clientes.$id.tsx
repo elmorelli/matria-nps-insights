@@ -173,7 +173,7 @@ function ClientPage() {
                         <ScorePill score={r.score!} />
                         <div className="min-w-0 flex-1">
                           <p>
-                            {r.contact.full_name} <span className="text-muted-foreground">· {r.contact.role}</span>
+                            {r.contact.full_name} <span className="text-muted-foreground">· {r.contact.papel}</span>
                           </p>
                           <p className="truncate text-sm text-muted-foreground">{r.reason}</p>
                         </div>
@@ -186,7 +186,7 @@ function ClientPage() {
                       )}
                       <div className="hidden break-inside-avoid border-b py-2 text-sm print:block">
                         <p>
-                          {r.score} · {r.contact.full_name} · {r.contact.role}
+                          {r.score} · {r.contact.full_name} · {r.contact.papel}
                         </p>
                         {h.st.questions
                           .filter((q) => q.kind === "text")

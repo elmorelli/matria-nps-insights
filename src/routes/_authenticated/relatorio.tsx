@@ -166,7 +166,7 @@ function Report() {
                   <div key={x.inv.id} className="rounded-lg border p-3">
                     <p>"{x.reason}"</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Nota {x.score} · {x.contact.full_name} · {x.account?.name} · {x.contact.role}
+                      Nota {x.score} · {x.contact.full_name} · {x.account?.name} · {x.contact.papel}
                     </p>
                   </div>
                 ))}

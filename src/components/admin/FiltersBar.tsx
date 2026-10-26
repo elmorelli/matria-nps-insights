@@ -1,5 +1,5 @@
-import { ROLES, STAGES } from "@/lib/contacts";
-import { distinctProducts, type AllData, type Filters } from "@/lib/analytics";
+import { STAGES } from "@/lib/contacts";
+import { distinctProducts, rolesOf, type AllData, type Filters } from "@/lib/analytics";
 
 export function Select({ value, onChange, label, options }: { value: string; onChange: (v: string) => void; label: string; options: [string, string][] }) {
   return (
@@ -18,7 +18,7 @@ export function FiltersBar({ d, f, set, country = false }: { d: AllData; f: Filt
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Select value={f.account} onChange={(v) => set({ ...f, account: v })} label="Todas as instituições" options={d.accounts.map((a) => [a.id, a.name])} />
-      <Select value={f.role} onChange={(v) => set({ ...f, role: v })} label="Todos os papéis" options={ROLES.map((r) => [r, r])} />
+      <Select value={f.role} onChange={(v) => set({ ...f, role: v })} label="Todos os papéis" options={rolesOf(d).map((r) => [r, r])} />
       <Select value={f.stage} onChange={(v) => set({ ...f, stage: v })} label="Todos os estágios" options={STAGES.map((r) => [r, r])} />
       <Select value={f.product} onChange={(v) => set({ ...f, product: v })} label="Todos os produtos" options={distinctProducts(d).map((p) => [p, p])} />
       {country && (

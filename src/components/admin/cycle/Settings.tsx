@@ -77,7 +77,7 @@ export function Settings({ d, cycle }: { d: AllData; cycle: Cycle }) {
       .map((r) => ({
         Nome: r.contact.full_name,
         Instituição: r.account?.name ?? "",
-        Papel: r.contact.role ?? "",
+        Papel: r.contact.papel ?? "",
         Cargo: r.contact.job_title ?? "",
         Data: new Date(r.inv.answered_at ?? r.inv.responses!.created_at).toLocaleString("pt-BR"),
         Teste: r.contact.is_test ? "Sim" : "Não",
@@ -100,7 +100,7 @@ export function Settings({ d, cycle }: { d: AllData; cycle: Cycle }) {
       Nome: c.full_name,
       Instituição: aMap.get(c.account_id) ?? "",
       Cargo: c.job_title ?? "",
-      Papel: c.role ?? "",
+      Papel: c.papel ?? "",
       Telefone: c.phone ?? "",
       "E-mail": c.email ?? "",
       "Produtos e estágios": c.contact_products.map((p) => `${p.product} (${p.mom_stage})`).join("; "),
