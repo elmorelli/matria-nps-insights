@@ -4,15 +4,16 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { TEMPLATE_COLUMNS, normalizePhone, validateRow, type ImportRow, type Role, type Stage } from "@/lib/contacts";
+import { TEMPLATE_COLUMNS, toIntlPhone, validateRow, splitProducts, type ImportRow } from "@/lib/contacts";
+import { useOptions, matchOption } from "@/lib/options";
 import { cn } from "@/lib/utils";
 
-const KEYS: (keyof ImportRow)[] = ["institution", "full_name", "phone", "email", "job_title", "role", "product", "stage", "notes"];
+const KEYS: (keyof ImportRow)[] = ["institution", "full_name", "ddi", "phone", "email", "job_title", "role", "product"];
 
 export function downloadTemplate() {
   const ws = XLSX.utils.aoa_to_sheet([
     [...TEMPLATE_COLUMNS],
-    ["Hospital Exemplo", "Maria Silva", "(11) 98765-4321", "maria@hospital.com.br", "Diretora de Operações", "Sponsor", "Agendamento com IA", "Sustentação", ""],
+    ["Hospital Exemplo", "Maria Silva", "+55", "(11) 98765-4321", "maria@hospital.com.br", "Diretora de Operações", "Sponsor", "Agendamento com IA"],
   ]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Contatos");
@@ -32,8 +33,10 @@ export async function parseFile(file: File): Promise<ImportRow[]> {
 
 export function ImportDialog({ rows, setRows, onDone }: { rows: ImportRow[] | null; setRows: (r: ImportRow[] | null) => void; onDone: () => void }) {
   const [busy, setBusy] = useState(false);
+  const opts = useOptions();
+  const lists = { roles: opts.values("role"), products: opts.values("product") };
   if (!rows) return null;
-  const errors = rows.map(validateRow);
+  const errors = rows.map((r) => validateRow(r, lists));
   const validCount = errors.filter((e) => e.length === 0).length;
 
   const edit = (i: number, k: keyof ImportRow, v: string) => {
@@ -53,7 +56,7 @@ export function ImportDialog({ rows, setRows, onDone }: { rows: ImportRow[] | nu
       const accMap = new Map((accs ?? []).map((a) => [a.name.toLowerCase(), a.id]));
       const missing = [...new Set(valid.map((r) => r.institution))].filter((n) => !accMap.has(n.toLowerCase()));
       if (missing.length) {
-        const { data: created, error } = await supabase.from("accounts").insert(missing.map((name) => ({ name }))).select("id,name");
+        const { data: created, error } = await supabase.from("accounts").insert(missing.map((name) => ({ name, status: "Ativo", tier: "Bronze", segment: "Outro", country: "BR" }))).select("id,name");
         if (error) throw error;
         created?.forEach((a) => accMap.set(a.name.toLowerCase(), a.id));
       }
@@ -66,7 +69,7 @@ export function ImportDialog({ rows, setRows, onDone }: { rows: ImportRow[] | nu
 
       for (const r of valid) {
         const account_id = accMap.get(r.institution.toLowerCase())!;
-        const phone = normalizePhone(r.phone);
+        const phone = toIntlPhone(r.ddi.trim() || "+55", r.phone);
         const email = r.email.trim().toLowerCase() || null;
         const match = list.find(
           (c) => c.account_id === account_id && ((email && c.email?.toLowerCase() === email) || (phone && c.phone === phone)),
@@ -77,8 +80,7 @@ export function ImportDialog({ rows, setRows, onDone }: { rows: ImportRow[] | nu
           phone,
           email,
           job_title: r.job_title || null,
-          role: r.role.trim() as Role,
-          notes: r.notes || null,
+          papel: matchOption(lists.roles, r.role)!,
         };
         let id: string;
         if (match) {
@@ -94,11 +96,11 @@ export function ImportDialog({ rows, setRows, onDone }: { rows: ImportRow[] | nu
           created++;
         }
         touched.add(id);
-        if (r.product.trim()) {
-          const { error } = await supabase
-            .from("contact_products")
-            .upsert({ contact_id: id, product: r.product.trim(), mom_stage: r.stage.trim() as Stage }, { onConflict: "contact_id,product" });
+        for (const raw of splitProducts(r.product)) {
+          const product = matchOption(lists.products, raw)!;
+          const { error } = await supabase.from("contact_products").upsert({ contact_id: id, product }, { onConflict: "contact_id,product", ignoreDuplicates: true });
           if (error) throw error;
+          await supabase.from("account_products").upsert({ account_id, product }, { onConflict: "account_id,product", ignoreDuplicates: true });
         }
       }
       toast.success(`${created} criados, ${updated} atualizados, ${skipped} ignorados por erro.`);
@@ -130,7 +132,7 @@ export function ImportDialog({ rows, setRows, onDone }: { rows: ImportRow[] | nu
                     {c}
                   </th>
                 ))}
-                <th className="px-2 py-2 text-left font-medium">Problemas</th>
+                <th className="px-2 py-2 text-left font-medium">Ajustes</th>
               </tr>
             </thead>
             <tbody>
