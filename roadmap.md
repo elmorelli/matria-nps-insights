@@ -11,8 +11,8 @@
 - [x] 7. Exportações em PDF e ajustes finais
 
 # Prompt 3 (marca, formulários, clientes, configurações)
-- [ ] 1. Marca global, login, ícone, apresentação da pesquisa e prévia do link (aguardando pasta _Matria)
-- [ ] 2. Configurações com listas de seleção
-- [ ] 3. Contatos: painel lateral, validação, estágio na instituição
-- [ ] 4. Clientes: status, tier e cartões
-- [ ] 5. PDF com prévia e download real, ajustes finais
+- [x] 1. Marca global, login, ícone, apresentação da pesquisa e prévia do link
+- [x] 2. Configurações com listas de seleção
+- [x] 3. Contatos: painel lateral, validação, estágio na instituição
+- [x] 4. Clientes: status, tier e cartões
+- [x] 5. PDF com prévia e download real, ajustes finais
