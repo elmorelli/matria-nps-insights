@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { formatPhone } from "@/lib/contacts";
 import { STATUS_LABEL, CONTACT_STATUS_LABEL, surveyLink } from "@/lib/admin-data";
 import { EMPTY_FILTERS, allDataKey, answerLabel, cycleRows, questionsOf, type AllData, type Cycle } from "@/lib/analytics";
 
@@ -101,14 +102,13 @@ export function Settings({ d, cycle }: { d: AllData; cycle: Cycle }) {
       Instituição: aMap.get(c.account_id) ?? "",
       Cargo: c.job_title ?? "",
       Papel: c.papel ?? "",
-      Telefone: c.phone ?? "",
       "E-mail": c.email ?? "",
       Produtos: c.contact_products.map((p) => p.product).join("; "),
       Telefone: formatPhone(c.phone),
       Situação: CONTACT_STATUS_LABEL[c.status],
       Teste: c.is_test ? "Sim" : "Não",
     }));
-    const acc = d.accounts.map((a) => ({ Nome: a.name, Segmento: a.segment ?? "", País: a.country ?? "", Cidade: a.city ?? "", Responsável: a.owner_name ?? "", "Receita anual estimada": a.estimated_annual_revenue ?? "" }));
+    const acc = d.accounts.map((a) => ({ Nome: a.name, Status: a.status ?? "", Tier: a.tier ?? "", Tipo: a.segment ?? "", País: a.country ?? "", Cidade: a.city ?? "", Responsável: a.owner_name ?? "", "Receita anual estimada": a.estimated_annual_revenue ?? "" }));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(resp), "Respostas");
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(inv), "Convites");

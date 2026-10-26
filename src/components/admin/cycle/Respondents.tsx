@@ -31,6 +31,7 @@ export function Respondents({ d, cycle }: { d: AllData; cycle: Cycle }) {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<string | null>(null);
   const questions = questionsOf(d, cycle);
+  const stageOf = (product: string, accountId: string) => d.accountProducts.find((ap) => ap.account_id === accountId && ap.product === product)?.mom_stage ?? "Sem estágio";
   const rows = useMemo(() => {
     const t = q.trim().toLowerCase();
     return cycleRows(d, cycle.id, f).filter((r) => !t || [r.contact.full_name, r.account?.name, r.reason].some((s) => (s ?? "").toLowerCase().includes(t)));
