@@ -28,7 +28,7 @@ function CyclesPage() {
     if (!form.name.trim() || !form.start_date) return toast.error("Informe nome e data de início.");
     if (form.target_nps === "" || form.target_response_rate === "") return toast.error("As duas metas são obrigatórias.");
     if (!form.questionnaire_id) return toast.error("Escolha o questionário.");
-    const last = [...(d?.cycles ?? [])].sort((a, b) => b.start_date.localeCompare(a.start_date))[0];
+    const { data: def } = await supabase.from("settings").select("template_initial,template_reminder_1,template_reminder_2,template_reminder_3").order("id").limit(1).maybeSingle();
     const { data, error } = await supabase
       .from("cycles")
       .insert({
@@ -38,15 +38,15 @@ function CyclesPage() {
         target_nps: Number(form.target_nps),
         target_response_rate: Number(form.target_response_rate),
         questionnaire_id: form.questionnaire_id,
-        template_initial: last?.template_initial ?? "",
-        template_reminder_1: last?.template_reminder_1 ?? "",
-        template_reminder_2: last?.template_reminder_2 ?? "",
-        template_reminder_3: last?.template_reminder_3 ?? "",
+        template_initial: def?.template_initial ?? "",
+        template_reminder_1: def?.template_reminder_1 ?? "",
+        template_reminder_2: def?.template_reminder_2 ?? "",
+        template_reminder_3: def?.template_reminder_3 ?? "",
       })
       .select("id")
       .single();
     if (error) return toast.error("Não foi possível criar o ciclo.");
-    toast.success("Ciclo criado. As mensagens do último ciclo foram copiadas.");
+    toast.success("Ciclo criado. As mensagens padrão de Configurações foram copiadas.");
     setForm(null);
     await qc.invalidateQueries({ queryKey: allDataKey });
     void data;
