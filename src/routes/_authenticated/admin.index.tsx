@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { AlertTriangle, ArrowRight, FileDown } from "lucide-react";
 import { CartesianGrid, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis, LineChart } from "recharts";
-import { allDataQuery, BAND_LABEL, EMPTY_FILTERS, cycleStats, fmt, fmt1, targetFor, type Filters } from "@/lib/analytics";
+import { allDataQuery, BAND_LABEL, EMPTY_FILTERS, cycleStats, fmt, fmt1, targetFor, type Filters , stageCaption } from "@/lib/analytics";
 import { npsBand } from "@/lib/nps";
 import { BAND_BG, BAND_TEXT, Card, GroupBars, TableWrap } from "@/components/admin/charts";
 import { FiltersBar, filtersToSearch } from "@/components/admin/FiltersBar";
@@ -58,7 +58,7 @@ function Overview() {
   const exportPdf = () => {
     const p = filtersToSearch(f);
     p.set("cycles", selected.map((c) => c.id).join(","));
-    window.open(`/relatorio?${p.toString()}`, "_blank");
+    window.location.assign(`/admin/relatorio?${p.toString()}`);
   };
   const band = latest?.nps != null ? npsBand(latest.nps) : null;
   const totalN = stats.reduce((a, s) => a + s.s.n, 0);
@@ -251,7 +251,7 @@ function Overview() {
           <Card title="NPS por papel" caption={`Ciclo ${latest.cycle.name}.`}>
             <GroupBars items={latest.byRole} target={target.nps} />
           </Card>
-          <Card title="NPS por estágio MOM" caption={`Ciclo ${latest.cycle.name}.`}>
+          <Card title="NPS por estágio MOM" caption={`Ciclo ${latest.cycle.name}. ${stageCaption(latest)}`}>
             <GroupBars items={latest.byStage} target={target.nps} />
           </Card>
         </section>

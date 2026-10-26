@@ -1,5 +1,4 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useRouter } from "@tanstack/react-router";
 import { ArrowLeft, Download } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,8 +16,6 @@ export function PdfViewer({ pages, format, filename, back }: { pages: React.Reac
   const refs = useRef<(HTMLDivElement | null)[]>([]);
   const [scale, setScale] = useState(1);
   const [busy, setBusy] = useState(false);
-  const router = useRouter();
-  void router;
 
   useLayoutEffect(() => {
     const fit = () => {

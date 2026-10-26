@@ -334,3 +334,9 @@ export function accountHistory(d: AllData, accountId: string) {
     });
 }
 
+
+/** Caption for the by-stage chart: responses from people whose products sit at different stages count once per stage. */
+export function stageCaption(st: { multiStage: number }) {
+  const base = "Estágio herdado dos produtos contratados pela instituição.";
+  return st.multiStage ? `${base} ${st.multiStage} ${st.multiStage === 1 ? "resposta conta" : "respostas contam"} em mais de um estágio, uma vez por estágio.` : base;
+}
