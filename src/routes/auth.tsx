@@ -42,7 +42,7 @@ function AuthPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-primary bg-cover bg-center px-4" style={{ backgroundImage: `url(${feixe.url})` }}>
       <div className="absolute left-8 top-8">
-        <MatriaLogo variant="negativo" className="h-8 min-h-8" />
+        <MatriaLogo variant="negativo" className="h-14" />
       </div>
       <form onSubmit={submit} className="w-full max-w-[400px] rounded-lg border bg-background p-8">
         <div className="space-y-4">
