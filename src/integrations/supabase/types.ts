@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_products: {
+        Row: {
+          account_id: string
+          id: string
+          mom_stage: Database["public"]["Enums"]["mom_stage"]
+          product: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          id?: string
+          mom_stage?: Database["public"]["Enums"]["mom_stage"]
+          product: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          id?: string
+          mom_stage?: Database["public"]["Enums"]["mom_stage"]
+          product?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_products_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       accounts: {
         Row: {
           active: boolean
@@ -27,6 +59,8 @@ export type Database = {
           notes: string | null
           owner_name: string | null
           segment: string | null
+          status: string | null
+          tier: string | null
         }
         Insert: {
           active?: boolean
@@ -40,6 +74,8 @@ export type Database = {
           notes?: string | null
           owner_name?: string | null
           segment?: string | null
+          status?: string | null
+          tier?: string | null
         }
         Update: {
           active?: boolean
@@ -53,6 +89,8 @@ export type Database = {
           notes?: string | null
           owner_name?: string | null
           segment?: string | null
+          status?: string | null
+          tier?: string | null
         }
         Relationships: []
       }
@@ -102,19 +140,19 @@ export type Database = {
         Row: {
           contact_id: string
           id: string
-          mom_stage: Database["public"]["Enums"]["mom_stage"]
+          mom_stage: Database["public"]["Enums"]["mom_stage"] | null
           product: string
         }
         Insert: {
           contact_id: string
           id?: string
-          mom_stage: Database["public"]["Enums"]["mom_stage"]
+          mom_stage?: Database["public"]["Enums"]["mom_stage"] | null
           product: string
         }
         Update: {
           contact_id?: string
           id?: string
-          mom_stage?: Database["public"]["Enums"]["mom_stage"]
+          mom_stage?: Database["public"]["Enums"]["mom_stage"] | null
           product?: string
         }
         Relationships: [
@@ -137,6 +175,7 @@ export type Database = {
           is_test: boolean
           job_title: string | null
           notes: string | null
+          papel: string | null
           phone: string | null
           role: Database["public"]["Enums"]["contact_role"] | null
           status: Database["public"]["Enums"]["contact_status"]
@@ -152,6 +191,7 @@ export type Database = {
           is_test?: boolean
           job_title?: string | null
           notes?: string | null
+          papel?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["contact_role"] | null
           status?: Database["public"]["Enums"]["contact_status"]
@@ -167,6 +207,7 @@ export type Database = {
           is_test?: boolean
           job_title?: string | null
           notes?: string | null
+          papel?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["contact_role"] | null
           status?: Database["public"]["Enums"]["contact_status"]
@@ -351,6 +392,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      option_lists: {
+        Row: {
+          active: boolean
+          created_at: string
+          extra: Json
+          id: string
+          list: string
+          position: number
+          value: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          extra?: Json
+          id?: string
+          list: string
+          position?: number
+          value: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          extra?: Json
+          id?: string
+          list?: string
+          position?: number
+          value?: string
+        }
+        Relationships: []
       }
       questionnaires: {
         Row: {
@@ -550,21 +621,30 @@ export type Database = {
       }
       settings: {
         Row: {
+          duration_text: string
           id: number
+          preview_description: string
+          preview_title: string
           template_initial: string
           template_reminder_1: string
           template_reminder_2: string
           template_reminder_3: string
         }
         Insert: {
+          duration_text?: string
           id?: number
+          preview_description?: string
+          preview_title?: string
           template_initial: string
           template_reminder_1: string
           template_reminder_2: string
           template_reminder_3: string
         }
         Update: {
+          duration_text?: string
           id?: number
+          preview_description?: string
+          preview_title?: string
           template_initial?: string
           template_reminder_1?: string
           template_reminder_2?: string
@@ -610,6 +690,14 @@ export type Database = {
       survey_confirm: { Args: { _token: string }; Returns: Json }
       survey_decline: { Args: { _token: string }; Returns: Json }
       survey_get: { Args: { _token: string }; Returns: Json }
+      survey_preview_meta: {
+        Args: never
+        Returns: {
+          description: string
+          duration: string
+          title: string
+        }[]
+      }
       survey_status: { Args: { _token: string }; Returns: Json }
       survey_submit: { Args: { _a: Json; _token: string }; Returns: Json }
       survey_submit_by_token: {
