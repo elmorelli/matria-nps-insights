@@ -5,6 +5,7 @@ import { MatriaLogo } from "@/components/MatriaLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import feixe from "@/assets/feixe-azul.webp.asset.json";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -39,20 +40,22 @@ function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-subtle px-4">
-      <form onSubmit={submit} className="w-full max-w-sm rounded-lg border bg-background p-8">
-        <MatriaLogo className="-ml-3 h-16" />
-        <div className="mt-6 space-y-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-primary bg-cover bg-center px-4" style={{ backgroundImage: `url(${feixe.url})` }}>
+      <div className="absolute left-8 top-8">
+        <MatriaLogo variant="negativo" className="h-8 min-h-8" />
+      </div>
+      <form onSubmit={submit} className="w-full max-w-[400px] rounded-lg border bg-background p-8">
+        <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">E-mail</Label>
-            <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Label htmlFor="email" className="text-primary">Usuário</Label>
+            <Input id="email" type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="pw">Senha</Label>
-            <Input id="pw" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
+            <Label htmlFor="pw" className="text-primary">Senha</Label>
+            <Input id="pw" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
         </div>
-        {msg && <p className="mt-4 text-sm text-muted-foreground">{msg}</p>}
+        {msg && <p className="mt-4 text-sm text-negative">{msg}</p>}
         <Button type="submit" className="mt-6 w-full" disabled={busy}>
           Entrar
         </Button>
