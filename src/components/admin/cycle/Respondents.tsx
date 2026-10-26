@@ -74,7 +74,7 @@ export function Respondents({ d, cycle }: { d: AllData; cycle: Cycle }) {
                     <td className="px-3 py-3">
                       {r.contact.contact_products.map((p) => (
                         <div key={p.id} className="whitespace-nowrap">
-                          {p.mom_stage} <span className="text-muted-foreground">· {p.product}</span>
+                          {stageOf(p.product, r.contact.account_id)} <span className="text-muted-foreground">· {p.product}</span>
                         </div>
                       ))}
                     </td>

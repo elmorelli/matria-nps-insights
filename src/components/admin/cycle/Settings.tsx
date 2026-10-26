@@ -103,7 +103,8 @@ export function Settings({ d, cycle }: { d: AllData; cycle: Cycle }) {
       Papel: c.papel ?? "",
       Telefone: c.phone ?? "",
       "E-mail": c.email ?? "",
-      "Produtos e estágios": c.contact_products.map((p) => `${p.product} (${p.mom_stage})`).join("; "),
+      Produtos: c.contact_products.map((p) => p.product).join("; "),
+      Telefone: formatPhone(c.phone),
       Situação: CONTACT_STATUS_LABEL[c.status],
       Teste: c.is_test ? "Sim" : "Não",
     }));

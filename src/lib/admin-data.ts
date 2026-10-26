@@ -9,7 +9,7 @@ export async function fetchCycles() {
 export async function fetchContacts() {
   const { data, error } = await supabase
     .from("contacts")
-    .select("*, accounts(id,name), contact_products(id,product,mom_stage), invitations(*, responses(q1_nps))")
+    .select("*, accounts(id,name), contact_products(id,product), invitations(*, responses(q1_nps))")
     .order("full_name");
   if (error) throw error;
   return data;
