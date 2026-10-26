@@ -1,6 +1,10 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import "@fontsource/dm-sans/300.css";
+@import "@fontsource/dm-sans/400.css";
+@import "@fontsource/dm-sans/500.css";
+@import "@fontsource/dm-sans/700.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -44,6 +48,21 @@
   --color-negative-bg: var(--negative-bg);
   --color-info: var(--info);
   --color-brand-black: var(--brand-black);
+  --color-deep: var(--deep);
+  --color-beige: var(--beige);
+  --color-green-light: var(--green-light);
+  --color-sky-light: var(--sky-light);
+  --color-pink-light: var(--pink-light);
+  --color-peach: var(--peach);
+  --color-green-dark: var(--green-dark);
+  --color-sky: var(--sky);
+  --color-wine: var(--wine);
+  --color-orange: var(--orange);
+  --color-tier-1: var(--tier-1);
+  --color-tier-2: var(--tier-2);
+  --color-tier-3: var(--tier-3);
+  --color-tier-4: var(--tier-4);
+  --color-tier-5: var(--tier-5);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -77,8 +96,8 @@
   --accent-foreground: #073b84;
   --destructive: #d7333a;
   --destructive-foreground: #ffffff;
-  --border: #e6dfd7;
-  --input: #e6dfd7;
+  --border: #d6cbc1;
+  --input: #d6cbc1;
   --ring: #073b84;
   --subtle: #fbfaf7;
   --offwhite: #f6f3ed;
@@ -92,6 +111,23 @@
   --negative-bg: #fab9b3;
   --info: #355d9a;
   --brand-black: #14110e;
+  /* Brandbook V1 palette */
+  --deep: #021125;
+  --beige: #d6cbc1;
+  --green-light: #dfeec1;
+  --sky-light: #98e5fb;
+  --pink-light: #f0bfde;
+  --peach: #f5c0a6;
+  --green-dark: #3e612a;
+  --sky: #63b5e4;
+  --wine: #800b53;
+  --orange: #e76121;
+  /* Tier monochrome blue scale, darkest to lightest */
+  --tier-1: #021125;
+  --tier-2: #073b84;
+  --tier-3: #355d9a;
+  --tier-4: #b5c4da;
+  --tier-5: #e3e9f2;
   --chart-1: #073b84;
   --chart-2: #e76121;
   --chart-3: #3e612a;
@@ -103,7 +139,7 @@
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f2f7ff;
   --sidebar-accent-foreground: #073b84;
-  --sidebar-border: #e6dfd7;
+  --sidebar-border: #d6cbc1;
   --sidebar-ring: #073b84;
 }
 
@@ -120,10 +156,23 @@
     font-size: 15px;
     font-weight: 400;
   }
-  h1, h2, h3, h4 {
-    font-weight: 600;
+  /* Brand typography: titles Light, section titles Medium, body Regular. Never bold titles, never uppercase. */
+  h1 {
+    font-weight: 300;
+    color: var(--color-primary);
     text-transform: none;
     letter-spacing: -0.01em;
+  }
+  h2, h3, h4 {
+    font-weight: 500;
+    color: var(--color-primary);
+    text-transform: none;
+  }
+  label, a {
+    color: inherit;
+  }
+  strong, b {
+    font-weight: 700;
   }
   * {
     transition-duration: 200ms;
@@ -133,5 +182,18 @@
       transition: none !important;
       animation: none !important;
     }
+  }
+}
+
+/* Feixe overlay ("luz"): warm light rising from a corner over photographs. */
+@utility luz-overlay {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.8;
+    background: linear-gradient(35deg, color-mix(in oklab, var(--primary) 35%, transparent) 0%, transparent 45%), linear-gradient(215deg, color-mix(in oklab, var(--peach) 45%, transparent) 0%, transparent 40%);
   }
 }
