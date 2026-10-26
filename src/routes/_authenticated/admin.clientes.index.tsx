@@ -127,7 +127,7 @@ function ClientsPage() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className={cn("text-2xl font-semibold", band ? BAND_TEXT[band] : "text-muted-foreground")}>{fmt(latest?.nps)}</p>
+                  <p className={cn("text-2xl font-light", band ? BAND_TEXT[band] : "text-muted-foreground")}>{fmt(latest?.nps)}</p>
                   <p className="text-xs text-muted-foreground">{latest ? `n=${latest.st.s.n} · ${latest.cycle.name}` : "Sem respostas"}</p>
                 </div>
               </div>

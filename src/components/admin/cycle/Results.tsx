@@ -74,7 +74,7 @@ export function Results({ d, cycle }: { d: AllData; cycle: Cycle }) {
         </Card>
         <div className="flex flex-col gap-4 lg:col-span-2">
           <Card title="Taxa de resposta" right={<Users className="h-5 w-5 text-muted-foreground" />}>
-            <p className="text-4xl font-semibold">{st.rate ?? 0}%</p>
+            <p className="text-4xl font-light">{st.rate ?? 0}%</p>
             <p className="text-sm text-muted-foreground">
               {st.s.n} de {st.base} contatos válidos
             </p>

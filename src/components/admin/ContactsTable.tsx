@@ -37,7 +37,7 @@ export function ContactsTable({ d, contacts, showAccount = true }: { d: AllData;
           <thead className="sticky top-0 z-10 bg-subtle text-left">
             <tr>
               {heads.map((h, i) => (
-                <th key={i} className="whitespace-nowrap px-3 py-3 font-semibold">
+                <th key={i} className="whitespace-nowrap px-3 py-3 font-medium">
                   {h}
                 </th>
               ))}

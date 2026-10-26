@@ -114,20 +114,20 @@ function Overview() {
               <ArrowRight className="h-4 w-4 text-primary" />
             </div>
             <p className="text-sm text-muted-foreground">{latest.cycle.name}</p>
-            <p className={cn("mt-3 text-5xl font-semibold", band ? BAND_TEXT[band] : "text-muted-foreground")}>{fmt(latest.nps)}</p>
+            <p className={cn("mt-3 text-5xl font-light", band ? BAND_TEXT[band] : "text-muted-foreground")}>{fmt(latest.nps)}</p>
             {band && <p className={cn("text-sm", BAND_TEXT[band])}>{BAND_LABEL[band]}</p>}
             <dl className="mt-4 grid grid-cols-3 gap-2 text-sm">
               <div>
                 <dt className="text-muted-foreground">Resposta</dt>
-                <dd className="text-lg font-semibold">{latest.rate ?? "–"}%</dd>
+                <dd className="text-lg font-light">{latest.rate ?? "–"}%</dd>
               </div>
               <div>
                 <dt className="text-muted-foreground">n</dt>
-                <dd className="text-lg font-semibold">{latest.s.n}</dd>
+                <dd className="text-lg font-light">{latest.s.n}</dd>
               </div>
               <div>
                 <dt className="text-muted-foreground">Variação</dt>
-                <dd className="text-lg font-semibold">{prev?.nps != null && latest.nps != null ? fmt(latest.nps - prev.nps) : "–"}</dd>
+                <dd className="text-lg font-light">{prev?.nps != null && latest.nps != null ? fmt(latest.nps - prev.nps) : "–"}</dd>
               </div>
             </dl>
             {latest.weighted !== null && <p className="mt-3 text-sm text-muted-foreground">Ponderado por receita: {fmt(latest.weighted)}. Dá mais peso às contas maiores.</p>}
@@ -143,13 +143,13 @@ function Overview() {
           <div className="mt-2 flex flex-wrap gap-8">
             <div>
               <p className="text-sm text-muted-foreground">NPS</p>
-              <p className="text-3xl font-semibold" title={selected.map((c) => `${c.name}: ${fmt(Number(c.target_nps))}`).join("\n")}>
+              <p className="text-3xl font-light" title={selected.map((c) => `${c.name}: ${fmt(Number(c.target_nps))}`).join("\n")}>
                 {fmt(target.nps)}
               </p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Taxa de resposta</p>
-              <p className="text-3xl font-semibold">{target.rate}%</p>
+              <p className="text-3xl font-light">{target.rate}%</p>
             </div>
           </div>
           {target.averaged && (
@@ -204,9 +204,9 @@ function Overview() {
           <table className="w-full text-sm">
             <thead className="sticky top-0 z-10 bg-subtle text-left">
               <tr>
-                <th className="sticky left-0 bg-subtle px-3 py-2 font-semibold">Instituição</th>
+                <th className="sticky left-0 bg-subtle px-3 py-2 font-medium">Instituição</th>
                 {stats.map((s) => (
-                  <th key={s.cycle.id} className="whitespace-nowrap px-3 py-2 text-center font-semibold">
+                  <th key={s.cycle.id} className="whitespace-nowrap px-3 py-2 text-center font-medium">
                     {s.cycle.name}
                   </th>
                 ))}
@@ -224,7 +224,7 @@ function Overview() {
                     <td key={i} className="p-1 text-center">
                       {c ? (
                         <div className={cn("rounded-md px-2 py-2", BAND_BG[npsBand(c.nps ?? 0)])}>
-                          <span className={cn("font-semibold", BAND_TEXT[npsBand(c.nps ?? 0)])}>{fmt(c.nps)}</span>
+                          <span className={cn("font-medium", BAND_TEXT[npsBand(c.nps ?? 0)])}>{fmt(c.nps)}</span>
                           <span className="ml-1 text-xs text-muted-foreground">n={c.n}</span>
                         </div>
                       ) : (
@@ -268,7 +268,7 @@ function Overview() {
                   <p className="line-clamp-2 text-sm" title={text}>
                     {text}
                   </p>
-                  <p className="mt-1 text-xl font-semibold">{fmt1(last)}</p>
+                  <p className="mt-1 text-xl font-light">{fmt1(last)}</p>
                   <div className="h-14">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={data}>
@@ -295,7 +295,7 @@ function Overview() {
               <thead className="sticky top-0 bg-subtle text-left">
                 <tr>
                   {["Instituição", "Contatos ativos", "Responderam", "Cobertura", ""].map((h) => (
-                    <th key={h} className="whitespace-nowrap px-3 py-2 font-semibold">
+                    <th key={h} className="whitespace-nowrap px-3 py-2 font-medium">
                       {h}
                     </th>
                   ))}

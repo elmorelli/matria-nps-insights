@@ -50,7 +50,7 @@ export function Respondents({ d, cycle }: { d: AllData; cycle: Cycle }) {
           <thead className="sticky top-0 z-10 bg-subtle text-left">
             <tr>
               {["", "Nome", "Instituição", "Cargo", "Papel", "Estágios e produtos", "Status", "Envio e lembretes", "Abertura", "NPS", "Duração"].map((h) => (
-                <th key={h} className="whitespace-nowrap px-3 py-3 font-semibold">
+                <th key={h} className="whitespace-nowrap px-3 py-3 font-medium">
                   {h}
                 </th>
               ))}

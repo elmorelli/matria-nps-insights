@@ -132,7 +132,7 @@ function ClientPage() {
             <thead className="sticky top-0 bg-subtle text-left">
               <tr>
                 {["Ciclo", "n", "NPS", "Promotores", "Neutros", "Detratores", ...driverKeys.map(([k]) => k)].map((h) => (
-                  <th key={h} className="whitespace-nowrap px-3 py-2 font-semibold">
+                  <th key={h} className="whitespace-nowrap px-3 py-2 font-medium">
                     {h}
                   </th>
                 ))}
@@ -143,7 +143,7 @@ function ClientPage() {
                 <tr key={h.cycle.id} className="border-t">
                   <td className="whitespace-nowrap px-3 py-2">{h.cycle.name}</td>
                   <td className="px-3 py-2">{h.st.s.n}</td>
-                  <td className={cn("px-3 py-2 font-semibold", h.nps != null && BAND_TEXT[npsBand(h.nps)])}>{fmt(h.nps)}</td>
+                  <td className={cn("px-3 py-2 font-medium", h.nps != null && BAND_TEXT[npsBand(h.nps)])}>{fmt(h.nps)}</td>
                   <td className="px-3 py-2">{h.st.s.promoters}</td>
                   <td className="px-3 py-2">{h.st.s.passives}</td>
                   <td className="px-3 py-2">{h.st.s.detractors}</td>

@@ -47,7 +47,7 @@ export function Gauge({ value, target, previous }: { value: number | null; targe
           {previous !== null && marker(previous, "var(--brand-light)")}
           {marker(target, "var(--foreground)")}
         </svg>
-        <p className={cn("absolute inset-x-0 bottom-0 text-center text-5xl font-semibold", band ? BAND_TEXT[band] : "text-muted-foreground")}>{fmt(value)}</p>
+        <p className={cn("absolute inset-x-0 bottom-0 text-center text-5xl font-light", band ? BAND_TEXT[band] : "text-muted-foreground")}>{fmt(value)}</p>
       </div>
       <div className="mt-4 flex justify-center gap-4 text-sm text-muted-foreground">
         <span className="flex items-center gap-1">
@@ -78,7 +78,7 @@ export function Distribution({ s }: { s: NpsSummary }) {
           <div key={l}>
             <span className={cn("mr-2 inline-block h-2.5 w-2.5 rounded-full", c)} />
             {l} <span className="text-muted-foreground">({r})</span>
-            <p className="text-lg font-semibold">
+            <p className="text-lg font-light">
               {Math.round((v / s.n) * 100)}% <span className="text-sm font-normal text-muted-foreground">· {v}</span>
             </p>
           </div>
@@ -169,17 +169,17 @@ export function DriversTable({ items }: { items: Driver[] }) {
       <table className="w-full text-sm">
         <thead className="sticky top-0 bg-subtle text-left">
           <tr>
-            <th className="px-3 py-2 font-semibold">Direcionador</th>
-            <th className="px-3 py-2 text-right font-semibold">Média</th>
-            <th className="px-3 py-2 text-right font-semibold">n</th>
-            <th className="px-3 py-2 text-right font-semibold">Ainda não</th>
+            <th className="px-3 py-2 font-medium">Direcionador</th>
+            <th className="px-3 py-2 text-right font-medium">Média</th>
+            <th className="px-3 py-2 text-right font-medium">n</th>
+            <th className="px-3 py-2 text-right font-medium">Ainda não</th>
           </tr>
         </thead>
         <tbody>
           {items.map((d) => (
             <tr key={d.key} className="border-t">
               <td className="min-w-56 px-3 py-2">{d.text}</td>
-              <td className={cn("px-3 py-2 text-right font-semibold", d.mean != null && d.mean < 3.5 ? "text-negative" : d.mean != null && d.mean >= 4.3 ? "text-positive" : "")}>{fmt1(d.mean)}</td>
+              <td className={cn("px-3 py-2 text-right font-medium", d.mean != null && d.mean < 3.5 ? "text-negative" : d.mean != null && d.mean >= 4.3 ? "text-positive" : "")}>{fmt1(d.mean)}</td>
               <td className="px-3 py-2 text-right text-muted-foreground">{d.n}</td>
               <td className="px-3 py-2 text-right text-muted-foreground">{d.nrApplicable ? d.nr : "–"}</td>
             </tr>
@@ -249,7 +249,7 @@ export function TableWrap({ children, className }: { children: React.ReactNode; 
 
 export function ScorePill({ score }: { score: number }) {
   const b = score >= 9 ? "bg-positive-bg text-positive" : score >= 7 ? "bg-highlight text-info" : "bg-negative-bg text-foreground";
-  return <span className={cn("inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md font-semibold", b)}>{score}</span>;
+  return <span className={cn("inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md font-medium", b)}>{score}</span>;
 }
 
 export function Reading({ paragraphs }: { paragraphs: string[] }) {

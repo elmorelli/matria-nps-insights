@@ -86,19 +86,19 @@ function CyclesPage() {
                 <dl className="mt-6 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
                   <div>
                     <dt className="text-muted-foreground">Meta de NPS</dt>
-                    <dd className="mt-1 text-xl font-semibold">{fmt(Number(c.target_nps))}</dd>
+                    <dd className="mt-1 text-xl font-light">{fmt(Number(c.target_nps))}</dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Meta de resposta</dt>
-                    <dd className="mt-1 text-xl font-semibold">{c.target_response_rate}%</dd>
+                    <dd className="mt-1 text-xl font-light">{c.target_response_rate}%</dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">NPS</dt>
-                    <dd className="mt-1 text-xl font-semibold">{fmt(st.nps)}</dd>
+                    <dd className="mt-1 text-xl font-light">{fmt(st.nps)}</dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Respostas</dt>
-                    <dd className="mt-1 text-xl font-semibold">
+                    <dd className="mt-1 text-xl font-light">
                       {st.s.n} de {st.rows.length}
                     </dd>
                   </div>

@@ -126,11 +126,11 @@ export function ImportDialog({ rows, setRows, onDone }: { rows: ImportRow[] | nu
             <thead className="sticky top-0 bg-subtle">
               <tr>
                 {TEMPLATE_COLUMNS.map((c) => (
-                  <th key={c} className="px-2 py-2 text-left font-semibold">
+                  <th key={c} className="px-2 py-2 text-left font-medium">
                     {c}
                   </th>
                 ))}
-                <th className="px-2 py-2 text-left font-semibold">Problemas</th>
+                <th className="px-2 py-2 text-left font-medium">Problemas</th>
               </tr>
             </thead>
             <tbody>

@@ -105,7 +105,7 @@ function Report() {
           ].map(([l, v, sub, c]) => (
             <div key={l} className="rounded-xl border p-6">
               <p className="text-muted-foreground">{l}</p>
-              <p className={cn("mt-3 text-5xl font-semibold", c)}>{v}</p>
+              <p className={cn("mt-3 text-5xl font-light", c)}>{v}</p>
               <p className="mt-3 text-sm text-muted-foreground">{sub}</p>
             </div>
           ))}

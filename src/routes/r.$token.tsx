@@ -437,7 +437,7 @@ function PrimaryButton({ className, ...p }: React.ButtonHTMLAttributes<HTMLButto
       type="button"
       {...p}
       className={cn(
-        "flex min-h-14 w-full items-center justify-center rounded-md bg-primary px-6 text-base font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40",
+        "flex min-h-14 w-full items-center justify-center rounded-md bg-primary px-6 text-base font-medium text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40",
         className,
       )}
     />

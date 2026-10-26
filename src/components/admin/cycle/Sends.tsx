@@ -115,7 +115,7 @@ export function Sends({ d, cycle }: { d: AllData; cycle: Cycle }) {
                 <Checkbox checked={allSel} onCheckedChange={(v) => setSelected(v ? new Set(rows.map((r) => r.inv.id)) : new Set())} aria-label="Selecionar todos" />
               </th>
               {["Nome", "Instituição", "Telefone", "Status", "Envios", "Próximo passo", "Ações"].map((h) => (
-                <th key={h} className="whitespace-nowrap px-3 py-3 font-semibold">
+                <th key={h} className="whitespace-nowrap px-3 py-3 font-medium">
                   {h}
                 </th>
               ))}
