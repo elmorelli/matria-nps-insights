@@ -5,12 +5,12 @@ import { toast } from "sonner";
 import { ArrowLeft, ChevronDown, ChevronRight, FileDown, Plus } from "lucide-react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
-import { accountHistory, allDataKey, allDataQuery, fmt, fmt1, type Account } from "@/lib/analytics";
+import { accountHistory, allDataKey, allDataQuery, fmt, fmt1, type Account, type AllData } from "@/lib/analytics";
 import { npsBand } from "@/lib/nps";
 import { STAGES } from "@/lib/contacts";
 import { useOptions } from "@/lib/options";
 import { ContactSheet } from "@/components/admin/ContactSheet";
-import { StatusTag, TierTag, accountTotals } from "@/components/admin/AccountTags";
+import { StatusTag, TierTag } from "@/components/admin/AccountTags";
 import { BAND_TEXT, Card, ScorePill, TableWrap } from "@/components/admin/charts";
 import { ContactsTable } from "@/components/admin/ContactsTable";
 import { AnswersList } from "@/components/admin/cycle/Respondents";
@@ -264,7 +264,7 @@ function OptSelect({ value, options, labels, onChange }: { value: string | null;
   );
 }
 
-function ProductsBlock({ d, accountId, onChanged }: { d: NonNullable<ReturnType<typeof useQuery<Awaited<ReturnType<typeof allDataQuery.queryFn>>>>["data"]>; accountId: string; onChanged: () => void }) {
+function ProductsBlock({ d, accountId, onChanged }: { d: AllData; accountId: string; onChanged: () => void }) {
   const opts = useOptions();
   const [adding, setAdding] = useState("");
   const rows = d.accountProducts.filter((p) => p.account_id === accountId);
