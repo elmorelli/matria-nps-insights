@@ -1,10 +1,11 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { BarChart3, ClipboardList, LogOut, Menu, Building2, Users, X, FileText } from "lucide-react";
+import { BarChart3, ClipboardList, LogOut, Menu, Building2, Users, X, FileText, Settings2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MatriaLogo } from "@/components/MatriaLogo";
 import { cn } from "@/lib/utils";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Painel | Matria NPS" }, { name: "robots", content: "noindex" }] }),
@@ -17,6 +18,7 @@ const NAV = [
   { to: "/admin/clientes", label: "Clientes", icon: Building2 },
   { to: "/admin/contatos", label: "Contatos", icon: Users },
   { to: "/admin/questionarios", label: "Questionários", icon: FileText },
+  { to: "/admin/configuracoes", label: "Configurações", icon: Settings2 },
 ] as const;
 
 function AdminLayout() {
@@ -83,7 +85,9 @@ function AdminLayout() {
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:py-8">
         {isLoading ? null : isAdmin ? (
-          <Outlet />
+          <TooltipProvider>
+            <Outlet />
+          </TooltipProvider>
         ) : (
           <div className="rounded-lg border bg-background p-8">
             <h1 className="text-xl">Acesso restrito</h1>

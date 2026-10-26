@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { STATUS_LABEL, surveyLink } from "@/lib/admin-data";
-import { fillTemplate, firstName } from "@/lib/contacts";
+import { fillTemplate, firstName , formatPhone } from "@/lib/contacts";
 import { EMPTY_FILTERS, allDataKey, cycleRows, matches, type AllData, type Cycle, type Invitation, type Row } from "@/lib/analytics";
 import { TableWrap } from "@/components/admin/charts";
 import { FiltersBar, Select } from "@/components/admin/FiltersBar";
@@ -77,10 +77,10 @@ export function Sends({ d, cycle }: { d: AllData; cycle: Cycle }) {
     const list = selected.size ? rows.filter((r) => selected.has(r.inv.id)) : rows;
     const data = list.map((r) => ({
       "Nome completo": r.contact.full_name,
-      Telefone: r.contact.phone ?? "",
+      Telefone: formatPhone(r.contact.phone),
       "E-mail": r.contact.email ?? "",
       Instituição: r.account?.name ?? "",
-      Papel: r.contact.role ?? "",
+      Papel: r.contact.papel ?? "",
       Link: surveyLink(r.inv.token),
       Mensagem: message(r),
     }));
@@ -115,7 +115,7 @@ export function Sends({ d, cycle }: { d: AllData; cycle: Cycle }) {
                 <Checkbox checked={allSel} onCheckedChange={(v) => setSelected(v ? new Set(rows.map((r) => r.inv.id)) : new Set())} aria-label="Selecionar todos" />
               </th>
               {["Nome", "Instituição", "Telefone", "Status", "Envios", "Próximo passo", "Ações"].map((h) => (
-                <th key={h} className="whitespace-nowrap px-3 py-3 font-semibold">
+                <th key={h} className="whitespace-nowrap px-3 py-3 font-medium">
                   {h}
                 </th>
               ))}
@@ -144,7 +144,7 @@ export function Sends({ d, cycle }: { d: AllData; cycle: Cycle }) {
                     {r.contact.is_test && <span className="ml-2 text-xs text-info">teste</span>}
                   </td>
                   <td className="px-3 py-2">{r.account?.name}</td>
-                  <td className="whitespace-nowrap px-3 py-2">{r.contact.phone}</td>
+                  <td className="whitespace-nowrap px-3 py-2">{formatPhone(r.contact.phone)}</td>
                   <td className="whitespace-nowrap px-3 py-2">
                     <span className={cn("rounded-full px-2 py-0.5 text-xs", done ? "bg-positive-bg text-positive" : r.inv.status === "not_sent" ? "bg-offwhite text-muted-foreground" : "bg-highlight text-info")}>
                       {STATUS_LABEL[r.inv.status]}

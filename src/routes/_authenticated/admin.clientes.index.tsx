@@ -13,6 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useOptions } from "@/lib/options";
+import { StatusTag, TierTag, accountTotals } from "@/components/admin/AccountTags";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin/clientes/")({
@@ -20,33 +23,39 @@ export const Route = createFileRoute("/_authenticated/admin/clientes/")({
   component: ClientsPage,
 });
 
-const EMPTY = { name: "", segment: "", country: "BR", city: "", owner_name: "", estimated_annual_revenue: "", notes: "" };
+const EMPTY = { name: "", status: "", tier: "", segment: "", country: "BR", city: "", owner_name: "", estimated_annual_revenue: "", notes: "" };
 
 function ClientsPage() {
   const qc = useQueryClient();
   const { data: d } = useQuery(allDataQuery);
   const [q, setQ] = useState("");
   const [fSeg, setFSeg] = useState("");
+  const [fStatus, setFStatus] = useState("");
+  const [fTier, setFTier] = useState("");
+  const opts = useOptions();
   const [fCountry, setFCountry] = useState("");
   const [form, setForm] = useState<typeof EMPTY | null>(null);
 
-  const segments = [...new Set((d?.accounts ?? []).map((a) => a.segment).filter(Boolean) as string[])].sort();
   const list = useMemo(() => {
     if (!d) return [];
     const t = q.trim().toLowerCase();
     return d.accounts
-      .filter((a) => (!t || a.name.toLowerCase().includes(t)) && (!fSeg || a.segment === fSeg) && (!fCountry || a.country === fCountry))
+      .filter((a) => (!t || a.name.toLowerCase().includes(t)) && (!fSeg || a.segment === fSeg) && (!fCountry || a.country === fCountry) && (!fStatus || a.status === fStatus) && (!fTier || a.tier === fTier))
       .map((a) => {
         const hist = accountHistory(d, a.id);
         const latest = [...hist].reverse().find((h) => h.nps !== null);
-        return { a, hist, latest, active: d.contacts.filter((c) => c.account_id === a.id && c.status === "active" && !c.is_test).length };
-      });
-  }, [d, q, fSeg, fCountry]);
+        return { a, hist, latest, tot: accountTotals(hist) };
+      })
+      .sort((x, y) => (x.tot.general.nps ?? 999) - (y.tot.general.nps ?? 999));
+  }, [d, q, fSeg, fCountry, fStatus, fTier]);
 
   const create = async () => {
     if (!form?.name.trim()) return toast.error("Informe o nome.");
+    if (!form.status || !form.tier) return toast.error("Escolha o status e o Tier.");
     const { error } = await supabase.from("accounts").insert({
       name: form.name.trim(),
+      status: form.status,
+      tier: form.tier,
       segment: form.segment || null,
       country: form.country || null,
       city: form.city || null,
@@ -77,7 +86,6 @@ function ClientsPage() {
           {(
             [
               ["name", "Nome"],
-              ["segment", "Segmento"],
               ["city", "Cidade"],
               ["owner_name", "Responsável na Matria"],
               ["estimated_annual_revenue", "Receita anual estimada"],
@@ -88,13 +96,29 @@ function ClientsPage() {
               <Input id={k} type={k === "estimated_annual_revenue" ? "number" : "text"} value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} />
             </div>
           ))}
-          <div className="space-y-1">
-            <Label htmlFor="country">País</Label>
-            <select id="country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} className="h-9 w-full rounded-md border bg-background px-3 text-sm">
-              <option value="BR">Brasil</option>
-              <option value="MX">México</option>
-            </select>
-          </div>
+          {(
+            [
+              ["status", "Status", opts.values("account_status").map((v) => [v, v])],
+              ["tier", "Tier", opts.values("account_tier").map((v) => [v, v])],
+              ["segment", "Tipo", opts.values("account_type").map((v) => [v, v])],
+              ["country", "País", opts.countries.map((c) => [c.value, `${c.extra.flag ?? ""} ${c.extra.label ?? c.value}`])],
+            ] as const
+          ).map(([k, l, o]) => (
+            <div key={k} className="space-y-1">
+              <Label htmlFor={k}>
+                {l}
+                {(k === "status" || k === "tier") && " *"}
+              </Label>
+              <select id={k} value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} className="h-9 w-full rounded-md border bg-background px-3 text-sm">
+                <option value="">Escolha</option>
+                {o.map(([v, t]) => (
+                  <option key={v} value={v}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ))}
           <div className="space-y-1 sm:col-span-2">
             <Label htmlFor="notes">Observações</Label>
             <Textarea id="notes" rows={2} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
@@ -110,37 +134,54 @@ function ClientsPage() {
 
       <div className="flex flex-wrap gap-2">
         <Input placeholder="Buscar instituição" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs bg-background" />
-        <Select value={fSeg} onChange={setFSeg} label="Todos os segmentos" options={segments.map((s) => [s, s])} />
-        <Select value={fCountry} onChange={setFCountry} label="Todos os países" options={[["BR", "Brasil"], ["MX", "México"]]} />
+        <Select value={fStatus} onChange={setFStatus} label="Todos os status" options={opts.values("account_status").map((s) => [s, s])} />
+        <Select value={fTier} onChange={setFTier} label="Todos os Tiers" options={opts.values("account_tier").map((s) => [s, s])} />
+        <Select value={fSeg} onChange={setFSeg} label="Todos os tipos" options={opts.values("account_type").map((s) => [s, s])} />
+        <Select value={fCountry} onChange={setFCountry} label="Todos os países" options={opts.countries.map((c) => [c.value, c.extra.label ?? c.value])} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {list.map(({ a, hist, latest, active }) => {
-          const band = latest?.nps != null ? npsBand(latest.nps) : null;
+        {list.map(({ a, hist, latest, tot }) => {
+          const gBand = tot.general.nps != null ? npsBand(tot.general.nps) : null;
+          const lBand = latest?.nps != null ? npsBand(latest.nps) : null;
           return (
             <Link key={a.id} to="/admin/clientes/$id" params={{ id: a.id }} className="flex flex-col rounded-lg border bg-background p-5 hover:border-primary">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <h2 className="truncate text-lg">{a.name}</h2>
-                  <p className="text-sm text-muted-foreground">
-                    {[a.segment, a.country === "MX" ? "México" : a.country === "BR" ? "Brasil" : null].filter(Boolean).join(" · ") || "Sem segmento"}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className={cn("text-2xl font-semibold", band ? BAND_TEXT[band] : "text-muted-foreground")}>{fmt(latest?.nps)}</p>
-                  <p className="text-xs text-muted-foreground">{latest ? `n=${latest.st.s.n} · ${latest.cycle.name}` : "Sem respostas"}</p>
-                </div>
+              <div className="flex flex-wrap gap-1.5">
+                <StatusTag value={a.status} />
+                <TierTag value={a.tier} tiers={opts.values("account_tier")} />
               </div>
-              <div className="mt-4 flex items-end justify-between gap-4">
-                <p className="text-sm text-muted-foreground">{active} contatos ativos</p>
-                <div className="h-10 w-28">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={hist.map((h) => ({ v: h.nps }))}>
-                      <YAxis hide domain={[-100, 100]} />
-                      <Line dataKey="v" stroke="var(--primary)" strokeWidth={2} dot={{ r: 2 }} connectNulls isAnimationActive={false} />
-                    </LineChart>
-                  </ResponsiveContainer>
+              <h2 className="mt-3 truncate text-lg">{a.name}</h2>
+              <p className="text-sm text-muted-foreground">{[a.segment, opts.countryLabel(a.country)].filter(Boolean).join(" · ")}</p>
+              <dl className="mt-4 grid grid-cols-3 gap-2">
+                <div>
+                  <dt className="text-xs text-muted-foreground">NPS geral</dt>
+                  <dd className={cn("text-2xl font-light", gBand ? BAND_TEXT[gBand] : "text-muted-foreground")}>{fmt(tot.general.nps)}</dd>
+                  <dd className="text-xs text-muted-foreground">n={tot.general.n}</dd>
                 </div>
+                <div>
+                  <dt className="text-xs text-muted-foreground">Último ciclo</dt>
+                  <dd className={cn("text-2xl font-light", lBand ? BAND_TEXT[lBand] : "text-muted-foreground")}>{fmt(latest?.nps)}</dd>
+                  <dd className="truncate text-xs text-muted-foreground">{latest?.cycle.name ?? "Sem respostas"}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-muted-foreground">Taxa acumulada</dt>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <dd className="text-2xl font-light text-primary">{tot.rate != null ? `${tot.rate}%` : "–"}</dd>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {tot.answered} respondentes de {tot.invited} convidados
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </dl>
+              <div className="mt-3 h-10 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={hist.map((h) => ({ v: h.nps }))}>
+                    <YAxis hide domain={[-100, 100]} />
+                    <Line dataKey="v" stroke="var(--primary)" strokeWidth={2} dot={{ r: 2 }} connectNulls isAnimationActive={false} />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </Link>
           );

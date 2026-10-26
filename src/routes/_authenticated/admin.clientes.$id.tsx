@@ -5,13 +5,15 @@ import { toast } from "sonner";
 import { ArrowLeft, ChevronDown, ChevronRight, FileDown, Plus } from "lucide-react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
-import { accountHistory, allDataKey, allDataQuery, fmt, fmt1, type Account } from "@/lib/analytics";
+import { accountHistory, allDataKey, allDataQuery, fmt, fmt1, type Account, type AllData } from "@/lib/analytics";
 import { npsBand } from "@/lib/nps";
-import type { ImportRow } from "@/lib/contacts";
+import { STAGES } from "@/lib/contacts";
+import { useOptions } from "@/lib/options";
+import { ContactSheet } from "@/components/admin/ContactSheet";
+import { StatusTag, TierTag } from "@/components/admin/AccountTags";
 import { BAND_TEXT, Card, ScorePill, TableWrap } from "@/components/admin/charts";
 import { ContactsTable } from "@/components/admin/ContactsTable";
 import { AnswersList } from "@/components/admin/cycle/Respondents";
-import { ImportDialog } from "@/components/admin/ImportDialog";
 import { MatriaLogo } from "@/components/MatriaLogo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -26,7 +28,8 @@ function ClientPage() {
   const qc = useQueryClient();
   const { data: d } = useQuery(allDataQuery);
   const [open, setOpen] = useState<string | null>(null);
-  const [importRows, setImportRows] = useState<ImportRow[] | null>(null);
+  const [adding, setAdding] = useState(false);
+  const opts = useOptions();
   const acc = d?.accounts.find((a) => a.id === id);
   const hist = useMemo(() => (d && acc ? accountHistory(d, acc.id) : []), [d, acc]);
   const refresh = () => qc.invalidateQueries({ queryKey: allDataKey });
@@ -48,30 +51,38 @@ function ClientPage() {
   return (
     <div className="space-y-6 print:space-y-4">
       <div className="hidden items-center justify-between border-b pb-3 print:flex">
-        <MatriaLogo variant="pb" className="h-8" />
+        <MatriaLogo className="h-8" />
         <p className="text-sm text-muted-foreground">Card da instituição · gerado em {new Date().toLocaleDateString("pt-BR")}</p>
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2 print:hidden">
         <Link to="/admin/clientes" className="inline-flex items-center gap-1 text-sm text-primary">
           <ArrowLeft className="h-4 w-4" /> Clientes
         </Link>
-        <Button variant="outline" onClick={() => window.print()}>
-          <FileDown /> Exportar card (PDF)
+        <Button variant="outline" asChild>
+          <Link to="/admin/clientes/$id/card" params={{ id: acc.id }}>
+            <FileDown /> Exportar card (PDF)
+          </Link>
         </Button>
       </div>
 
       <section className="rounded-xl border bg-background p-4 sm:p-6">
-        <Editable className="text-2xl" value={acc.name} onSave={(v) => v.trim() && update({ name: v.trim() })} />
-        <div className="mt-4 grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-5">
-          <Field label="Segmento">
-            <Editable value={acc.segment ?? ""} onSave={(v) => update({ segment: v || null })} />
+        <div className="flex flex-wrap gap-1.5">
+          <StatusTag value={acc.status} />
+          <TierTag value={acc.tier} tiers={opts.values("account_tier")} />
+        </div>
+        <Editable className="mt-2 text-3xl font-light text-primary" value={acc.name} onSave={(v) => v.trim() && update({ name: v.trim() })} />
+        <div className="mt-4 grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
+          <Field label="Status">
+            <OptSelect value={acc.status} options={opts.values("account_status")} onChange={(v) => v && update({ status: v })} />
+          </Field>
+          <Field label="Tier">
+            <OptSelect value={acc.tier} options={opts.values("account_tier")} onChange={(v) => v && update({ tier: v })} />
+          </Field>
+          <Field label="Tipo">
+            <OptSelect value={acc.segment} options={opts.values("account_type")} onChange={(v) => update({ segment: v || null })} />
           </Field>
           <Field label="País">
-            <select value={acc.country ?? ""} onChange={(e) => update({ country: e.target.value || null })} className="rounded border border-transparent bg-transparent px-1 py-1 hover:border-border">
-              <option value="">Não informado</option>
-              <option value="BR">Brasil</option>
-              <option value="MX">México</option>
-            </select>
+            <OptSelect value={acc.country} options={opts.countries.map((c) => c.value)} labels={Object.fromEntries(opts.countries.map((c) => [c.value, c.extra.label ?? c.value]))} onChange={(v) => update({ country: v || null })} />
           </Field>
           <Field label="Cidade">
             <Editable value={acc.city ?? ""} onSave={(v) => update({ city: v || null })} />
@@ -88,11 +99,13 @@ function ClientPage() {
         </Field>
       </section>
 
+      <ProductsBlock d={d} accountId={acc.id} onChanged={refresh} />
+
       <Card
         title="Contatos"
         caption={`${contacts.filter((c) => c.status === "active").length} ativos de ${contacts.length}.`}
         right={
-          <Button size="sm" variant="outline" className="print:hidden" onClick={() => setImportRows([{ institution: acc.name, full_name: "", phone: "", email: "", job_title: "", role: "", product: "", stage: "", notes: "" }])}>
+          <Button size="sm" variant="outline" className="print:hidden" onClick={() => setAdding(true)}>
             <Plus /> Adicionar contato
           </Button>
         }
@@ -103,7 +116,7 @@ function ClientPage() {
         <ul className="hidden text-sm print:block">
           {contacts.map((c) => (
             <li key={c.id}>
-              {c.full_name} · {c.job_title} · {c.role} · {c.contact_products.map((p) => `${p.product} (${p.mom_stage})`).join(", ")}
+              {c.full_name} · {c.job_title} · {c.papel} · {c.contact_products.map((p) => p.product).join(", ")}
             </li>
           ))}
         </ul>
@@ -132,7 +145,7 @@ function ClientPage() {
             <thead className="sticky top-0 bg-subtle text-left">
               <tr>
                 {["Ciclo", "n", "NPS", "Promotores", "Neutros", "Detratores", ...driverKeys.map(([k]) => k)].map((h) => (
-                  <th key={h} className="whitespace-nowrap px-3 py-2 font-semibold">
+                  <th key={h} className="whitespace-nowrap px-3 py-2 font-medium">
                     {h}
                   </th>
                 ))}
@@ -143,7 +156,7 @@ function ClientPage() {
                 <tr key={h.cycle.id} className="border-t">
                   <td className="whitespace-nowrap px-3 py-2">{h.cycle.name}</td>
                   <td className="px-3 py-2">{h.st.s.n}</td>
-                  <td className={cn("px-3 py-2 font-semibold", h.nps != null && BAND_TEXT[npsBand(h.nps)])}>{fmt(h.nps)}</td>
+                  <td className={cn("px-3 py-2 font-medium", h.nps != null && BAND_TEXT[npsBand(h.nps)])}>{fmt(h.nps)}</td>
                   <td className="px-3 py-2">{h.st.s.promoters}</td>
                   <td className="px-3 py-2">{h.st.s.passives}</td>
                   <td className="px-3 py-2">{h.st.s.detractors}</td>
@@ -173,7 +186,7 @@ function ClientPage() {
                         <ScorePill score={r.score!} />
                         <div className="min-w-0 flex-1">
                           <p>
-                            {r.contact.full_name} <span className="text-muted-foreground">· {r.contact.role}</span>
+                            {r.contact.full_name} <span className="text-muted-foreground">· {r.contact.papel}</span>
                           </p>
                           <p className="truncate text-sm text-muted-foreground">{r.reason}</p>
                         </div>
@@ -186,7 +199,7 @@ function ClientPage() {
                       )}
                       <div className="hidden break-inside-avoid border-b py-2 text-sm print:block">
                         <p>
-                          {r.score} · {r.contact.full_name} · {r.contact.role}
+                          {r.score} · {r.contact.full_name} · {r.contact.papel}
                         </p>
                         {h.st.questions
                           .filter((q) => q.kind === "text")
@@ -206,7 +219,7 @@ function ClientPage() {
           {!latest && <p className="text-muted-foreground">Sem respostas ainda.</p>}
         </div>
       </Card>
-      <ImportDialog rows={importRows} setRows={setImportRows} onDone={refresh} />
+      <ContactSheet d={d} contact={adding ? null : undefined} defaultAccount={acc.id} onClose={() => setAdding(false)} />
     </div>
   );
 }
@@ -236,5 +249,78 @@ function Editable({ value, onSave, className }: { value: string; onSave: (v: str
       onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
       className={cn("w-full rounded border border-transparent bg-transparent px-1 py-1 hover:border-border focus:border-primary focus:outline-none", className)}
     />
+  );
+}
+
+function OptSelect({ value, options, labels, onChange }: { value: string | null; options: string[]; labels?: Record<string, string>; onChange: (v: string) => void }) {
+  const list = value && !options.includes(value) ? [...options, value] : options;
+  return (
+    <select value={value ?? ""} onChange={(e) => onChange(e.target.value)} className="w-full rounded border border-transparent bg-transparent px-1 py-1 text-primary hover:border-border">
+      <option value="">Não informado</option>
+      {list.map((o) => (
+        <option key={o} value={o}>
+          {labels?.[o] ?? o}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function ProductsBlock({ d, accountId, onChanged }: { d: AllData; accountId: string; onChanged: () => void }) {
+  const opts = useOptions();
+  const [adding, setAdding] = useState("");
+  const rows = d.accountProducts.filter((p) => p.account_id === accountId);
+  const available = opts.values("product").filter((p) => !rows.some((r) => r.product === p));
+  const setStage = async (id: string, mom_stage: string) => {
+    const { error } = await supabase.from("account_products").update({ mom_stage: mom_stage as never }).eq("id", id);
+    if (error) return toast.error("Não foi possível salvar.");
+    toast.success("Estágio atualizado.");
+    onChanged();
+  };
+  const add = async () => {
+    if (!adding) return;
+    const { error } = await supabase.from("account_products").insert({ account_id: accountId, product: adding });
+    if (error) return toast.error("Não foi possível adicionar.");
+    setAdding("");
+    onChanged();
+  };
+  const remove = async (id: string) => {
+    const { error } = await supabase.from("account_products").delete().eq("id", id);
+    if (error) return toast.error("Não foi possível remover.");
+    onChanged();
+  };
+  return (
+    <Card title="Produtos contratados" caption="O estágio vale para todos os contatos da instituição que usam o produto.">
+      <ul className="divide-y rounded-lg border">
+        {rows.map((r) => (
+          <li key={r.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
+            <span className="min-w-40 flex-1 text-primary">{r.product}</span>
+            <select value={r.mom_stage} onChange={(e) => setStage(r.id, e.target.value)} className="h-9 rounded-md border bg-background px-3 text-sm print:border-0">
+              {STAGES.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+            <span className="text-xs text-muted-foreground">desde {new Date(r.updated_at).toLocaleDateString("pt-BR")}</span>
+            <button onClick={() => remove(r.id)} className="text-sm text-muted-foreground hover:text-negative print:hidden">
+              Remover
+            </button>
+          </li>
+        ))}
+        {!rows.length && <li className="px-4 py-3 text-muted-foreground">Nenhum produto contratado.</li>}
+      </ul>
+      {available.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2 print:hidden">
+          <select value={adding} onChange={(e) => setAdding(e.target.value)} className="h-9 rounded-md border bg-background px-3 text-sm">
+            <option value="">Adicionar produto</option>
+            {available.map((p) => (
+              <option key={p}>{p}</option>
+            ))}
+          </select>
+          <Button size="sm" variant="outline" onClick={add} disabled={!adding}>
+            <Plus /> Adicionar
+          </Button>
+        </div>
+      )}
+    </Card>
   );
 }

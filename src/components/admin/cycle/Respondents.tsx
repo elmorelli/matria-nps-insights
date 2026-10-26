@@ -31,6 +31,7 @@ export function Respondents({ d, cycle }: { d: AllData; cycle: Cycle }) {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<string | null>(null);
   const questions = questionsOf(d, cycle);
+  const stageOf = (product: string, accountId: string) => d.accountProducts.find((ap) => ap.account_id === accountId && ap.product === product)?.mom_stage ?? "Sem estágio";
   const rows = useMemo(() => {
     const t = q.trim().toLowerCase();
     return cycleRows(d, cycle.id, f).filter((r) => !t || [r.contact.full_name, r.account?.name, r.reason].some((s) => (s ?? "").toLowerCase().includes(t)));
@@ -50,7 +51,7 @@ export function Respondents({ d, cycle }: { d: AllData; cycle: Cycle }) {
           <thead className="sticky top-0 z-10 bg-subtle text-left">
             <tr>
               {["", "Nome", "Instituição", "Cargo", "Papel", "Estágios e produtos", "Status", "Envio e lembretes", "Abertura", "NPS", "Duração"].map((h) => (
-                <th key={h} className="whitespace-nowrap px-3 py-3 font-semibold">
+                <th key={h} className="whitespace-nowrap px-3 py-3 font-medium">
                   {h}
                 </th>
               ))}
@@ -70,11 +71,11 @@ export function Respondents({ d, cycle }: { d: AllData; cycle: Cycle }) {
                     </td>
                     <td className="px-3 py-3">{r.account?.name}</td>
                     <td className="px-3 py-3">{r.contact.job_title}</td>
-                    <td className="whitespace-nowrap px-3 py-3">{r.contact.role}</td>
+                    <td className="whitespace-nowrap px-3 py-3">{r.contact.papel}</td>
                     <td className="px-3 py-3">
                       {r.contact.contact_products.map((p) => (
                         <div key={p.id} className="whitespace-nowrap">
-                          {p.mom_stage} <span className="text-muted-foreground">· {p.product}</span>
+                          {stageOf(p.product, r.contact.account_id)} <span className="text-muted-foreground">· {p.product}</span>
                         </div>
                       ))}
                     </td>

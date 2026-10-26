@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { AlertTriangle, FileDown, Target, TrendingUp, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { promotersNeeded, answersNeeded, npsBand } from "@/lib/nps";
-import { BAND_LABEL, EMPTY_FILTERS, cycleReading, cycleStats, dailySeries, fmt, previousCycle, type AllData, type Cycle } from "@/lib/analytics";
+import { BAND_LABEL, EMPTY_FILTERS, cycleReading, cycleStats, dailySeries, fmt, previousCycle, type AllData, type Cycle , stageCaption } from "@/lib/analytics";
 import { BAND_TEXT, Card, CorrelationChart, Distribution, DriversTable, Evolution, Funnel, Gauge, GroupBars, Histogram, Reading } from "@/components/admin/charts";
 import { FiltersBar, filtersToSearch } from "@/components/admin/FiltersBar";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,7 @@ export function Results({ d, cycle }: { d: AllData; cycle: Cycle }) {
   const exportPdf = () => {
     const p = filtersToSearch(f);
     p.set("cycles", cycle.id);
-    window.open(`/relatorio?${p.toString()}`, "_blank");
+    window.location.assign(`/admin/relatorio?${p.toString()}`);
   };
 
   return (
@@ -74,7 +74,7 @@ export function Results({ d, cycle }: { d: AllData; cycle: Cycle }) {
         </Card>
         <div className="flex flex-col gap-4 lg:col-span-2">
           <Card title="Taxa de resposta" right={<Users className="h-5 w-5 text-muted-foreground" />}>
-            <p className="text-4xl font-semibold">{st.rate ?? 0}%</p>
+            <p className="text-4xl font-light">{st.rate ?? 0}%</p>
             <p className="text-sm text-muted-foreground">
               {st.s.n} de {st.base} contatos válidos
             </p>
@@ -117,7 +117,7 @@ export function Results({ d, cycle }: { d: AllData; cycle: Cycle }) {
         <Card title="NPS por papel">
           <GroupBars items={st.byRole} target={target} />
         </Card>
-        <Card title="NPS por estágio MOM">
+        <Card title="NPS por estágio MOM" caption={stageCaption(st)}>
           <GroupBars items={st.byStage} target={target} />
         </Card>
       </section>

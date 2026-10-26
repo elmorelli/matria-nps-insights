@@ -6,19 +6,37 @@ import { MatriaLogo } from "@/components/MatriaLogo";
 import { LIKERT_LABELS, SEED_QUESTIONS, groupBlocks, isAnswered, type AnswerMap, type Question } from "@/lib/survey";
 import { firstName } from "@/lib/contacts";
 import { cn } from "@/lib/utils";
+import { getSurveyMeta, DEFAULT_META } from "@/lib/survey-meta.functions";
+import feixeAzul from "@/assets/feixe-azul.webp.asset.json";
+import feixeOff from "@/assets/feixe-offwhite.webp.asset.json";
+import fotoMaos from "@/assets/medico-maos-paciente.webp.asset.json";
+import fotoSol from "@/assets/respiro-ao-sol.webp.asset.json";
 
 export const Route = createFileRoute("/r/$token")({
-  head: () => ({
-    meta: [
-      { title: "Pesquisa Matria" },
-      { name: "description", content: "Conte como tem sido a parceria com a Matria." },
-      { property: "og:title", content: "Pesquisa Matria" },
-      { property: "og:description", content: "Conte como tem sido a parceria com a Matria. Leva uns 3 minutos." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "robots", content: "noindex" },
-    ],
-  }),
+  loader: () => getSurveyMeta(),
+  head: ({ loaderData }) => {
+    const m = loaderData ?? { origin: "", ...DEFAULT_META };
+    const img = m.origin ? `${m.origin}/og-pesquisa.jpg` : undefined;
+    return {
+      meta: [
+        { title: m.title },
+        { name: "description", content: m.description },
+        { property: "og:title", content: m.title },
+        { property: "og:description", content: m.description },
+        { property: "og:type", content: "website" },
+        ...(img
+          ? [
+              { property: "og:image", content: img },
+              { property: "og:image:width", content: "1200" },
+              { property: "og:image:height", content: "630" },
+              { name: "twitter:image", content: img },
+            ]
+          : []),
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "robots", content: "noindex" },
+      ],
+    };
+  },
   component: SurveyPage,
 });
 
@@ -26,6 +44,8 @@ type Info = { state: "loading" | "open" | "answered" | "closed" | "not_found" | 
 
 function SurveyPage() {
   const { token } = Route.useParams();
+  const meta = Route.useLoaderData();
+  const duration = meta?.duration ?? DEFAULT_META.duration;
   const preview = token === "teste";
   const [info, setInfo] = useState<Info>({ state: "loading" });
   const [confirmed, setConfirmed] = useState(false);
@@ -186,19 +206,27 @@ function SurveyPage() {
 
   if (!confirmed)
     return (
-      <Shell>
-        {preview && <PreviewBadge />}
-        <p className="text-sm text-primary">Pesquisa de relacionamento</p>
-        <h1 className="mt-2 text-2xl leading-snug">
-          Olá. Esta pesquisa foi enviada para {info.name}, de {info.account}.
-        </h1>
-        <PrimaryButton className="mt-8" disabled={busy} onClick={confirm}>
-          {busy ? "Abrindo…" : "Sou eu, começar"}
-        </PrimaryButton>
-        <button type="button" onClick={decline} className="mt-4 min-h-11 w-full text-sm text-primary underline-offset-4 hover:underline">
-          Não sou eu
-        </button>
-      </Shell>
+      <div className="flex min-h-screen flex-col bg-background">
+        <div className="relative flex h-56 flex-col justify-between bg-primary bg-cover bg-center px-5 py-5 sm:h-72 sm:px-10" style={{ backgroundImage: `url(${feixeAzul.url})` }}>
+          <MatriaLogo variant="negativo" className="h-10 self-start" />
+          <p className="self-end text-right text-2xl font-light leading-tight text-primary-foreground sm:text-4xl">{info.account}</p>
+        </div>
+        <div className="luz-overlay h-40 overflow-hidden sm:h-56">
+          <img src={fotoMaos.url} alt="" className="h-full w-full object-cover object-[50%_40%]" />
+        </div>
+        <main className="mx-auto w-full max-w-xl flex-1 px-5 py-10">
+          {preview && <PreviewBadge />}
+          <h1 className="text-2xl leading-snug">
+            Olá. Esta pesquisa foi enviada para {info.name}, de {info.account}.
+          </h1>
+          <PrimaryButton className="mt-8" disabled={busy} onClick={confirm}>
+            {busy ? "Abrindo…" : "Sou eu, começar"}
+          </PrimaryButton>
+          <button type="button" onClick={decline} className="mt-4 min-h-11 w-full text-sm text-primary underline-offset-4 hover:underline">
+            Não sou eu
+          </button>
+        </main>
+      </div>
     );
 
   if (stage === "intro")
@@ -208,11 +236,11 @@ function SurveyPage() {
         <p className="text-sm text-primary">Pesquisa de relacionamento</p>
         <h1 className="mt-2 text-3xl leading-tight">Olá, {name}.</h1>
         <p className="mt-4 text-base leading-relaxed">
-          Esta pesquisa é sobre a experiência de {info.account} com a Matria como parceira, desde o início da nossa relação. Leva uns 3 minutos. Se alguma pergunta falar de uma etapa que a sua organização ainda não viveu conosco, marque a opção 'Ainda não chegamos nesta etapa'.
+          Esta pesquisa é sobre a experiência de {info.account} com a Matria como parceira, desde o início da nossa relação. {duration.replace(/\.$/, "")}. Se alguma pergunta falar de uma etapa que a sua organização ainda não viveu conosco, marque a opção 'Ainda não chegamos nesta etapa'.
         </p>
         <div className="mt-8 grid grid-cols-3 gap-2 text-center">
           {[
-            [<Clock key="c" />, "3 minutos"],
+            [<Clock key="c" />, duration.replace(/^Leva (uns |cerca de )?/i, "").replace(/\.$/, "")],
             [<ListChecks key="l" />, `${questions.length} perguntas`],
             [<Save key="s" />, "Salva sozinha"],
           ].map(([icon, label], i) => (
@@ -344,7 +372,7 @@ function SurveyPage() {
       <p className="inline-flex rounded-full bg-highlight px-3 py-1 text-sm text-primary">
         Bloco {blkIndex + 1} · {blk?.title}
       </p>
-      <h2 className="mt-4 text-xl leading-snug sm:text-2xl">{step.text}</h2>
+      <h2 className="mt-4 text-xl font-normal leading-snug text-primary sm:text-2xl">{step.text}</h2>
 
       <div className="mt-8">
         {step.kind === "nps" && <NpsScale value={cur.num ?? undefined} onChange={(v) => update(step.key, { num: v })} />}
@@ -416,17 +444,15 @@ function reviewAnswer(s: Question, a: AnswerMap): string {
 
 function Shell({ children, account, footer = true }: { children: React.ReactNode; account?: string; footer?: boolean }) {
   return (
-    <div className="flex min-h-screen flex-col bg-subtle">
-      <header className="bg-primary pb-16 sm:pb-24">
-        <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-4 py-2">
-          <MatriaLogo variant="negativo" className="h-12" />
-          {account && <span className="truncate text-sm text-primary-foreground">{account}</span>}
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="border-b">
+        <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-4 py-1">
+          <MatriaLogo className="h-12" />
+          {account && <span className="truncate text-sm text-primary">{account}</span>}
         </div>
       </header>
-      <main className="mx-auto -mt-12 w-full max-w-2xl flex-1 px-3 sm:-mt-16 sm:px-6">
-        <div className="rounded-xl border bg-background px-5 py-8 sm:px-12 sm:py-12">{children}</div>
-      </main>
-      <footer className="py-8 text-center text-sm text-muted-foreground">{footer ? "Data for Better Care" : " "}</footer>
+      <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-8 sm:px-6 sm:py-12">{children}</main>
+      <footer className="py-8 text-center text-sm text-muted-foreground">{footer ? "Data for better care." : " "}</footer>
     </div>
   );
 }
@@ -437,7 +463,7 @@ function PrimaryButton({ className, ...p }: React.ButtonHTMLAttributes<HTMLButto
       type="button"
       {...p}
       className={cn(
-        "flex min-h-14 w-full items-center justify-center rounded-md bg-primary px-6 text-base font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40",
+        "flex min-h-14 w-full items-center justify-center rounded-md bg-primary px-6 text-base text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40",
         className,
       )}
     />
@@ -520,16 +546,28 @@ function PreviewBadge() {
   );
 }
 
-function ThankYou({ name, account }: { name: string; account?: string }) {
+function ThankYou({ name }: { name: string; account?: string }) {
   return (
-    <Shell account={account}>
-      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-positive-bg text-positive">
-        <Check className="h-7 w-7" />
+    <div className="flex min-h-screen flex-col bg-offwhite bg-cover bg-center" style={{ backgroundImage: `url(${feixeOff.url})` }}>
+      <header className="px-4 py-1 sm:px-8">
+        <MatriaLogo className="h-12" />
+      </header>
+      <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-10 sm:py-16">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-light text-green-dark">
+          <Check className="h-6 w-6" />
+        </div>
+        <h1 className="mt-6 text-4xl leading-tight sm:text-5xl">Obrigado, {name}.</h1>
+        <p className="mt-4 text-lg font-light leading-relaxed text-primary">
+          Você vai receber da Matria, por escrito, o que ouvimos e o que vamos fazer a respeito.
+        </p>
+      </main>
+      <div className="luz-overlay h-44 overflow-hidden sm:h-64">
+        <img src={fotoSol.url} alt="" className="h-full w-full object-cover object-[50%_45%]" />
       </div>
-      <h1 className="mt-6 text-2xl leading-snug">Obrigado, {name}.</h1>
-      <p className="mt-4 text-base leading-relaxed">
-        Você vai receber da Matria, por escrito, o que ouvimos e o que vamos fazer a respeito.
-      </p>
-    </Shell>
+      <footer className="flex items-center justify-between px-5 py-6 text-sm text-primary sm:px-8">
+        <MatriaLogo className="h-10" />
+        <span>Data for better care.</span>
+      </footer>
+    </div>
   );
 }

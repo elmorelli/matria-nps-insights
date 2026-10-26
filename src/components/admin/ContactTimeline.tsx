@@ -52,7 +52,7 @@ export function ContactTimeline({ contact, onClose }: { contact: { id: string; f
     <Sheet open={!!contact} onOpenChange={(o) => !o && onClose()}>
       <SheetContent className="w-full overflow-y-auto sm:max-w-md">
         <SheetHeader>
-          <SheetTitle className="font-semibold">{contact?.full_name}</SheetTitle>
+          <SheetTitle className="font-medium">{contact?.full_name}</SheetTitle>
           <p className="text-sm text-muted-foreground">{contact?.accounts?.name} · linha do tempo</p>
         </SheetHeader>
         <ol className="relative mt-8 ml-3 border-l border-border pl-6">

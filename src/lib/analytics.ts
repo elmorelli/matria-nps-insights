@@ -1,20 +1,31 @@
 import { supabase } from "@/integrations/supabase/client";
 import { npsOf, npsBand, promotersNeeded, answersNeeded, type NpsSummary, type Band } from "@/lib/nps";
-import { ROLES, STAGES } from "@/lib/contacts";
+import { STAGES } from "@/lib/contacts";
 
 /* ---------- loading ---------- */
 
 export async function fetchAll() {
-  const [cy, ac, co, inv, qs, qn] = await Promise.all([
+  const [cy, ac, co, inv, qs, qn, ap, ol] = await Promise.all([
     supabase.from("cycles").select("*").order("start_date"),
     supabase.from("accounts").select("*").order("name"),
-    supabase.from("contacts").select("*, contact_products(id,product,mom_stage)").order("full_name"),
+    supabase.from("contacts").select("*, contact_products(id,product)").order("full_name"),
     supabase.from("invitations").select("*, responses(*, response_answers(*))"),
     supabase.from("questions").select("*").order("position"),
     supabase.from("questionnaires").select("*").order("version"),
+    supabase.from("account_products").select("*").order("product"),
+    supabase.from("option_lists").select("list,value,position,active").eq("list", "role").order("position"),
   ]);
-  for (const r of [cy, ac, co, inv, qs, qn]) if (r.error) throw r.error;
-  return { cycles: cy.data!, accounts: ac.data!, contacts: co.data!, invitations: inv.data!, questions: qs.data!, questionnaires: qn.data! };
+  for (const r of [cy, ac, co, inv, qs, qn, ap, ol]) if (r.error) throw r.error;
+  return {
+    cycles: cy.data!,
+    accounts: ac.data!,
+    contacts: co.data!,
+    invitations: inv.data!,
+    questions: qs.data!,
+    questionnaires: qn.data!,
+    accountProducts: ap.data!,
+    roles: ol.data!.map((r) => r.value),
+  };
 }
 export type AllData = Awaited<ReturnType<typeof fetchAll>>;
 export type Cycle = AllData["cycles"][number];
@@ -32,11 +43,17 @@ export const allDataQuery = { queryKey: allDataKey, queryFn: fetchAll };
 export type Filters = { account: string; role: string; stage: string; product: string; country: string; showTest: boolean };
 export const EMPTY_FILTERS: Filters = { account: "", role: "", stage: "", product: "", country: "", showTest: false };
 
-export function matches(c: Contact, acc: Account | undefined, f: Filters) {
+/** Stages a contact inherits from the institution's contracted products (account_products), at the time of analysis. */
+export function contactStages(d: Pick<AllData, "accountProducts">, c: Contact): string[] {
+  const mine = new Set(c.contact_products.map((p) => p.product));
+  return [...new Set(d.accountProducts.filter((ap) => ap.account_id === c.account_id && mine.has(ap.product)).map((ap) => ap.mom_stage as string))];
+}
+
+export function matches(c: Contact, acc: Account | undefined, f: Filters, d?: Pick<AllData, "accountProducts">) {
   if (!f.showTest && c.is_test) return false;
   if (f.account && c.account_id !== f.account) return false;
-  if (f.role && c.role !== f.role) return false;
-  if (f.stage && !c.contact_products.some((p) => p.mom_stage === f.stage)) return false;
+  if (f.role && c.papel !== f.role) return false;
+  if (f.stage && d && !contactStages(d, c).includes(f.stage)) return false;
   if (f.product && !c.contact_products.some((p) => p.product === f.product)) return false;
   if (f.country && acc?.country !== f.country) return false;
   return true;
@@ -86,7 +103,7 @@ export function cycleRows(d: AllData, cycleId: string, f: Filters): Row[] {
       const answered = inv.status === "answered" && !!inv.responses;
       return { inv, contact, account, answered, score: answered ? inv.responses!.q1_nps : null, answers: answersOf(inv), reason: inv.responses?.q2_reason ?? "" };
     })
-    .filter((r) => r.contact && matches(r.contact, r.account, f))
+    .filter((r) => r.contact && matches(r.contact, r.account, f, d))
     .sort((a, b) => a.contact.full_name.localeCompare(b.contact.full_name));
 }
 
@@ -94,7 +111,7 @@ export function cycleRows(d: AllData, cycleId: string, f: Filters): Row[] {
 export function validBase(d: AllData, cycleId: string, f: Filters, rows: Row[]) {
   if (rows.length) return rows.filter((r) => r.inv.status !== "invalid" && r.contact.status === "active").length;
   const aMap = new Map(d.accounts.map((a) => [a.id, a]));
-  return d.contacts.filter((c) => c.status === "active" && matches(c, aMap.get(c.account_id), f)).length;
+  return d.contacts.filter((c) => c.status === "active" && matches(c, aMap.get(c.account_id), f, d)).length;
 }
 
 /* ---------- cycle stats ---------- */
@@ -175,8 +192,9 @@ export function cycleStats(d: AllData, cycle: Cycle, f: Filters) {
     hist,
     funnel: [["Base válida", base], ["Links gerados", rows.length], ["Enviados", sent], ["Abertos", opened], ["Respondidos", answered.length]] as [string, number][],
     byAccount: groupBy(rows, (r) => [r.account?.name ?? "Sem instituição"]).sort((a, b) => (a.nps ?? 0) - (b.nps ?? 0)),
-    byRole: ROLES.map((role) => groupBy(rows.filter((r) => r.contact.role === role), () => [role])[0] ?? { name: role, ...npsOf([]) }),
-    byStage: STAGES.map((st) => groupBy(rows.filter((r) => r.contact.contact_products.some((p) => p.mom_stage === st)), () => [st])[0] ?? { name: st, ...npsOf([]) }),
+    byRole: rolesOf(d, rows).map((role) => groupBy(rows.filter((r) => r.contact.papel === role), () => [role])[0] ?? { name: role, ...npsOf([]) }),
+    byStage: STAGES.map((st) => groupBy(rows.filter((r) => contactStages(d, r.contact).includes(st)), () => [st])[0] ?? { name: st, ...npsOf([]) }),
+    multiStage: rows.filter((r) => r.answered && contactStages(d, r.contact).length > 1).length,
     byProduct: groupBy(rows, (r) => [...new Set(r.contact.contact_products.map((p) => p.product))]).sort((a, b) => (a.nps ?? 0) - (b.nps ?? 0)),
     drivers: drivers(rows, qs),
     questions: qs,
@@ -267,7 +285,7 @@ export function cycleReading(st: CycleStats, prev: CycleStats | null): string[] 
     const accNames = [...new Set(st.answered.map((r) => r.account?.name ?? ""))];
     accNames.forEach((an) => {
       const rr = st.answered.filter((r) => (r.account?.name ?? "") === an);
-      const vals = ROLES.map((role) => npsOf(rr.filter((r) => r.contact.role === role).map((r) => r.score!))).filter((x) => x.n > 0).map((x) => x.nps!);
+      const vals = [...new Set(rr.map((r) => r.contact.papel ?? ""))].map((role) => npsOf(rr.filter((r) => r.contact.papel === role).map((r) => r.score!))).filter((x) => x.n > 0).map((x) => x.nps!);
       if (vals.length >= 2 && Math.max(...vals) - Math.min(...vals) > 30) gaps.push(an);
     });
     if (gaps.length) p += ` Em ${gaps.join(", ")}, a diferença entre papéis passa de 30 pontos.`;
@@ -295,6 +313,12 @@ export function answerLabel(q: Pick<QuestionRow, "kind">, a: AnswerVal | undefin
   return `${a.num} · ${LIKERT[a.num - 1] ?? ""}`;
 }
 
+/** Roles from Configurações plus any legacy value still on contacts. */
+export function rolesOf(d: AllData, rows?: Row[]) {
+  const extra = (rows ?? []).map((r) => r.contact.papel).filter(Boolean) as string[];
+  return [...new Set([...d.roles, ...extra])];
+}
+
 export function distinctProducts(d: AllData) {
   return [...new Set(d.contacts.flatMap((c) => c.contact_products.map((p) => p.product)))].sort();
 }
@@ -310,3 +334,9 @@ export function accountHistory(d: AllData, accountId: string) {
     });
 }
 
+
+/** Caption for the by-stage chart: responses from people whose products sit at different stages count once per stage. */
+export function stageCaption(st: { multiStage: number }) {
+  const base = "Estágio herdado dos produtos contratados pela instituição.";
+  return st.multiStage ? `${base} ${st.multiStage} ${st.multiStage === 1 ? "resposta conta" : "respostas contam"} em mais de um estágio, uma vez por estágio.` : base;
+}
