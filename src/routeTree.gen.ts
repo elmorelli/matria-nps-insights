@@ -23,6 +23,7 @@ import { Route as AuthenticatedAdminCiclosIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminCiclosIdRouteImport } from './routes/_authenticated/admin.ciclos.$id'
 import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated/admin.clientes.index'
 import { Route as AuthenticatedAdminClientesIdRouteImport } from './routes/_authenticated/admin.clientes.$id'
+import { Route as AuthenticatedAdminClientesIdCardRouteImport } from './routes/_authenticated/admin_.clientes.$id.card'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -101,6 +102,12 @@ const AuthenticatedAdminClientesIdRoute =
     path: '/clientes/$id',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminClientesIdCardRoute =
+  AuthenticatedAdminClientesIdCardRouteImport.update({
+    id: '/admin_/clientes/$id/card',
+    path: '/admin/clientes/$id/card',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
   '/admin/ciclos/': typeof AuthenticatedAdminCiclosIndexRoute
   '/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
+  '/admin/clientes/$id/card': typeof AuthenticatedAdminClientesIdCardRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -130,6 +138,7 @@ export interface FileRoutesByTo {
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
   '/admin/ciclos': typeof AuthenticatedAdminCiclosIndexRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesIndexRoute
+  '/admin/clientes/$id/card': typeof AuthenticatedAdminClientesIdCardRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -147,6 +156,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
   '/_authenticated/admin/ciclos/': typeof AuthenticatedAdminCiclosIndexRoute
   '/_authenticated/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
+  '/_authenticated/admin_/clientes/$id/card': typeof AuthenticatedAdminClientesIdCardRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -164,6 +174,7 @@ export interface FileRouteTypes {
     | '/admin/clientes/$id'
     | '/admin/ciclos/'
     | '/admin/clientes/'
+    | '/admin/clientes/$id/card'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/admin/clientes/$id'
     | '/admin/ciclos'
     | '/admin/clientes'
+    | '/admin/clientes/$id/card'
   id:
     | '__root__'
     | '/'
@@ -194,6 +206,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/clientes/$id'
     | '/_authenticated/admin/ciclos/'
     | '/_authenticated/admin/clientes/'
+    | '/_authenticated/admin_/clientes/$id/card'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -303,6 +316,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminClientesIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin_/clientes/$id/card': {
+      id: '/_authenticated/admin_/clientes/$id/card'
+      path: '/admin/clientes/$id/card'
+      fullPath: '/admin/clientes/$id/card'
+      preLoaderRoute: typeof AuthenticatedAdminClientesIdCardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -334,11 +354,13 @@ const AuthenticatedAdminRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAdminRelatorioRoute: typeof AuthenticatedAdminRelatorioRoute
+  AuthenticatedAdminClientesIdCardRoute: typeof AuthenticatedAdminClientesIdCardRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAdminRelatorioRoute: AuthenticatedAdminRelatorioRoute,
+  AuthenticatedAdminClientesIdCardRoute: AuthenticatedAdminClientesIdCardRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
