@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import ExcelJS from "exceljs";
-import { newWorkbook, addSheet, type SheetSpec } from "./xlsx-brand";
+import { newWorkbook, addSheet, sheetFromObjects, type SheetSpec } from "./xlsx-brand";
 
 type Paint = { pattern?: string; fgColor?: { argb?: string } };
 const paint = (c: ExcelJS.Cell) => c.fill as unknown as Paint;
