@@ -97,8 +97,6 @@ function ClientPage() {
 
       <ProductsBlock d={d} accountId={acc.id} onChanged={refresh} />
 
-      <Coverage hist={hist} activeContacts={contacts.filter((c) => c.status === "active" && !c.is_test).length} />
-
       <Card
         title="Contatos"
         caption={`${contacts.filter((c) => c.status === "active").length} ativos de ${contacts.length}.`}
@@ -119,6 +117,8 @@ function ClientPage() {
           ))}
         </ul>
       </Card>
+
+      <Coverage hist={hist} activeContacts={contacts.filter((c) => c.status === "active" && !c.is_test).length} />
 
       <Card title="Histórico de NPS" caption="NPS e taxa de resposta da instituição em cada ciclo.">
         {withData.length ? (
