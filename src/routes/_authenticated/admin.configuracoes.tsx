@@ -68,7 +68,7 @@ function SettingsPage() {
         <p className="mt-1 text-muted-foreground">Listas de seleção, metas de programa, mensagens padrão, pesquisa e conta.</p>
       </div>
       <ListsSection />
-      <TemplatesSection />
+
       <SurveySection />
       <AccountSection />
       <AccessSection />
@@ -288,44 +288,6 @@ function useSettings() {
   });
 }
 
-function TemplatesSection() {
-  const qc = useQueryClient();
-  const { data } = useSettings();
-  const [f, setF] = useState({ template_initial: "", template_reminder_1: "", template_reminder_2: "", template_reminder_3: "" });
-  useEffect(() => {
-    if (data) setF({ template_initial: data.template_initial, template_reminder_1: data.template_reminder_1, template_reminder_2: data.template_reminder_2, template_reminder_3: data.template_reminder_3 });
-  }, [data]);
-  const save = async () => {
-    if (!data) return;
-    const { error } = await supabase.from("settings").update(f).eq("id", data.id);
-    if (error) return toast.error("Não foi possível salvar.");
-    toast.success("Modelos salvos. Valem para os próximos ciclos.");
-    qc.invalidateQueries({ queryKey: settingsKey });
-  };
-  const labels: [keyof typeof f, string][] = [
-    ["template_initial", "Primeiro envio"],
-    ["template_reminder_1", "Lembrete 1"],
-    ["template_reminder_2", "Lembrete 2"],
-    ["template_reminder_3", "Lembrete 3"],
-  ];
-  return (
-    <Card title="Modelos padrão de mensagem" caption="Usados para preencher cada novo ciclo. Mudar aqui não altera ciclos que já existem. Use {nome}, {instituição} e {link}.">
-      <div className="grid gap-4 lg:grid-cols-2">
-        {labels.map(([k, l]) => (
-          <div key={k} className="space-y-2">
-            <Label htmlFor={k} className="text-primary">
-              {l}
-            </Label>
-            <Textarea id={k} rows={5} value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} />
-          </div>
-        ))}
-      </div>
-      <Button className="mt-4" onClick={save}>
-        Salvar modelos
-      </Button>
-    </Card>
-  );
-}
 
 function SurveySection() {
   const qc = useQueryClient();
