@@ -131,7 +131,7 @@ function QuestionnairesPage() {
       <CreateDialog d={d} open={creating} onClose={() => setCreating(false)} onCreated={async (id) => { await refresh(); setCreating(false); setEditing(id); }} />
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent className="max-h-[90vh] w-[95vw] max-w-5xl overflow-y-auto sm:w-[95vw]">
           {editing && <Editor key={editing} d={d} qid={editing} locked={usageOf(d, editing).locked} onChange={refresh} />}
         </DialogContent>
       </Dialog>
