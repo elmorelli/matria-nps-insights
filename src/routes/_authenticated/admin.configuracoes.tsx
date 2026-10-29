@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { listAccess, addAccess, updateAccess, setAccessActive, removeAccess } from "@/lib/access.functions";
-import { ACCESS_ROLES, ROLE_HINT, ROLE_LABEL, type AccessRole } from "@/lib/access";
+import { ACCESS_ROLES, ROLE_HINT, ROLE_LABEL, canManageUser, type AccessRole } from "@/lib/access";
 
 export const Route = createFileRoute("/_authenticated/admin/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações | Matria NPS" }, { name: "robots", content: "noindex" }] }),
@@ -80,6 +80,8 @@ const EMPTY_FORM = { name: "", jobTitle: "", email: "", password: "", role: "vie
 
 function AccessSection() {
   const qc = useQueryClient();
+  const nav = useNavigate();
+
   const list = useServerFn(listAccess);
   const add = useServerFn(addAccess);
   const update = useServerFn(updateAccess);
@@ -99,13 +101,27 @@ function AccessSection() {
     try {
       if (editing) {
         const orig = users.find((u) => u.id === editing);
+        const me = users.find((u) => u.isMe);
         if (orig && orig.email !== form.email.trim() && !confirm(`Atenção: você está ALTERANDO o usuário ${orig.name || orig.email}, não criando um novo. O e-mail dele vai mudar para ${form.email}. Para cadastrar outra pessoa, clique em Cancelar e use "Cadastrar usuário". Continuar mesmo assim?`)) {
+          setBusy(false);
+          return;
+        }
+        if (me && editing === me.id && orig?.role === "admin" && form.role !== "admin" && !confirm("Você está tirando o seu próprio acesso de Administrador. Você perde o acesso a esta página e a outras áreas do painel. Continuar?")) {
           setBusy(false);
           return;
         }
         await update({ data: { id: editing, ...form } });
         toast.success("Usuário atualizado.");
+        if (me && editing === me.id && form.role !== "admin") {
+          setEditing(null);
+          setForm(EMPTY_FORM);
+          refresh();
+          nav({ to: "/admin" });
+          setBusy(false);
+          return;
+        }
       } else {
+
         await add({ data: form });
         toast.success("Usuário criado. Envie o e-mail e a senha para a pessoa.");
       }
@@ -122,28 +138,44 @@ function AccessSection() {
     setForm({ name: u.name, jobTitle: u.jobTitle, email: u.email, password: "", role: u.role });
   };
   const toggle = async (u: AccessUser) => {
+    if (u.isMe && u.active && !confirm("Você vai desativar o SEU próprio acesso. Você sai do painel e só outra pessoa com acesso de Administrador consegue reativar. Continuar?")) return;
     try {
       await setActive({ data: { id: u.id, active: !u.active } });
       toast.success(u.active ? "Usuário desativado." : "Usuário reativado.");
+      if (u.isMe && u.active) {
+        await supabase.auth.signOut();
+        nav({ to: "/auth" });
+        return;
+      }
       refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Não foi possível alterar.");
     }
   };
+
   const del = async (u: AccessUser) => {
-    if (!confirm(`Excluir o usuário ${u.name || u.email}? Esta ação não pode ser desfeita.`)) return;
+    const question = u.isMe
+      ? "Você vai EXCLUIR o SEU próprio acesso. Você sai do painel na hora e não consegue entrar de novo sem um novo cadastro. Continuar?"
+      : `Excluir o usuário ${u.name || u.email}? Esta ação não pode ser desfeita.`;
+    if (!confirm(question)) return;
     try {
       await remove({ data: { id: u.id } });
       toast.success("Usuário excluído.");
       if (editing === u.id) { setEditing(null); setForm(EMPTY_FORM); }
+      if (u.isMe) {
+        await supabase.auth.signOut();
+        nav({ to: "/auth" });
+        return;
+      }
       refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Não foi possível excluir.");
     }
   };
 
+
   return (
-    <Card title="Cadastro de usuários" caption="Cada pessoa cadastrada vira uma linha na lista. Clique na situação (Ativo ou Inativo) para alternar, ou use os botões Alterar, Desativar e Excluir na linha. O seu acesso não pode ser desativado nem excluído.">
+    <Card title="Cadastro de usuários" caption="Cada pessoa cadastrada vira uma linha na lista. Clique na situação (Ativo ou Inativo) para alternar, ou use os botões Alterar, Desativar e Excluir na linha. Qualquer pessoa da lista, de qualquer tipo, pode ser alterada, desativada ou excluída.">
       {editing && (
         <p className="mb-4 rounded-md border border-primary bg-subtle px-4 py-3 text-sm text-primary">
           Você está alterando os dados de <strong>{users.find((u) => u.id === editing)?.name || "um usuário"}</strong>. Para cadastrar outra pessoa, clique em Cancelar.
@@ -204,25 +236,20 @@ function AccessSection() {
                 <td className="px-4 py-3">{u.email}</td>
                 <td className="px-4 py-3">{ROLE_LABEL[u.role]}</td>
                 <td className="px-4 py-3">
-                  {u.isMe ? (
-                    <span className={cn("inline-flex rounded-full px-2.5 py-1 text-xs font-semibold", u.active ? "bg-green-light text-green-dark" : "bg-destructive text-destructive-foreground")}>
-                      {u.active ? "Ativo" : "Inativo"}
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => toggle(u)}
-                      title={u.active ? "Clique para tornar inativo" : "Clique para tornar ativo"}
-                      className={cn("inline-flex cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold transition-opacity hover:opacity-80", u.active ? "bg-green-light text-green-dark" : "bg-destructive text-destructive-foreground")}
-                    >
-                      {u.active ? "Ativo" : "Inativo"}
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => toggle(u)}
+                    title={u.active ? "Clique para tornar inativo" : "Clique para tornar ativo"}
+                    className={cn("inline-flex cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold transition-opacity hover:opacity-80", u.active ? "bg-green-light text-green-dark" : "bg-destructive text-destructive-foreground")}
+                  >
+                    {u.active ? "Ativo" : "Inativo"}
+                  </button>
                 </td>
+
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-2">
                     <Button variant="outline" size="sm" onClick={() => edit(u)}><Pencil className="h-4 w-4" /> Alterar</Button>
-                    {!u.isMe && (
+                    {canManageUser(u) && (
                       <>
                         <Button variant="outline" size="sm" onClick={() => toggle(u)}>
                           <Power className="h-4 w-4" /> {u.active ? "Desativar" : "Reativar"}
@@ -232,6 +259,7 @@ function AccessSection() {
                     )}
                   </div>
                 </td>
+
               </tr>
             ))}
           </tbody>
