@@ -449,7 +449,7 @@ function SurveySection() {
           <Button onClick={save}>Salvar textos</Button>
         </div>
         <div className="overflow-hidden rounded-lg border bg-subtle">
-          <img src="/og-pesquisa.jpg" alt="Imagem da prévia do link" className="aspect-[1200/630] w-full object-cover" />
+          <img src="/og-pesquisa-v2.jpg" alt="Imagem da prévia do link" className="aspect-[1200/630] w-full object-cover" />
           <div className="p-3">
             <p className="text-sm font-medium text-primary">{f.preview_title}</p>
             <p className="text-sm text-muted-foreground">{f.preview_description}</p>
