@@ -58,7 +58,6 @@ function AuthPage() {
       <div className="flex w-full max-w-[400px] flex-col items-center py-12">
         <MatriaLogo variant="negativo" className="h-24 sm:h-28" />
         <p className="mt-6 text-center text-[15px] text-primary-foreground">Plataforma de coleta e acompanhamento de NPS</p>
-        <p className="mt-1 text-center text-[13px] text-primary-foreground/75">Data for Better Care</p>
       <form onSubmit={submit} className="mt-6 w-full rounded-lg border bg-background p-8">
         <div className="space-y-4">
           <div className="space-y-2">
