@@ -89,12 +89,6 @@ function ClientPage() {
           <Field label="KAE">
             <OptSelect value={acc.kae} options={opts.values("kae")} onChange={(v) => update({ kae: v || null })} />
           </Field>
-          <Field label="Responsável na Matria">
-            <Editable value={acc.owner_name ?? ""} onSave={(v) => update({ owner_name: v || null })} />
-          </Field>
-          <Field label="Receita anual estimada">
-            <Editable value={acc.estimated_annual_revenue != null ? String(acc.estimated_annual_revenue) : ""} onSave={(v) => update({ estimated_annual_revenue: v ? Number(v.replace(/\D/g, "")) : null })} />
-          </Field>
         </div>
         <Field label="Observações" className="mt-4 text-sm">
           <Editable value={acc.notes ?? ""} onSave={(v) => update({ notes: v || null })} />
@@ -102,8 +96,6 @@ function ClientPage() {
       </section>
 
       <ProductsBlock d={d} accountId={acc.id} onChanged={refresh} />
-
-      <Coverage hist={hist} activeContacts={contacts.filter((c) => c.status === "active" && !c.is_test).length} />
 
       <Card
         title="Contatos"
@@ -125,6 +117,8 @@ function ClientPage() {
           ))}
         </ul>
       </Card>
+
+      <Coverage hist={hist} activeContacts={contacts.filter((c) => c.status === "active" && !c.is_test).length} />
 
       <Card title="Histórico de NPS" caption="NPS e taxa de resposta da instituição em cada ciclo.">
         {withData.length ? (
