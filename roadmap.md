@@ -27,3 +27,8 @@
 - [x] 7. Clientes: cartões, campos editáveis, IAD/KAE, cobertura
 - [x] 8. Questionários: código, criar, modal de edição, excluir
 - [x] 9. Configurações: listas, metas de programa, imagem da prévia
+
+# Prompt 5 (tela de entrada)
+- [x] 1. Retirar o título "NPS Matria"
+- [x] 2. Logo grande e centralizada acima do texto da plataforma
+- [ ] 3. Logo com a mesma largura do quadro de login
