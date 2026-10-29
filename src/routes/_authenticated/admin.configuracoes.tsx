@@ -138,7 +138,7 @@ function AccessSection() {
   };
 
   return (
-    <Card title="Cadastro de usuários" caption="Pessoas que podem entrar no painel e o que cada uma pode ver.">
+    <Card title="Cadastro de usuários" caption="Cada pessoa cadastrada vira uma linha na lista. Clique na situação (Ativo ou Inativo) para alternar, ou use os botões Alterar, Desativar e Excluir na linha. O seu acesso não pode ser desativado nem excluído.">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div className="space-y-2">
           <Label htmlFor="acc-nm" className="text-primary">Nome</Label>
