@@ -151,7 +151,7 @@ export function Settings({ d, cycle }: { d: AllData; cycle: Cycle }) {
           <select id="q" disabled={hasLinks} value={form.questionnaire_id ?? ""} onChange={(e) => setForm({ ...form, questionnaire_id: e.target.value })} className="h-9 w-full rounded-md border bg-background px-3 text-sm disabled:opacity-60">
             {activeQs.map((q) => (
               <option key={q.id} value={q.id}>
-                {q.name} (versão {q.version})
+                {q.code} · {q.name}
               </option>
             ))}
           </select>

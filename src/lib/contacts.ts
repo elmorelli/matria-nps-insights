@@ -1,6 +1,4 @@
-/** MOM stages are fixed (DB enum on account_products). Roles, products and the rest come from Configurações. */
-export const STAGES = ["Handoff", "Implantação", "Go-live", "Sustentação"] as const;
-export type Stage = (typeof STAGES)[number];
+/** Roles, products and the rest come from Configurações. */
 
 export const TEMPLATE_COLUMNS = ["Instituição", "Nome completo", "DDI", "Telefone", "E-mail", "Cargo", "Papel", "Produto"] as const;
 
