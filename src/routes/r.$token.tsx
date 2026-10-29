@@ -559,7 +559,6 @@ function PhotoScreen({ account, photo, position, children }: { account: string; 
       </header>
       <div className="relative flex flex-1 items-start justify-center p-6">
         <img src={photo} alt="" className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: position }} />
-        <div className="absolute inset-0 bg-background/80" aria-hidden />
         <main className="relative w-full max-w-[440px] rounded-lg border bg-background p-6">{children}</main>
       </div>
     </div>
