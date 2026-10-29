@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
-import { hasNps, npsRow } from "@/lib/nps-question";
+import { hasNps, npsRow, withNps } from "@/lib/nps-question";
 
 export const Route = createFileRoute("/_authenticated/admin/questionarios")({
   head: () => ({ meta: [{ title: "Questionários | Matria NPS" }, { name: "robots", content: "noindex" }] }),
@@ -170,9 +170,9 @@ function CreateDialog({ d, open, onClose, onCreated }: { d: AllData; open: boole
     }
     const copied =
       mode === "base"
-        ? d.questions.filter((q) => q.questionnaire_id === base).map(({ id: _id, questionnaire_id: _q, ...rest }) => ({ ...rest, questionnaire_id: nq.id }))
+        ? d.questions.filter((q) => q.questionnaire_id === base).map(({ id: _id, questionnaire_id: _q, ...rest }) => rest)
         : [];
-    const src = hasNps(copied) ? copied : [npsRow(nq.id, 1), ...copied.map((q) => ({ ...q, position: q.position + 1 }))];
+    const src = withNps(copied, nq.id);
     if (src.length) {
       const { error: e2 } = await supabase.from("questions").insert(src);
       if (e2) toast.error("O questionário foi criado, mas as perguntas não foram copiadas.");
