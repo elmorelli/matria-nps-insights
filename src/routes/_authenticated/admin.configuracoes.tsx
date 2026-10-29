@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { useServerFn } from "@tanstack/react-start";
+import { listAccess, addAccess, removeAccess } from "@/lib/access.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações | Matria NPS" }, { name: "robots", content: "noindex" }] }),
@@ -68,7 +70,81 @@ function SettingsPage() {
       <TemplatesSection />
       <SurveySection />
       <AccountSection />
+      <AccessSection />
     </div>
+  );
+}
+
+function AccessSection() {
+  const qc = useQueryClient();
+  const list = useServerFn(listAccess);
+  const add = useServerFn(addAccess);
+  const remove = useServerFn(removeAccess);
+  const { data: users = [] } = useQuery({ queryKey: ["access"], queryFn: () => list() });
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [pw, setPw] = useState("");
+  const [busy, setBusy] = useState(false);
+  const create = async () => {
+    if (pw.length < 8) return toast.error("A senha precisa ter pelo menos 8 caracteres.");
+    setBusy(true);
+    try {
+      await add({ data: { email, name, password: pw } });
+      toast.success("Acesso criado. Envie o e-mail e a senha para a pessoa.");
+      setEmail("");
+      setName("");
+      setPw("");
+      qc.invalidateQueries({ queryKey: ["access"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível criar o acesso.");
+    }
+    setBusy(false);
+  };
+  const del = async (id: string, label: string) => {
+    if (!confirm(`Remover o acesso de ${label}?`)) return;
+    try {
+      await remove({ data: { id } });
+      toast.success("Acesso removido.");
+      qc.invalidateQueries({ queryKey: ["access"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível remover.");
+    }
+  };
+  return (
+    <Card title="Acessos ao painel" caption="Pessoas que podem entrar no painel. Todas têm o mesmo acesso. A pessoa pode trocar a senha depois em Configurações ou em Esqueci minha senha.">
+      <div className="divide-y rounded-md border">
+        {users.map((u) => (
+          <div key={u.id} className="flex items-center justify-between gap-3 px-4 py-3">
+            <div>
+              <p>{u.name || u.email} {u.isMe && <span className="text-sm text-muted-foreground">(você)</span>}</p>
+              <p className="text-sm text-muted-foreground">{u.email}</p>
+            </div>
+            {!u.isMe && (
+              <Button variant="outline" size="sm" onClick={() => del(u.id, u.name || u.email)}>
+                Remover
+              </Button>
+            )}
+          </div>
+        ))}
+      </div>
+      <div className="mt-6 grid gap-4 md:grid-cols-4 md:items-end">
+        <div className="space-y-2">
+          <Label htmlFor="acc-nm" className="text-primary">Nome</Label>
+          <Input id="acc-nm" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="acc-em" className="text-primary">E-mail</Label>
+          <Input id="acc-em" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="acc-pw" className="text-primary">Senha inicial</Label>
+          <Input id="acc-pw" type="text" autoComplete="off" value={pw} onChange={(e) => setPw(e.target.value)} />
+        </div>
+        <Button onClick={create} disabled={busy || !email}>
+          <Plus className="h-4 w-4" /> Adicionar acesso
+        </Button>
+      </div>
+    </Card>
   );
 }
 
