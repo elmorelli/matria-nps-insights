@@ -10,7 +10,7 @@ import { getSurveyMeta, DEFAULT_META } from "@/lib/survey-meta.functions";
 import feixeAzul from "@/assets/feixe-azul.webp.asset.json";
 import feixeOff from "@/assets/feixe-offwhite.webp.asset.json";
 import fotoMaos from "@/assets/medico-maos-paciente.webp.asset.json";
-import fotoSol from "@/assets/respiro-ao-sol.webp.asset.json";
+import fotoMedica from "@/assets/medica-paciente-02.webp.asset.json";
 
 export const Route = createFileRoute("/r/$token")({
   loader: () => getSurveyMeta(),
@@ -190,10 +190,7 @@ function SurveyPage() {
     );
   if (info.state === "answered" && stage !== "done")
     return (
-      <Shell>
-        <h1 className="text-2xl leading-snug">Obrigado.</h1>
-        <p className="mt-4 text-base leading-relaxed">Esta pesquisa já foi respondida. Você vai receber da Matria, por escrito, o que ouvimos e o que vamos fazer a respeito.</p>
-      </Shell>
+      <ThankYou name={name} account={info.account} />
     );
   if (stage === "done") return <ThankYou name={name} account={info.account} />;
 
@@ -206,27 +203,18 @@ function SurveyPage() {
 
   if (!confirmed)
     return (
-      <div className="flex min-h-screen flex-col bg-background">
-        <div className="relative flex h-56 flex-col justify-between bg-primary bg-cover bg-center px-5 py-5 sm:h-72 sm:px-10" style={{ backgroundImage: `url(${feixeAzul.url})` }}>
-          <MatriaLogo variant="negativo" className="h-10 self-start" />
-          <p className="self-end text-right text-2xl font-light leading-tight text-primary-foreground sm:text-4xl">{info.account}</p>
-        </div>
-        <div className="luz-overlay h-40 overflow-hidden sm:h-56">
-          <img src={fotoMaos.url} alt="" className="h-full w-full object-cover object-[50%_40%]" />
-        </div>
-        <main className="mx-auto w-full max-w-xl flex-1 px-5 py-10">
-          {preview && <PreviewBadge />}
-          <h1 className="text-2xl leading-snug">
-            Olá. Esta pesquisa foi enviada para {info.name}, de {info.account}.
-          </h1>
-          <PrimaryButton className="mt-8" disabled={busy} onClick={confirm}>
-            {busy ? "Abrindo…" : "Sou eu, começar"}
-          </PrimaryButton>
-          <button type="button" onClick={decline} className="mt-4 min-h-11 w-full text-sm text-primary underline-offset-4 hover:underline">
-            Não sou eu
-          </button>
-        </main>
-      </div>
+      <PhotoScreen account={info.account} photo={fotoMaos.url} position="50% 40%">
+        {preview && <PreviewBadge />}
+        <h1 className="text-2xl leading-snug">
+          Olá. Esta pesquisa foi enviada para {info.name}, de {info.account}.
+        </h1>
+        <PrimaryButton className="mt-8" disabled={busy} onClick={confirm}>
+          {busy ? "Abrindo…" : "Sou eu, começar"}
+        </PrimaryButton>
+        <button type="button" onClick={decline} className="mt-4 min-h-11 w-full text-sm text-primary underline-offset-4 hover:underline">
+          Não sou eu
+        </button>
+      </PhotoScreen>
     );
 
   if (stage === "intro")
@@ -546,28 +534,34 @@ function PreviewBadge() {
   );
 }
 
-function ThankYou({ name }: { name: string; account?: string }) {
+function ThankYou({ name, account }: { name: string; account?: string }) {
   return (
-    <div className="flex min-h-screen flex-col bg-offwhite bg-cover bg-center" style={{ backgroundImage: `url(${feixeOff.url})` }}>
-      <header className="px-4 py-1 sm:px-8">
-        <MatriaLogo className="h-12" />
-      </header>
-      <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-10 sm:py-16">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-light text-green-dark">
-          <Check className="h-6 w-6" />
-        </div>
-        <h1 className="mt-6 text-4xl leading-tight sm:text-5xl">Obrigado, {name}.</h1>
-        <p className="mt-4 text-lg font-light leading-relaxed text-primary">
-          Você vai receber da Matria, por escrito, o que ouvimos e o que vamos fazer a respeito.
-        </p>
-      </main>
-      <div className="luz-overlay h-44 overflow-hidden sm:h-64">
-        <img src={fotoSol.url} alt="" className="h-full w-full object-cover object-[50%_45%]" />
+    <PhotoScreen account={account ?? ""} photo={fotoMedica.url} position="30% 35%">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-light text-green-dark">
+        <Check className="h-6 w-6" />
       </div>
-      <footer className="flex items-center justify-between px-5 py-6 text-sm text-primary sm:px-8">
-        <MatriaLogo className="h-10" />
-        <span>Data for better care.</span>
-      </footer>
+      <h1 className="mt-6 text-3xl leading-tight">{name ? `Obrigado, ${name}.` : "Obrigado."}</h1>
+      <p className="mt-4 text-lg font-light leading-relaxed text-primary">Você vai receber da Matria, por escrito, o que ouvimos e o que vamos fazer a respeito.</p>
+    </PhotoScreen>
+  );
+}
+
+/** Reduced blue band (logo, tagline, institution) over a full-bleed photo with a white card. */
+function PhotoScreen({ account, photo, position, children }: { account: string; photo: string; position: string; children: React.ReactNode }) {
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="flex h-[88px] shrink-0 items-center justify-between gap-4 bg-primary bg-cover bg-center px-5 sm:h-[104px] sm:px-10" style={{ backgroundImage: `url(${feixeAzul.url})` }}>
+        <div className="flex flex-col justify-center">
+          <MatriaLogo variant="negativo" className="h-9 self-start sm:h-11" />
+          <span className="mt-1 text-xs font-light text-primary-foreground sm:text-sm">Data for better care.</span>
+        </div>
+        <p className="text-right text-lg font-light leading-tight text-primary-foreground sm:text-[22px]">{account}</p>
+      </header>
+      <div className="relative flex flex-1 items-start justify-center p-6">
+        <img src={photo} alt="" className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: position }} />
+        <div className="absolute inset-0 bg-background/80" aria-hidden />
+        <main className="relative w-full max-w-[440px] rounded-lg border bg-background p-6">{children}</main>
+      </div>
     </div>
   );
 }
