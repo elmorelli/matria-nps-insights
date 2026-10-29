@@ -203,7 +203,7 @@ function SurveyPage() {
 
   if (!confirmed)
     return (
-      <PhotoScreen account={info.account} photo={fotoMaos.url} position="50% 40%">
+      <PhotoScreen account={info.account ?? ""} photo={fotoMaos.url} position="50% 40%">
         {preview && <PreviewBadge />}
         <h1 className="text-2xl leading-snug">
           Olá. Esta pesquisa foi enviada para {info.name}, de {info.account}.
