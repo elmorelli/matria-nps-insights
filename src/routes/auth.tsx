@@ -55,11 +55,10 @@ function AuthPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-primary bg-cover bg-center px-4" style={{ backgroundImage: `url(${feixe.url})` }}>
-      <div className="absolute left-8 top-8">
-        <MatriaLogo variant="negativo" className="h-11" />
-      </div>
-      <div className="flex w-full max-w-[400px] flex-col items-center pt-20 sm:pt-0">
-      <p className="mt-1 text-center text-[15px] text-primary-foreground">Plataforma de coleta e acompanhamento de NPS</p>
+      <div className="flex w-full max-w-[400px] flex-col items-center py-12">
+        <MatriaLogo variant="negativo" className="h-24 sm:h-28" />
+        <p className="mt-6 text-center text-[15px] text-primary-foreground">Plataforma de coleta e acompanhamento de NPS</p>
+        <p className="mt-1 text-center text-[13px] text-primary-foreground/75">Data for Better Care</p>
       <form onSubmit={submit} className="mt-6 w-full rounded-lg border bg-background p-8">
         <div className="space-y-4">
           <div className="space-y-2">
