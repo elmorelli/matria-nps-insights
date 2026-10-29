@@ -49,4 +49,16 @@ describe("visual das planilhas", () => {
       expect(w).toBeLessThanOrEqual(42);
     }
   });
+
+  it("mantém todas as colunas, mesmo quando uma linha não tem aquele dado", () => {
+    const spec = sheetFromObjects("Envio", [
+      { Nome: "Ana", Link: "a" },
+      { Nome: "Bruno", Telefone: "11", Link: "b" },
+    ]);
+    expect(spec.columns).toEqual(["Nome", "Link", "Telefone"]);
+    expect(spec.rows).toEqual([
+      ["Ana", "a", ""],
+      ["Bruno", "b", "11"],
+    ]);
+  });
 });
