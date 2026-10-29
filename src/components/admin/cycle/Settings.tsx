@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import * as XLSX from "xlsx";
+import { downloadStyledWorkbook, sheetFromObjects } from "@/lib/xlsx-brand";
 import { toast } from "sonner";
 import { Download, Eye, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -71,7 +71,7 @@ export function Settings({ d, cycle }: { d: AllData; cycle: Cycle }) {
     refresh();
   };
 
-  const exportXlsx = () => {
+  const exportXlsx = async () => {
     const qs = questionsOf(d, cycle);
     const rows = cycleRows(d, cycle.id, { ...EMPTY_FILTERS, showTest: true });
     const resp = rows
@@ -110,12 +110,12 @@ export function Settings({ d, cycle }: { d: AllData; cycle: Cycle }) {
       Teste: c.is_test ? "Sim" : "Não",
     }));
     const acc = d.accounts.map((a) => ({ Nome: a.name, Status: a.status ?? "", Tier: a.tier ?? "", Tipo: a.segment ?? "", País: a.country ?? "", IAD: a.iad ?? "", KAE: a.kae ?? "" }));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(resp), "Respostas");
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(inv), "Convites");
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(con), "Contatos");
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(acc), "Instituições");
-    XLSX.writeFile(wb, `dados-${cycle.name}.xlsx`);
+    await downloadStyledWorkbook(`dados-${cycle.name}.xlsx`, [
+      sheetFromObjects("Respostas", resp),
+      sheetFromObjects("Convites", inv),
+      sheetFromObjects("Contatos", con),
+      sheetFromObjects("Instituições", acc),
+    ]);
     void answerLabel;
   };
 
