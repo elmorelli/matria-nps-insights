@@ -563,7 +563,6 @@ function PhotoScreen({ account, photo, position, children }: { account: string; 
       <header className="flex h-[88px] shrink-0 items-center justify-between gap-4 bg-primary bg-cover bg-center px-5 sm:h-[104px] sm:px-10" style={{ backgroundImage: `url(${feixeAzul.url})` }}>
         <div className="flex flex-col justify-center">
           <MatriaLogo variant="negativo" className="-my-2 h-14 self-start sm:h-16" />
-          <span className="-mt-1 text-xs font-light text-primary-foreground sm:text-sm">Data for better care.</span>
         </div>
         <p className="text-right text-lg font-light leading-tight text-primary-foreground sm:text-[22px]">{account}</p>
       </header>
