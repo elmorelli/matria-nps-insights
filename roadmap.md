@@ -45,10 +45,10 @@
 # Prompt 7 (abertura da pesquisa)
 - [x] 1. Assinatura girada 90 graus para a esquerda
 - [x] 2. Botao "Nao sou eu" com contorno, igual ao botao de cima
-- [ ] 3. Botao "Alterar" com fundo azul e texto branco
-- [ ] 4. Texto de agradecimento final revisado
-- [ ] 5. Assinatura um pouco mais a direita, centralizada sobre o nome
-- [ ] 6. Avaliar design dos e-mails enviados pela plataforma
+- [x] 3. Botao "Alterar" com fundo azul e texto branco
+- [x] 4. Texto de agradecimento final revisado
+- [x] 5. Assinatura um pouco mais a direita, centralizada sobre o nome
+- [x] 6. Avaliar design dos e-mails enviados pela plataforma
 
 # E-mails (revisão de visual)
 - [x] Tela "E-mails" no painel com a prévia do e-mail de redefinir senha
@@ -63,3 +63,9 @@
 - [x] 5. Pergunta de NPS (nota de 0 a 10, com as cores) sempre presente: entra ao criar o questionário e há botão para incluí-la quando faltar
 - [x] 6. Excluir questionário voltou a funcionar com a pergunta de NPS dentro
 - [x] 7. Situação do usuário na lista vira clique (Ativo verde, Inativo vermelho); botão Excluir já existia
+
+# Prompt 9 (acessos, importação e planilhas)
+- [x] 1. Cadastro de usuários: nome, cargo, e-mail, senha e tipo (Administrador, IA Deployment, Visão Geral), com lista e ações de alterar, ativar/desativar e excluir
+- [x] 2. Bloco "Conta" retirado de Configurações, porque o cadastro de usuários já faz isso
+- [x] 3. Clientes: botões "Planilha modelo" e "Importar planilha", com conferência linha a linha
+- [x] 4. Todas as planilhas baixadas (modelos e exportações) com o mesmo visual: cabeçalho azul-marinho com letra branca, linhas zebradas, cabeçalho congelado e filtros
