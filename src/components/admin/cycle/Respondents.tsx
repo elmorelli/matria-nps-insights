@@ -38,10 +38,12 @@ export function Respondents({ d, cycle }: { d: AllData; cycle: Cycle }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
-        <Input placeholder="Buscar por nome, instituição ou palavra" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs bg-background" />
-        <FiltersBar d={d} f={f} set={setF} />
-      </div>
+      <FiltersBar d={d} f={f} set={setF} extraActive={!!q} onClearExtra={() => setQ("")}>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Buscar</span>
+          <Input placeholder="Nome, instituição ou palavra" value={q} onChange={(e) => setQ(e.target.value)} className="w-64 bg-background" />
+        </label>
+      </FiltersBar>
       <p className="text-sm text-muted-foreground">
         {rows.length} convidados · {rows.filter((r) => r.answered).length} responderam. Clique em uma linha para ler as respostas.
       </p>
