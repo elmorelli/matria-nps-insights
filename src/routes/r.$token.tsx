@@ -555,7 +555,9 @@ function ThankYou({ name, account }: { name: string; account?: string }) {
         <Check className="h-6 w-6" />
       </div>
       <h1 className="mt-6 text-3xl leading-tight">{name ? `Obrigado, ${name}.` : "Obrigado."}</h1>
-      <p className="mt-4 text-lg font-light leading-relaxed text-primary">Você vai receber da Matria, por escrito, o que ouvimos e o que vamos fazer a respeito.</p>
+      <p className="mt-4 text-lg font-light leading-relaxed text-primary">
+        Muito obrigado pelo seu tempo e pelo cuidado em responder. Suas respostas são fundamentais para a Matria evoluir a cada dia.
+      </p>
     </PhotoScreen>
   );
 }
