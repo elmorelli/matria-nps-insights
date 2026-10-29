@@ -173,6 +173,7 @@ function SurveyPage() {
   };
 
   const name = info.name ? firstName(info.name) : "";
+  const lead = duration.replace(/^Leva\s+/i, "").replace(/\.$/, "").toLowerCase();
 
   if (info.state === "loading") return <Shell><p className="text-muted-foreground">Carregando…</p></Shell>;
   if (info.state === "not_found" || info.state === "error")
