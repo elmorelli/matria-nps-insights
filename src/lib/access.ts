@@ -27,3 +27,13 @@ export function topRole(roles: string[]): AccessRole | null {
   for (const r of ACCESS_ROLES) if (roles.includes(r)) return r;
   return null;
 }
+
+/**
+ * Which rows of the user list can be altered, deactivated or deleted.
+ * No access type is exempt and the person's own row is not special:
+ * an administrator can manage every registered user.
+ */
+export function canManageUser(user: { role: AccessRole; isMe: boolean }): boolean {
+  return ACCESS_ROLES.includes(user.role);
+}
+
