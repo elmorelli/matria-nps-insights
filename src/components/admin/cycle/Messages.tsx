@@ -36,13 +36,13 @@ export function Messages({ cycle }: { cycle: Cycle }) {
       </p>
       {FIELDS.map(([k, label]) => (
         <div key={k} className="grid gap-4 rounded-lg border bg-background p-4 lg:grid-cols-2">
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor={k}>{label}</Label>
-            <Textarea id={k} rows={6} value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} />
+            <Textarea id={k} rows={6} value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} className="flex-1 resize-none [field-sizing:content]" />
           </div>
-          <div>
+          <div className="flex flex-col gap-2">
             <p className="text-sm text-muted-foreground">Prévia</p>
-            <div className="mt-2 whitespace-pre-wrap rounded-lg rounded-tl-none border bg-positive-bg p-4 text-sm">{fillTemplate(form[k], sample) || "Mensagem vazia."}</div>
+            <div className="flex-1 whitespace-pre-wrap rounded-lg rounded-tl-none border bg-positive-bg p-4 text-sm">{fillTemplate(form[k], sample) || "Mensagem vazia."}</div>
           </div>
         </div>
       ))}

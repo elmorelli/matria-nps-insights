@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
-import { Copy, Download, Link2, MessageCircle, Send, CheckCircle2 } from "lucide-react";
+import { Copy, Download, Link2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,13 +23,21 @@ export function nextSendField(inv: Pick<Invitation, "sent_at" | "reminder_1_at" 
   return null;
 }
 
+const SENDS = [
+  ["sent_at", "Primeiro envio", "template_initial"],
+  ["reminder_1_at", "Lembrete 1", "template_reminder_1"],
+  ["reminder_2_at", "Lembrete 2", "template_reminder_2"],
+  ["reminder_3_at", "Lembrete 3", "template_reminder_3"],
+] as const;
+type SendField = (typeof SENDS)[number][0];
+
 export function Sends({ d, cycle }: { d: AllData; cycle: Cycle }) {
   const qc = useQueryClient();
   const [f, setF] = useState(EMPTY_FILTERS);
   const [q, setQ] = useState("");
   const [fStatus, setFStatus] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [confirm, setConfirm] = useState<Row | null>(null);
+  const [confirm, setConfirm] = useState<{ r: Row; field: SendField } | null>(null);
   const refresh = () => qc.invalidateQueries({ queryKey: allDataKey });
 
   const all = useMemo(() => cycleRows(d, cycle.id, { ...f, showTest: true }).filter((r) => f.showTest || !r.contact.is_test), [d, cycle.id, f]);
@@ -57,14 +65,19 @@ export function Sends({ d, cycle }: { d: AllData; cycle: Cycle }) {
     refresh();
   };
 
-  const markSent = async (r: Row) => {
-    const nf = nextSendField(r.inv);
-    if (!nf) return toast.info("Todos os lembretes já foram registrados.");
-    const patch: Record<string, string> = { [nf[0]]: new Date().toISOString() };
+  const openSend = async (r: Row, field: SendField, tpl: (typeof SENDS)[number][2]) => {
+    const text = fillTemplate(cycle[tpl], { nome: firstName(r.contact.full_name), instituicao: r.account?.name ?? "", link: surveyLink(r.inv.token) });
+    if (r.contact.phone) window.open(`https://wa.me/${r.contact.phone.replace(/\D/g, "")}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+    else await copy(text, "Contato sem telefone. Mensagem copiada.");
+    if (!r.inv[field]) setConfirm({ r, field });
+  };
+
+  const markField = async (r: Row, field: SendField) => {
+    const patch: Record<string, string> = { [field]: new Date().toISOString() };
     if (r.inv.status === "not_sent") patch.status = "sent";
     const { error } = await supabase.from("invitations").update(patch as never).eq("id", r.inv.id);
     if (error) return toast.error("Não foi possível registrar.");
-    toast.success(`Registrado: ${nf[1]}.`);
+    toast.success("Envio registrado.");
     refresh();
   };
 
@@ -157,32 +170,20 @@ export function Sends({ d, cycle }: { d: AllData; cycle: Cycle }) {
                       <Icon label="Copiar link" onClick={() => copy(surveyLink(r.inv.token), "Link copiado.")}>
                         <Copy />
                       </Icon>
-                      {!done && (
-                        <>
-                          <Icon
-                            label="Copiar mensagem"
-                            onClick={async () => {
-                              await copy(message(r), "Mensagem copiada.");
-                              setConfirm(r);
-                            }}
+                      {SENDS.map(([field, label, tpl], i) => {
+                        const at = r.inv[field];
+                        return (
+                          <button
+                            key={field}
+                            title={done ? "Já respondeu" : at ? `${label} registrado em ${new Date(at).toLocaleDateString("pt-BR")}. Abrir de novo` : `${label}: abrir mensagem no WhatsApp`}
+                            disabled={done}
+                            onClick={() => openSend(r, field, tpl)}
+                            className={cn("h-8 min-w-8 rounded-md border px-2 text-xs disabled:opacity-40", at ? "border-primary bg-primary text-primary-foreground" : "border-primary text-primary hover:bg-highlight")}
                           >
-                            <MessageCircle />
-                          </Icon>
-                          <Icon
-                            label="Abrir no WhatsApp"
-                            disabled={!r.contact.phone}
-                            onClick={() => {
-                              window.open(`https://wa.me/${(r.contact.phone ?? "").replace(/\D/g, "")}?text=${encodeURIComponent(message(r))}`, "_blank", "noopener");
-                              setConfirm(r);
-                            }}
-                          >
-                            <Send />
-                          </Icon>
-                          <Icon label="Registrar envio de hoje" disabled={!nf} onClick={() => markSent(r)}>
-                            <CheckCircle2 />
-                          </Icon>
-                        </>
-                      )}
+                            {i === 0 ? "1º envio" : `Lembrete ${i}`}
+                          </button>
+                        );
+                      })}
                     </div>
                   </td>
                 </tr>
@@ -204,14 +205,14 @@ export function Sends({ d, cycle }: { d: AllData; cycle: Cycle }) {
           <DialogHeader>
             <DialogTitle>Registrar envio de hoje?</DialogTitle>
           </DialogHeader>
-          <p className="text-muted-foreground">{confirm && `Marcar ${nextSendField(confirm.inv)?.[1] ?? "envio"} para ${confirm.contact.full_name} com a data de hoje.`}</p>
+          <p className="text-muted-foreground">{confirm && `Marcar ${SENDS.find((x) => x[0] === confirm.field)?.[1]} para ${confirm.r.contact.full_name} com a data de hoje.`}</p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirm(null)}>
               Agora não
             </Button>
             <Button
               onClick={async () => {
-                if (confirm) await markSent(confirm);
+                if (confirm) await markField(confirm.r, confirm.field);
                 setConfirm(null);
               }}
             >
