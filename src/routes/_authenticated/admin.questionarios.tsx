@@ -134,6 +134,9 @@ function QuestionnairesPage() {
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-h-[90vh] w-[95vw] max-w-5xl overflow-y-auto sm:w-[95vw]">
           {editing && <Editor key={editing} d={d} qid={editing} locked={usageOf(d, editing).locked} onChange={refresh} />}
+          <DialogFooter>
+            <Button onClick={() => { setEditing(null); toast.success("Questionário salvo."); }}>Concluir</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
