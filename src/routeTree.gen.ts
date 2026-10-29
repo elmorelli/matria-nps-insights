@@ -18,6 +18,7 @@ import { Route as RTokenRouteImport } from './routes/r.$token'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminConfiguracoesRouteImport } from './routes/_authenticated/admin.configuracoes'
 import { Route as AuthenticatedAdminContatosRouteImport } from './routes/_authenticated/admin.contatos'
+import { Route as AuthenticatedAdminEmailsRouteImport } from './routes/_authenticated/admin.emails'
 import { Route as AuthenticatedAdminQuestionariosRouteImport } from './routes/_authenticated/admin.questionarios'
 import { Route as AuthenticatedAdminRelatorioRouteImport } from './routes/_authenticated/admin_.relatorio'
 import { Route as AuthenticatedAdminCiclosIndexRouteImport } from './routes/_authenticated/admin.ciclos.index'
@@ -72,6 +73,12 @@ const AuthenticatedAdminContatosRoute =
     path: '/contatos',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminEmailsRoute =
+  AuthenticatedAdminEmailsRouteImport.update({
+    id: '/emails',
+    path: '/emails',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminQuestionariosRoute =
   AuthenticatedAdminQuestionariosRouteImport.update({
     id: '/questionarios',
@@ -123,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/r/$token': typeof RTokenRoute
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/admin/contatos': typeof AuthenticatedAdminContatosRoute
+  '/admin/emails': typeof AuthenticatedAdminEmailsRoute
   '/admin/questionarios': typeof AuthenticatedAdminQuestionariosRoute
   '/admin/relatorio': typeof AuthenticatedAdminRelatorioRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -139,6 +147,7 @@ export interface FileRoutesByTo {
   '/r/$token': typeof RTokenRoute
   '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/admin/contatos': typeof AuthenticatedAdminContatosRoute
+  '/admin/emails': typeof AuthenticatedAdminEmailsRoute
   '/admin/questionarios': typeof AuthenticatedAdminQuestionariosRoute
   '/admin/relatorio': typeof AuthenticatedAdminRelatorioRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -158,6 +167,7 @@ export interface FileRoutesById {
   '/r/$token': typeof RTokenRoute
   '/_authenticated/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
   '/_authenticated/admin/contatos': typeof AuthenticatedAdminContatosRoute
+  '/_authenticated/admin/emails': typeof AuthenticatedAdminEmailsRoute
   '/_authenticated/admin/questionarios': typeof AuthenticatedAdminQuestionariosRoute
   '/_authenticated/admin_/relatorio': typeof AuthenticatedAdminRelatorioRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/r/$token'
     | '/admin/configuracoes'
     | '/admin/contatos'
+    | '/admin/emails'
     | '/admin/questionarios'
     | '/admin/relatorio'
     | '/admin/'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/r/$token'
     | '/admin/configuracoes'
     | '/admin/contatos'
+    | '/admin/emails'
     | '/admin/questionarios'
     | '/admin/relatorio'
     | '/admin'
@@ -211,6 +223,7 @@ export interface FileRouteTypes {
     | '/r/$token'
     | '/_authenticated/admin/configuracoes'
     | '/_authenticated/admin/contatos'
+    | '/_authenticated/admin/emails'
     | '/_authenticated/admin/questionarios'
     | '/_authenticated/admin_/relatorio'
     | '/_authenticated/admin/'
@@ -294,6 +307,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminContatosRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/emails': {
+      id: '/_authenticated/admin/emails'
+      path: '/emails'
+      fullPath: '/admin/emails'
+      preLoaderRoute: typeof AuthenticatedAdminEmailsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/questionarios': {
       id: '/_authenticated/admin/questionarios'
       path: '/questionarios'
@@ -349,6 +369,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminConfiguracoesRoute: typeof AuthenticatedAdminConfiguracoesRoute
   AuthenticatedAdminContatosRoute: typeof AuthenticatedAdminContatosRoute
+  AuthenticatedAdminEmailsRoute: typeof AuthenticatedAdminEmailsRoute
   AuthenticatedAdminQuestionariosRoute: typeof AuthenticatedAdminQuestionariosRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminCiclosIdRoute: typeof AuthenticatedAdminCiclosIdRoute
@@ -360,6 +381,7 @@ interface AuthenticatedAdminRouteChildren {
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminConfiguracoesRoute: AuthenticatedAdminConfiguracoesRoute,
   AuthenticatedAdminContatosRoute: AuthenticatedAdminContatosRoute,
+  AuthenticatedAdminEmailsRoute: AuthenticatedAdminEmailsRoute,
   AuthenticatedAdminQuestionariosRoute: AuthenticatedAdminQuestionariosRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminCiclosIdRoute: AuthenticatedAdminCiclosIdRoute,
