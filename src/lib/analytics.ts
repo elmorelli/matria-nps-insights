@@ -127,7 +127,7 @@ function groupBy(rows: Row[], keys: (r: Row) => string[]): GroupStat[] {
   return [...m.entries()].map(([name, sc]) => ({ name, ...npsOf(sc) }));
 }
 
-export type Driver = { key: string; text: string; mean: number | null; n: number; nr: number; nrApplicable: boolean; corr: number | null };
+export type Driver = { key: string; text: string; mean: number | null; n: number; nr: number; nrApplicable: boolean; max: number | null; min: number | null; corr: number | null };
 
 function pearson(xs: number[], ys: number[]) {
   const n = xs.length;
@@ -156,7 +156,7 @@ export function drivers(rows: Row[], questions: QuestionRow[]): Driver[] {
       const pairs = ans.map((r) => [r.answers[q.key]?.num, r.score] as const).filter(([v]) => typeof v === "number") as [number, number][];
       const nr = ans.filter((r) => r.answers[q.key]?.nr).length;
       const mean = pairs.length ? pairs.reduce((a, [v]) => a + v, 0) / pairs.length : null;
-      return { key: q.key, text: q.text, mean, n: pairs.length, nr, nrApplicable: q.kind === "likert_nr", corr: pearson(pairs.map((p) => p[0]), pairs.map((p) => p[1])) };
+      return { key: q.key, text: q.text, mean, n: pairs.length, nr, nrApplicable: q.kind === "likert_nr", max: pairs.length ? Math.max(...pairs.map((p) => p[0])) : null, min: pairs.length ? Math.min(...pairs.map((p) => p[0])) : null, corr: pearson(pairs.map((p) => p[0]), pairs.map((p) => p[1])) };
     })
     .sort((a, b) => (a.mean ?? 99) - (b.mean ?? 99));
 }

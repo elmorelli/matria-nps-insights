@@ -170,18 +170,18 @@ export function DriversTable({ items }: { items: Driver[] }) {
         <thead className="sticky top-0 bg-subtle text-left">
           <tr>
             <th className="px-3 py-2 font-medium">Direcionador</th>
+            <th className="px-3 py-2 text-right font-medium">Maior</th>
             <th className="px-3 py-2 text-right font-medium">Média</th>
-            <th className="px-3 py-2 text-right font-medium">Respostas</th>
-            <th className="px-3 py-2 text-right font-medium">Ainda não</th>
+            <th className="px-3 py-2 text-right font-medium">Menor</th>
           </tr>
         </thead>
         <tbody>
           {items.map((d) => (
             <tr key={d.key} className="border-t">
               <td className="min-w-56 px-3 py-2">{d.text}</td>
+              <td className="px-3 py-2 text-right text-muted-foreground">{d.max ?? "–"}</td>
               <td className={cn("px-3 py-2 text-right font-medium", d.mean != null && d.mean < 3.5 ? "text-negative" : d.mean != null && d.mean >= 4.3 ? "text-positive" : "")}>{fmt1(d.mean)}</td>
-              <td className="px-3 py-2 text-right text-muted-foreground">{d.n}</td>
-              <td className="px-3 py-2 text-right text-muted-foreground">{d.nrApplicable ? d.nr : "–"}</td>
+              <td className="px-3 py-2 text-right text-muted-foreground">{d.min ?? "–"}</td>
             </tr>
           ))}
         </tbody>
