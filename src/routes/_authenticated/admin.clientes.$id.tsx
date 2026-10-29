@@ -89,12 +89,6 @@ function ClientPage() {
           <Field label="KAE">
             <OptSelect value={acc.kae} options={opts.values("kae")} onChange={(v) => update({ kae: v || null })} />
           </Field>
-          <Field label="Responsável na Matria">
-            <Editable value={acc.owner_name ?? ""} onSave={(v) => update({ owner_name: v || null })} />
-          </Field>
-          <Field label="Receita anual estimada">
-            <Editable value={acc.estimated_annual_revenue != null ? String(acc.estimated_annual_revenue) : ""} onSave={(v) => update({ estimated_annual_revenue: v ? Number(v.replace(/\D/g, "")) : null })} />
-          </Field>
         </div>
         <Field label="Observações" className="mt-4 text-sm">
           <Editable value={acc.notes ?? ""} onSave={(v) => update({ notes: v || null })} />

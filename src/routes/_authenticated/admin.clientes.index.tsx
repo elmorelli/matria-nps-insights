@@ -89,8 +89,6 @@ function ClientsPage() {
           {(
             [
               ["name", "Nome"],
-              ["owner_name", "Responsável na Matria"],
-              ["estimated_annual_revenue", "Receita anual estimada"],
             ] as const
           ).map(([k, l]) => (
             <div key={k} className="space-y-1">

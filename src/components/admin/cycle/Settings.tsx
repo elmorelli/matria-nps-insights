@@ -109,7 +109,7 @@ export function Settings({ d, cycle }: { d: AllData; cycle: Cycle }) {
       Situação: CONTACT_STATUS_LABEL[c.status],
       Teste: c.is_test ? "Sim" : "Não",
     }));
-    const acc = d.accounts.map((a) => ({ Nome: a.name, Status: a.status ?? "", Tier: a.tier ?? "", Tipo: a.segment ?? "", País: a.country ?? "", IAD: a.iad ?? "", KAE: a.kae ?? "", Responsável: a.owner_name ?? "", "Receita anual estimada": a.estimated_annual_revenue ?? "" }));
+    const acc = d.accounts.map((a) => ({ Nome: a.name, Status: a.status ?? "", Tier: a.tier ?? "", Tipo: a.segment ?? "", País: a.country ?? "", IAD: a.iad ?? "", KAE: a.kae ?? "" }));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(resp), "Respostas");
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(inv), "Convites");
