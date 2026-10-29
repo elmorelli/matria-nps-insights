@@ -93,7 +93,7 @@ function ClientsPage() {
           ).map(([k, l]) => (
             <div key={k} className="space-y-1">
               <Label htmlFor={k}>{l}</Label>
-              <Input id={k} type={k === "estimated_annual_revenue" ? "number" : "text"} value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} />
+              <Input id={k} type="text" value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} />
             </div>
           ))}
           {(
