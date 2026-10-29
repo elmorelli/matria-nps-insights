@@ -41,3 +41,7 @@
 - [x] 4. Assinatura girada 180 graus e linha acima dela retirada
 - [x] 5. Frase "Data for better care." retirada da faixa azul da pesquisa
 - [x] 6. Logo maior e em mais destaque na faixa azul da pesquisa
+
+# Prompt 7 (abertura da pesquisa)
+- [x] 1. Assinatura girada 90 graus para a esquerda
+- [x] 2. Botao "Nao sou eu" com contorno, igual ao botao de cima
