@@ -56,8 +56,13 @@ function AuthPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-primary bg-cover bg-center px-4" style={{ backgroundImage: `url(${feixe.url})` }}>
       <div className="flex w-full max-w-[400px] flex-col items-center py-12">
-        <MatriaLogo variant="negativo" className="h-auto w-full" />
-        <p className="mt-6 text-center text-[15px] text-primary-foreground">Plataforma de coleta e acompanhamento de NPS</p>
+        <div className="relative w-full overflow-hidden aspect-[4.167/1]">
+          <MatriaLogo
+            variant="negativo"
+            className="absolute left-1/2 top-1/2 h-auto w-[128.35%] -translate-x-1/2 -translate-y-1/2"
+          />
+        </div>
+        <p className="mt-5 text-center text-[15px] text-primary-foreground">Plataforma de coleta e acompanhamento de NPS</p>
       <form onSubmit={submit} className="mt-6 w-full rounded-lg border bg-background p-8">
         <div className="space-y-4">
           <div className="space-y-2">
