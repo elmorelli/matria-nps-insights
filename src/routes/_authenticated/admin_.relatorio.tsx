@@ -69,6 +69,7 @@ function Report() {
         <p className="text-xl font-light">Pesquisa de NPS relacional</p>
         <h1 className="mt-2 text-6xl font-light leading-tight text-primary-foreground">{title}</h1>
         <p className="mt-6 text-base">Período: {period}</p>
+        <p className="mt-1 text-sm">Questionário: {[...new Set(sel.map((c) => d.questionnaires.find((q) => q.id === c.questionnaire_id)).filter(Boolean).map((q) => `${q!.code} ${q!.name}`))].join(", ") || "–"}</p>
         <p className="mt-1 text-sm">Filtros: {describeFilters(f, d)}</p>
         <p className="mt-1 text-sm">
           {target.label}: NPS {fmt(target.nps)} e taxa de resposta {target.rate}%
