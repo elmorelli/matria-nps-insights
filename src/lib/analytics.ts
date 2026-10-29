@@ -4,7 +4,7 @@ import { npsOf, npsBand, promotersNeeded, answersNeeded, type NpsSummary, type B
 /* ---------- loading ---------- */
 
 export async function fetchAll() {
-  const [cy, ac, co, inv, qs, qn, ap, ol] = await Promise.all([
+  const [cy, ac, co, inv, qs, qn, ap, ol, st] = await Promise.all([
     supabase.from("cycles").select("*").order("start_date"),
     supabase.from("accounts").select("*").order("name"),
     supabase.from("contacts").select("*, contact_products(id,product)").order("full_name"),
@@ -13,8 +13,9 @@ export async function fetchAll() {
     supabase.from("questionnaires").select("*").order("version"),
     supabase.from("account_products").select("*").order("product"),
     supabase.from("option_lists").select("list,value,position,active").eq("list", "role").order("position"),
+    supabase.from("settings").select("program_target_rate,program_target_nps,program_targets_set_at").eq("id", 1).maybeSingle(),
   ]);
-  for (const r of [cy, ac, co, inv, qs, qn, ap, ol]) if (r.error) throw r.error;
+  for (const r of [cy, ac, co, inv, qs, qn, ap, ol, st]) if (r.error) throw r.error;
   return {
     cycles: cy.data!,
     accounts: ac.data!,
@@ -24,6 +25,7 @@ export async function fetchAll() {
     questionnaires: qn.data!,
     accountProducts: ap.data!,
     roles: ol.data!.map((r) => r.value),
+    program: { rate: Number(st.data?.program_target_rate ?? 75), nps: Number(st.data?.program_target_nps ?? 80), setAt: st.data?.program_targets_set_at ?? null },
   };
 }
 export type AllData = Awaited<ReturnType<typeof fetchAll>>;
@@ -234,6 +236,23 @@ export function targetFor(selected: Cycle[]) {
     averaged: true,
     label: "Meta média dos ciclos selecionados",
   };
+}
+
+/** Pooled view over several cycles: all answers together, rate over the summed valid base. */
+export function pooled(stats: CycleStats[]) {
+  const scores = stats.flatMap((s) => s.answered.map((r) => r.score!));
+  const s = npsOf(scores);
+  const base = stats.reduce((a, x) => a + x.base, 0);
+  if (!s.n && stats.length === 1) return { nps: stats[0].nps, rate: stats[0].rate, n: 0 };
+  return { nps: s.n ? s.nps : null, rate: base ? Math.round((s.n / base) * 100) : null, n: s.n };
+}
+
+/** Attainment color rule: at/above target positive, within 10 points attention, else negative. */
+export function attainment(value: number | null | undefined, target: number): "positive" | "attention" | "negative" | null {
+  if (value == null) return null;
+  if (value >= target) return "positive";
+  if (value >= target - 10) return "attention";
+  return "negative";
 }
 
 /* ---------- labels ---------- */
