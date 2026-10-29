@@ -65,12 +65,11 @@ function SettingsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl">Configurações</h1>
-        <p className="mt-1 text-muted-foreground">Listas de seleção, metas de programa, pesquisa e conta.</p>
+        <p className="mt-1 text-muted-foreground">Listas de seleção, metas de programa, pesquisa e usuários.</p>
       </div>
       <ListsSection />
 
       <SurveySection />
-      <AccountSection />
       <AccessSection />
     </div>
   );
@@ -194,7 +193,22 @@ function AccessSection() {
                 <td className="px-4 py-3">{u.jobTitle || "Não informado"}</td>
                 <td className="px-4 py-3">{u.email}</td>
                 <td className="px-4 py-3">{ROLE_LABEL[u.role]}</td>
-                <td className="px-4 py-3">{u.active ? "Ativo" : "Desativado"}</td>
+                <td className="px-4 py-3">
+                  {u.isMe ? (
+                    <span className={cn("inline-flex rounded-full px-2.5 py-1 text-xs font-semibold", u.active ? "bg-green-light text-green-dark" : "bg-destructive text-destructive-foreground")}>
+                      {u.active ? "Ativo" : "Inativo"}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => toggle(u)}
+                      title={u.active ? "Clique para tornar inativo" : "Clique para tornar ativo"}
+                      className={cn("inline-flex cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold transition-opacity hover:opacity-80", u.active ? "bg-green-light text-green-dark" : "bg-destructive text-destructive-foreground")}
+                    >
+                      {u.active ? "Ativo" : "Inativo"}
+                    </button>
+                  )}
+                </td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-2">
                     <Button variant="outline" size="sm" onClick={() => edit(u)}><Pencil className="h-4 w-4" /> Alterar</Button>
@@ -408,66 +422,3 @@ function SurveySection() {
   );
 }
 
-function AccountSection() {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [pw, setPw] = useState("");
-  const [pw2, setPw2] = useState("");
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setEmail(data.user?.email ?? "");
-      setName((data.user?.user_metadata?.full_name as string) ?? "");
-    });
-  }, []);
-  const saveName = async () => {
-    const { error } = await supabase.auth.updateUser({ data: { full_name: name.trim() } });
-    if (error) return toast.error("Não foi possível salvar o nome.");
-    toast.success("Nome salvo.");
-  };
-  const savePw = async () => {
-    if (pw.length < 8) return toast.error("A senha precisa ter pelo menos 8 caracteres.");
-    if (pw !== pw2) return toast.error("As duas senhas não são iguais.");
-    const { error } = await supabase.auth.updateUser({ password: pw });
-    if (error) return toast.error("Não foi possível alterar a senha.");
-    setPw("");
-    setPw2("");
-    toast.success("Senha alterada.");
-  };
-  return (
-    <Card title="Conta">
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="nm" className="text-primary">
-              Nome
-            </Label>
-            <Input id="nm" value={name} onChange={(e) => setName(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-primary">E-mail</Label>
-            <p className="py-1">{email}</p>
-          </div>
-          <Button variant="outline" onClick={saveName}>
-            Salvar nome
-          </Button>
-        </div>
-        <div className="space-y-4">
-          <h3 className="text-base">Alterar senha</h3>
-          <div className="space-y-2">
-            <Label htmlFor="np" className="text-primary">
-              Nova senha
-            </Label>
-            <Input id="np" type="password" autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="np2" className="text-primary">
-              Repita a nova senha
-            </Label>
-            <Input id="np2" type="password" autoComplete="new-password" value={pw2} onChange={(e) => setPw2(e.target.value)} />
-          </div>
-          <Button onClick={savePw}>Alterar senha</Button>
-        </div>
-      </div>
-    </Card>
-  );
-}
