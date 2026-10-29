@@ -1,0 +1,2 @@
+ALTER TABLE public.option_lists DROP CONSTRAINT option_lists_list_check;
+ALTER TABLE public.option_lists ADD CONSTRAINT option_lists_list_check CHECK (list = ANY (ARRAY['role','product','account_status','account_tier','account_type','country','iad','kae','block']));

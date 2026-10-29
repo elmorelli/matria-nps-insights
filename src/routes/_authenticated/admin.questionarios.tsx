@@ -1,3 +1,4 @@
+import { useOptions } from "@/lib/options";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -339,7 +340,7 @@ function Editor({ d, qid, locked, onChange }: { d: AllData; qid: string; locked:
           <p className="text-sm">Nova pergunta</p>
           <Textarea rows={2} placeholder="Texto da pergunta" value={newQ.text} onChange={(e) => setNewQ({ ...newQ, text: e.target.value })} />
           <div className="flex flex-wrap gap-2">
-            <Input className="max-w-xs" placeholder="Bloco" value={newQ.block} onChange={(e) => setNewQ({ ...newQ, block: e.target.value })} />
+            <BlockSelect className="max-w-xs" value={newQ.block} onChange={(v) => setNewQ({ ...newQ, block: v })} />
             <select value={newQ.kind} onChange={(e) => setNewQ({ ...newQ, kind: e.target.value })} className="h-9 rounded-md border border-input bg-background px-3 text-sm">
               {["likert", "likert_nr", "text"].map((k) => (
                 <option key={k} value={k}>
@@ -381,7 +382,7 @@ function QuestionForm({ q, locked, onSave, onRemove }: { q: QuestionRow; locked:
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1">
           <Label>Bloco</Label>
-          <Input value={f.block} onChange={(e) => setF({ ...f, block: e.target.value })} />
+          <BlockSelect value={f.block} onChange={(v) => setF({ ...f, block: v })} />
         </div>
         <div className="space-y-1">
           <Label>Tipo de resposta</Label>
@@ -415,5 +416,18 @@ function QuestionForm({ q, locked, onSave, onRemove }: { q: QuestionRow; locked:
         )}
       </div>
     </div>
+  );
+}
+
+function BlockSelect({ value, onChange, className }: { value: string; onChange: (v: string) => void; className?: string }) {
+  const blocks = useOptions().values("block");
+  const list = value && !blocks.includes(value) ? [value, ...blocks] : blocks;
+  return (
+    <select value={value} onChange={(e) => onChange(e.target.value)} className={cn("h-9 w-full rounded-md border border-input bg-background px-3 text-sm", className)}>
+      <option value="">Escolha o bloco</option>
+      {list.map((b) => (
+        <option key={b} value={b}>{b}</option>
+      ))}
+    </select>
   );
 }
