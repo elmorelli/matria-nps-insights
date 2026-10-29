@@ -49,8 +49,7 @@ function QuestionnairesPage() {
     refresh();
   };
   const remove = async (id: string) => {
-    const { error: e1 } = await supabase.from("questions").delete().eq("questionnaire_id", id);
-    const { error } = e1 ? { error: e1 } : await supabase.from("questionnaires").delete().eq("id", id);
+    const { error } = await supabase.from("questionnaires").delete().eq("id", id);
     setDeleting(null);
     if (error) return toast.error("Não foi possível excluir.");
     toast.success("Questionário excluído.");
