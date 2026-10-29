@@ -17,7 +17,7 @@ export const Route = createFileRoute("/r/$token")({
   head: ({ loaderData }) => {
     const m = loaderData ?? { origin: "", ...DEFAULT_META };
     const ogTitle = `Pesquisa NPS Matria. ${m.title.replace(/^Pesquisa( NPS)? Matria\.?\s*/i, "")}`.replace(/\.\s*$/, "");
-    const img = m.origin ? `${m.origin}/og-pesquisa.jpg` : undefined;
+    const img = m.origin ? `${m.origin}/og-pesquisa-v2.jpg` : undefined;
     return {
       meta: [
         { title: ogTitle },
