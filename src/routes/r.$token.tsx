@@ -221,7 +221,11 @@ function SurveyPage() {
         <PrimaryButton className="mt-8" disabled={busy} onClick={confirm}>
           {busy ? "Abrindo…" : "Sou eu, começar"}
         </PrimaryButton>
-        <button type="button" onClick={decline} className="mt-4 min-h-11 w-full text-sm text-primary underline-offset-4 hover:underline">
+        <button
+          type="button"
+          onClick={decline}
+          className="mt-4 min-h-14 w-full rounded-md border border-primary/40 bg-transparent px-6 text-sm text-primary hover:bg-primary/5"
+        >
           Não sou eu
         </button>
       </PhotoScreen>
