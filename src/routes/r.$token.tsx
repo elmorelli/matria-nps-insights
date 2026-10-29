@@ -556,13 +556,13 @@ function ThankYou({ name, account }: { name: string; account?: string }) {
   );
 }
 
-/** Reduced blue band (logo, tagline, institution) over a full-bleed photo with a white card. */
+/** Reduced blue band (logo, institution) over a full-bleed photo with a white card. */
 function PhotoScreen({ account, photo, position, children }: { account: string; photo: string; position: string; children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="flex h-[88px] shrink-0 items-center justify-between gap-4 bg-primary bg-cover bg-center px-5 sm:h-[104px] sm:px-10" style={{ backgroundImage: `url(${feixeAzul.url})` }}>
-        <div className="flex flex-col justify-center">
-          <MatriaLogo variant="negativo" className="-my-2 h-14 self-start sm:h-16" />
+        <div className="relative aspect-[4.167/1] h-11 shrink-0 overflow-hidden sm:h-16">
+          <MatriaLogo variant="negativo" className="absolute left-1/2 top-1/2 h-[219%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2" />
         </div>
         <p className="text-right text-lg font-light leading-tight text-primary-foreground sm:text-[22px]">{account}</p>
       </header>
