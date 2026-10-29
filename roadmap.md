@@ -48,3 +48,4 @@
 - [ ] 3. Botao "Alterar" com fundo azul e texto branco
 - [ ] 4. Texto de agradecimento final revisado
 - [ ] 5. Assinatura um pouco mais a direita, centralizada sobre o nome
+- [ ] 6. Avaliar design dos e-mails enviados pela plataforma
