@@ -65,7 +65,7 @@ function SettingsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl">Configurações</h1>
-        <p className="mt-1 text-muted-foreground">Listas de seleção, metas de programa, mensagens padrão, pesquisa e conta.</p>
+        <p className="mt-1 text-muted-foreground">Listas de seleção, metas de programa, pesquisa e conta.</p>
       </div>
       <ListsSection />
 
