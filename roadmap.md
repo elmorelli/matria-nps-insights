@@ -32,3 +32,4 @@
 - [x] 1. Retirar o título "NPS Matria"
 - [x] 2. Logo grande e centralizada acima do texto da plataforma
 - [x] 3. Logo com a mesma largura do quadro de login
+- [x] 4. Trocar o rótulo "n" por "Respostas" em todas as telas
