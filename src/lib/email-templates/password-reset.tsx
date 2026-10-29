@@ -1,4 +1,4 @@
-import { Body, Button, Container, Head, Heading, Html, Img, Link, Preview, Section, Text } from "@react-email/components";
+import { Body, Button, Container, Head, Heading, Html, Img, Link, Preview, Text } from "@react-email/components";
 import logoUrl from "@/assets/matria-logo-branco.svg.asset.json";
 
 export const PASSWORD_RESET_SUBJECT = "Redefinição de senha";
@@ -19,10 +19,10 @@ interface Props {
 export function EmailBody({ name = "Eduardo", resetUrl = "https://matria-nps.lovable.app/reset-password" }: Props) {
   return (
     <Container style={{ maxWidth: "560px", width: "100%", backgroundColor: "#ffffff" }}>
-      <Section style={{ backgroundColor: BLUE, padding: "26px 32px" }}>
+      <div style={{ backgroundColor: BLUE, padding: "26px 32px" }}>
         <Img src={logoUrl.url} alt="Matria" height="26" style={{ height: "26px", width: "auto" }} />
-      </Section>
-      <Section style={{ padding: "32px" }}>
+      </div>
+      <div style={{ padding: "32px" }}>
         <Heading style={{ margin: "0 0 14px", fontSize: "21px", fontWeight: 600, color: INK, fontFamily: FONT }}>
           Redefinição de senha
         </Heading>
@@ -62,12 +62,12 @@ export function EmailBody({ name = "Eduardo", resetUrl = "https://matria-nps.lov
             {resetUrl}
           </Link>
         </Text>
-      </Section>
-      <Section style={{ borderTop: `1px solid ${BORDER}`, padding: "18px 32px" }}>
+      </div>
+      <div style={{ borderTop: `1px solid ${BORDER}`, padding: "18px 32px" }}>
         <Text style={{ margin: 0, fontSize: "13px", lineHeight: "20px", color: MUTED, fontFamily: FONT }}>
           Matria · Plataforma de coleta e acompanhamento de NPS
         </Text>
-      </Section>
+      </div>
     </Container>
   );
 }
