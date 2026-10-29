@@ -1,4 +1,5 @@
-import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, useLocation } from "@tanstack/react-router";
+import { canOpen, topRole } from "@/lib/access";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { BarChart3, ClipboardList, LogOut, Menu, Building2, Users, X, FileText, Settings2, Mail } from "lucide-react";
@@ -25,14 +26,16 @@ const NAV = [
 function AdminLayout() {
   const nav = useNavigate();
   const [open, setOpen] = useState(false);
-  const { data: isAdmin, isLoading } = useQuery({
-    queryKey: ["is-admin"],
+  const { pathname } = useLocation();
+  const { data: role, isLoading } = useQuery({
+    queryKey: ["my-role"],
     queryFn: async () => {
       const { data: u } = await supabase.auth.getUser();
-      const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user!.id).eq("role", "admin");
-      return (data?.length ?? 0) > 0;
+      const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user!.id);
+      return topRole((data ?? []).map((r) => r.role as string));
     },
   });
+  const allowed = role ? canOpen(role, pathname) : false;
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -50,7 +53,7 @@ function AdminLayout() {
         </button>
       </div>
       <nav className="mt-8 flex flex-1 flex-col gap-1">
-        {NAV.map((n) => (
+        {NAV.filter((n) => role && canOpen(role, n.to)).map((n) => (
           <Link
             key={n.to}
             to={n.to}
@@ -85,14 +88,14 @@ function AdminLayout() {
         <MatriaLogo variant="negativo" className="h-8" />
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:py-8">
-        {isLoading ? null : isAdmin ? (
+        {isLoading ? null : allowed ? (
           <TooltipProvider>
             <Outlet />
           </TooltipProvider>
         ) : (
           <div className="rounded-lg border bg-background p-8">
             <h1 className="text-xl">Acesso restrito</h1>
-            <p className="mt-2 text-muted-foreground">Esta conta não tem permissão para ver o painel.</p>
+            <p className="mt-2 text-muted-foreground">{role ? "O seu tipo de acesso não permite abrir esta página." : "Esta conta não tem permissão para ver o painel."}</p>
           </div>
         )}
       </main>
