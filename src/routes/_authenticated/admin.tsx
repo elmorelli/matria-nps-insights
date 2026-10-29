@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { BarChart3, ClipboardList, LogOut, Menu, Building2, Users, X, FileText, Settings2 } from "lucide-react";
+import { BarChart3, ClipboardList, LogOut, Menu, Building2, Users, X, FileText, Settings2, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MatriaLogo } from "@/components/MatriaLogo";
 import { cn } from "@/lib/utils";
@@ -18,6 +18,7 @@ const NAV = [
   { to: "/admin/clientes", label: "Clientes", icon: Building2 },
   { to: "/admin/contatos", label: "Contatos", icon: Users },
   { to: "/admin/questionarios", label: "Questionários", icon: FileText },
+  { to: "/admin/emails", label: "E-mails", icon: Mail },
   { to: "/admin/configuracoes", label: "Configurações", icon: Settings2 },
 ] as const;
 

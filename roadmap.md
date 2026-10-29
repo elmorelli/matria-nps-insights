@@ -49,3 +49,8 @@
 - [ ] 4. Texto de agradecimento final revisado
 - [ ] 5. Assinatura um pouco mais a direita, centralizada sobre o nome
 - [ ] 6. Avaliar design dos e-mails enviados pela plataforma
+
+# E-mails (revisão de visual)
+- [x] Tela "E-mails" no painel com a prévia do e-mail de redefinir senha
+- [x] Layout do e-mail com a cara da Matria (faixa azul, logo, botão azul, rodapé)
+- [ ] Conectar o domínio de envio (qualina.com.br) para o e-mail sair com este visual
