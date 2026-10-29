@@ -59,7 +59,7 @@ function AuthPage() {
         <div className="relative w-full overflow-hidden aspect-[4.167/1]">
           <MatriaLogo
             variant="negativo"
-            className="absolute left-1/2 top-1/2 h-auto w-[128.35%] -translate-x-1/2 -translate-y-1/2"
+            className="absolute left-1/2 top-1/2 h-auto w-[128.35%] max-w-none -translate-x-1/2 -translate-y-1/2"
           />
         </div>
         <p className="mt-5 text-center text-[15px] text-primary-foreground">Plataforma de coleta e acompanhamento de NPS</p>
