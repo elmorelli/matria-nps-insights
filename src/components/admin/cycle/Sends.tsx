@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
-import { Copy, Download, Link2, MessageCircle, Send, CheckCircle2 } from "lucide-react";
+import { Copy, Download, Link2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,17 +62,6 @@ export function Sends({ d, cycle }: { d: AllData; cycle: Cycle }) {
     const { error } = await supabase.from("invitations").insert(missing.map((c) => ({ cycle_id: cycle.id, contact_id: c.id })));
     if (error) return toast.error("Não foi possível gerar os links.");
     toast.success(`${missing.length} links gerados.`);
-    refresh();
-  };
-
-  const markSent = async (r: Row) => {
-    const nf = nextSendField(r.inv);
-    if (!nf) return toast.info("Todos os lembretes já foram registrados.");
-    const patch: Record<string, string> = { [nf[0]]: new Date().toISOString() };
-    if (r.inv.status === "not_sent") patch.status = "sent";
-    const { error } = await supabase.from("invitations").update(patch as never).eq("id", r.inv.id);
-    if (error) return toast.error("Não foi possível registrar.");
-    toast.success(`Registrado: ${nf[1]}.`);
     refresh();
   };
 
