@@ -210,9 +210,10 @@ function SurveyPage() {
         <h1 className="text-2xl leading-snug">Olá{name ? `, ${name}` : ""}.</h1>
         <p className="mt-4 text-base leading-relaxed">
           Sou o Eduardo Morelli, COO da Matria e responsável pela experiência dos nossos clientes. Esta pesquisa leva {lead} e eu leio cada resposta
-          pessoalmente. O que você disser aqui volta para você por escrito, e falaremos posteriormente o que vamos fazer a respeito.
+          pessoalmente. O que você disser aqui volta para você por escrito.
         </p>
-        <div className="mt-8 border-t border-border pt-6">
+        <p className="mt-4 text-base leading-relaxed">Desde já, obrigado pelo seu tempo.</p>
+        <div className="mt-8">
           <img src={assinatura.url} alt="Assinatura de Eduardo Morelli" className="h-16 w-auto object-contain" />
           <p className="mt-2 text-base text-primary">Eduardo Morelli</p>
           <p className="text-sm text-muted-foreground">COO - Matria</p>

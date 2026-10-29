@@ -37,3 +37,5 @@
 # Prompt 6 (abertura da pesquisa)
 - [x] 1. Mensagem pessoal de Eduardo Morelli (COO) com assinatura manuscrita
 - [x] 2. Quadro de abertura mais afastado do banner azul
+- [x] 3. Texto final revisado e agradecimento "Desde já, obrigado pelo seu tempo."
+- [x] 4. Assinatura girada 180 graus e linha acima dela retirada
