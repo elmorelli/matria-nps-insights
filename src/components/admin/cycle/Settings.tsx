@@ -31,6 +31,7 @@ export function Settings({ d, cycle }: { d: AllData; cycle: Cycle }) {
         end_date: form.end_date || null,
         target_nps: Number(form.target_nps),
         target_response_rate: Number(form.target_response_rate),
+        ...(Number(form.target_nps) !== Number(cycle.target_nps) || Number(form.target_response_rate) !== Number(cycle.target_response_rate) ? { targets_set_at: new Date().toISOString() } : {}),
         questionnaire_id: form.questionnaire_id,
         closed: form.closed,
       })
@@ -108,7 +109,7 @@ export function Settings({ d, cycle }: { d: AllData; cycle: Cycle }) {
       Situação: CONTACT_STATUS_LABEL[c.status],
       Teste: c.is_test ? "Sim" : "Não",
     }));
-    const acc = d.accounts.map((a) => ({ Nome: a.name, Status: a.status ?? "", Tier: a.tier ?? "", Tipo: a.segment ?? "", País: a.country ?? "", Cidade: a.city ?? "", Responsável: a.owner_name ?? "", "Receita anual estimada": a.estimated_annual_revenue ?? "" }));
+    const acc = d.accounts.map((a) => ({ Nome: a.name, Status: a.status ?? "", Tier: a.tier ?? "", Tipo: a.segment ?? "", País: a.country ?? "", IAD: a.iad ?? "", KAE: a.kae ?? "", Responsável: a.owner_name ?? "", "Receita anual estimada": a.estimated_annual_revenue ?? "" }));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(resp), "Respostas");
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(inv), "Convites");
