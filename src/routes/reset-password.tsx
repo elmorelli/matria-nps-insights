@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import feixe from "@/assets/feixe-azul.webp.asset.json";
+import { VideoBackground } from "@/components/VideoBackground";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -52,10 +53,11 @@ function ResetPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-primary bg-cover bg-center px-4" style={{ backgroundImage: `url(${feixe.url})` }}>
-      <div className="absolute left-8 top-8">
+      <VideoBackground />
+      <div className="absolute left-8 top-8 z-10">
         <MatriaLogo variant="negativo" className="h-14" />
       </div>
-      <form onSubmit={submit} className="w-full max-w-[400px] rounded-lg border bg-background p-8">
+      <form onSubmit={submit} className="relative w-full max-w-[400px] rounded-lg border bg-background p-8">
         <h1 className="mb-4 text-xl text-primary">Criar nova senha</h1>
         {!ready ? (
           <p className="text-sm text-muted-foreground">Abra esta página pelo link enviado ao seu e-mail.</p>

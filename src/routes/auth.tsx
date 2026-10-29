@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import feixe from "@/assets/feixe-azul.webp.asset.json";
+import { VideoBackground } from "@/components/VideoBackground";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -55,7 +56,8 @@ function AuthPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-primary bg-cover bg-center px-4" style={{ backgroundImage: `url(${feixe.url})` }}>
-      <div className="flex w-full max-w-[400px] flex-col items-center py-12">
+      <VideoBackground />
+      <div className="relative flex w-full max-w-[400px] flex-col items-center py-12">
         <div className="relative w-full overflow-hidden aspect-[4.167/1]">
           <MatriaLogo
             variant="negativo"
