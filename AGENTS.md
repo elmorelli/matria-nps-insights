@@ -21,3 +21,4 @@
 - PDF exports use browser print: /relatorio (16:9 slides, filters in search params) and print styles on the client card page. Why: charts render exactly as on screen.
 - Questionnaire codes (Q-0001...) come from a DB sequence + trigger on insert and cannot be edited. Why: codes must be sequential and never reused.
 - MOM stage was removed from the app; account_products/contact_products.mom_stage and accounts.city stay in the DB as deprecated columns. Why: dropping columns would break the live app.
+- App emails use Lovable managed sending: React Email templates in src/lib/email-templates plus a server-only send helper, and the admin preview renders those same template components. Why: one source of truth for how an email looks, so what Eduardo reviews is what gets sent.
