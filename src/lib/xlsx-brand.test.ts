@@ -6,7 +6,7 @@ type Paint = { pattern?: string; fgColor?: { argb?: string } };
 const paint = (c: ExcelJS.Cell) => c.fill as unknown as Paint;
 
 const sheets: SheetSpec[] = [
-  { name: "Clientes", columns: ["Nome *", "Status *", "Observações"], rows: [["Fleury", "Ativo", "x"], ["Albert Einstein", "Inativo", "yy"]] },
+  { name: "Clientes", columns: ["Nome *", "Status *", "Observações"], bodyRows: 10, rows: [["Fleury", "Ativo", "x"], ["Albert Einstein", "Inativo", "yy"]] },
 ];
 
 async function roundTrip() {
@@ -35,6 +35,8 @@ describe("visual das planilhas", () => {
     expect(paint(ws.getCell("A3")).pattern).toBe("solid");
     expect(paint(ws.getCell("A3")).fgColor?.argb).toBe("FFF2F7FF");
     expect(paint(ws.getCell("A2")).pattern).not.toBe("solid");
+    expect(paint(ws.getCell("A9")).fgColor?.argb).toBe("FFF2F7FF");
+    expect(ws.getCell("A10").font.color?.argb).toBe("FF021125");
   });
 
   it("cabeçalho congelado, filtros e larguras dentro do limite", async () => {

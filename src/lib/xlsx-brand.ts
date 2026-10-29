@@ -12,7 +12,7 @@ const MIN_W = 10;
 const MAX_W = 42;
 
 export type Cell = string | number | null | undefined;
-export type SheetSpec = { name: string; columns: string[]; rows: Cell[][]; widths?: number[] };
+export type SheetSpec = { name: string; columns: string[]; rows: Cell[][]; widths?: number[]; bodyRows?: number };
 
 export async function newWorkbook(): Promise<Workbook> {
   const ExcelJS = (await import("exceljs")).default;
@@ -63,7 +63,7 @@ export function addSheet(wb: Workbook, spec: SheetSpec): Worksheet {
   const ws = wb.addWorksheet(spec.name);
   ws.addRow(spec.columns);
   spec.rows.forEach((r) => ws.addRow(r));
-  const rowCount = spec.rows.length + 1;
+  const rowCount = spec.bodyRows ?? spec.rows.length + 1;
   styleSheet(ws, spec.columns, rowCount);
   spec.columns.forEach((_, i) => {
     const longest = spec.rows.reduce((m, r) => Math.max(m, String(r[i] ?? "").length), spec.columns[i].length);

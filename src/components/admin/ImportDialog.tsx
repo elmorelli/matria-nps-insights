@@ -16,6 +16,7 @@ export async function downloadTemplate() {
     {
       name: "Contatos",
       columns: [...TEMPLATE_COLUMNS],
+      bodyRows: 1000,
       rows: [["Hospital Exemplo", "Maria Silva", "+55", "(11) 98765-4321", "maria@hospital.com.br", "Diretora de Operações", "Sponsor", "Agendamento com IA"]],
     },
   ]);
