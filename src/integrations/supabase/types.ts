@@ -18,21 +18,21 @@ export type Database = {
         Row: {
           account_id: string
           id: string
-          mom_stage: Database["public"]["Enums"]["mom_stage"]
+          mom_stage: Database["public"]["Enums"]["mom_stage"] | null
           product: string
           updated_at: string
         }
         Insert: {
           account_id: string
           id?: string
-          mom_stage?: Database["public"]["Enums"]["mom_stage"]
+          mom_stage?: Database["public"]["Enums"]["mom_stage"] | null
           product: string
           updated_at?: string
         }
         Update: {
           account_id?: string
           id?: string
-          mom_stage?: Database["public"]["Enums"]["mom_stage"]
+          mom_stage?: Database["public"]["Enums"]["mom_stage"] | null
           product?: string
           updated_at?: string
         }
@@ -53,7 +53,9 @@ export type Database = {
           country: string | null
           created_at: string
           estimated_annual_revenue: number | null
+          iad: string | null
           id: string
+          kae: string | null
           logo_url: string | null
           name: string
           notes: string | null
@@ -68,7 +70,9 @@ export type Database = {
           country?: string | null
           created_at?: string
           estimated_annual_revenue?: number | null
+          iad?: string | null
           id?: string
+          kae?: string | null
           logo_url?: string | null
           name: string
           notes?: string | null
@@ -83,7 +87,9 @@ export type Database = {
           country?: string | null
           created_at?: string
           estimated_annual_revenue?: number | null
+          iad?: string | null
           id?: string
+          kae?: string | null
           logo_url?: string | null
           name?: string
           notes?: string | null
@@ -237,6 +243,7 @@ export type Database = {
           start_date: string
           target_nps: number
           target_response_rate: number
+          targets_set_at: string
           template_initial: string
           template_reminder_1: string
           template_reminder_2: string
@@ -254,6 +261,7 @@ export type Database = {
           start_date: string
           target_nps?: number
           target_response_rate?: number
+          targets_set_at?: string
           template_initial?: string
           template_reminder_1?: string
           template_reminder_2?: string
@@ -271,6 +279,7 @@ export type Database = {
           start_date?: string
           target_nps?: number
           target_response_rate?: number
+          targets_set_at?: string
           template_initial?: string
           template_reminder_1?: string
           template_reminder_2?: string
@@ -426,6 +435,7 @@ export type Database = {
       questionnaires: {
         Row: {
           active: boolean
+          code: string | null
           created_at: string
           id: string
           name: string
@@ -434,6 +444,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          code?: string | null
           created_at?: string
           id?: string
           name: string
@@ -442,6 +453,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          code?: string | null
           created_at?: string
           id?: string
           name?: string
@@ -625,6 +637,9 @@ export type Database = {
           id: number
           preview_description: string
           preview_title: string
+          program_target_nps: number
+          program_target_rate: number
+          program_targets_set_at: string
           template_initial: string
           template_reminder_1: string
           template_reminder_2: string
@@ -635,6 +650,9 @@ export type Database = {
           id?: number
           preview_description?: string
           preview_title?: string
+          program_target_nps?: number
+          program_target_rate?: number
+          program_targets_set_at?: string
           template_initial: string
           template_reminder_1: string
           template_reminder_2: string
@@ -645,6 +663,9 @@ export type Database = {
           id?: number
           preview_description?: string
           preview_title?: string
+          program_target_nps?: number
+          program_target_rate?: number
+          program_targets_set_at?: string
           template_initial?: string
           template_reminder_1?: string
           template_reminder_2?: string
