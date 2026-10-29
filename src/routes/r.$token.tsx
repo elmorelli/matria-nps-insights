@@ -10,6 +10,7 @@ import { getSurveyMeta, DEFAULT_META } from "@/lib/survey-meta.functions";
 import feixeAzul from "@/assets/feixe-azul.webp.asset.json";
 import fotoMaos from "@/assets/medico-maos-paciente.webp.asset.json";
 import fotoMedica from "@/assets/medica-paciente-02.webp.asset.json";
+import assinatura from "@/assets/assinatura-eduardo.png.asset.json";
 
 export const Route = createFileRoute("/r/$token")({
   loader: () => getSurveyMeta(),
@@ -205,9 +206,16 @@ function SurveyPage() {
     return (
       <PhotoScreen account={info.account ?? ""} photo={fotoMaos.url} position="50% 40%">
         {preview && <PreviewBadge />}
-        <h1 className="text-2xl leading-snug">
-          Olá. Esta pesquisa foi enviada para {info.name}, de {info.account}.
-        </h1>
+        <h1 className="text-2xl leading-snug">Olá{name ? `, ${name}` : ""}.</h1>
+        <p className="mt-4 text-base leading-relaxed">
+          Sou o Eduardo Morelli, COO da Matria e responsável pela experiência dos nossos clientes. Esta pesquisa leva {lead} e eu leio cada resposta
+          pessoalmente. O que você disser aqui volta para você por escrito, e falaremos posteriormente o que vamos fazer a respeito.
+        </p>
+        <div className="mt-8 border-t border-border pt-6">
+          <img src={assinatura.url} alt="Assinatura de Eduardo Morelli" className="h-16 w-auto object-contain" />
+          <p className="mt-2 text-base text-primary">Eduardo Morelli</p>
+          <p className="text-sm text-muted-foreground">COO - Matria</p>
+        </div>
         <PrimaryButton className="mt-8" disabled={busy} onClick={confirm}>
           {busy ? "Abrindo…" : "Sou eu, começar"}
         </PrimaryButton>
@@ -557,7 +565,7 @@ function PhotoScreen({ account, photo, position, children }: { account: string; 
         </div>
         <p className="text-right text-lg font-light leading-tight text-primary-foreground sm:text-[22px]">{account}</p>
       </header>
-      <div className="relative flex flex-1 items-start justify-center p-6">
+      <div className="relative flex flex-1 items-start justify-center px-6 pt-16 pb-8 sm:pt-24">
         <img src={photo} alt="" className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: position }} />
         <main className="relative w-full max-w-[440px] rounded-lg border bg-background p-6">{children}</main>
       </div>
