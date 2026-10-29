@@ -193,7 +193,22 @@ function AccessSection() {
                 <td className="px-4 py-3">{u.jobTitle || "Não informado"}</td>
                 <td className="px-4 py-3">{u.email}</td>
                 <td className="px-4 py-3">{ROLE_LABEL[u.role]}</td>
-                <td className="px-4 py-3">{u.active ? "Ativo" : "Desativado"}</td>
+                <td className="px-4 py-3">
+                  {u.isMe ? (
+                    <span className={cn("inline-flex rounded-full px-2.5 py-1 text-xs font-semibold", u.active ? "bg-green-light text-green-dark" : "bg-destructive text-destructive-foreground")}>
+                      {u.active ? "Ativo" : "Inativo"}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => toggle(u)}
+                      title={u.active ? "Clique para tornar inativo" : "Clique para tornar ativo"}
+                      className={cn("inline-flex cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold transition-opacity hover:opacity-80", u.active ? "bg-green-light text-green-dark" : "bg-destructive text-destructive-foreground")}
+                    >
+                      {u.active ? "Ativo" : "Inativo"}
+                    </button>
+                  )}
+                </td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-2">
                     <Button variant="outline" size="sm" onClick={() => edit(u)}><Pencil className="h-4 w-4" /> Alterar</Button>
