@@ -47,3 +47,4 @@
 - [x] 2. Botao "Nao sou eu" com contorno, igual ao botao de cima
 - [ ] 3. Botao "Alterar" com fundo azul e texto branco
 - [ ] 4. Texto de agradecimento final revisado
+- [ ] 5. Assinatura um pouco mais a direita, centralizada sobre o nome
