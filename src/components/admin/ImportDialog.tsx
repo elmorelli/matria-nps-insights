@@ -1,5 +1,6 @@
 import { useState } from "react";
 import * as XLSX from "xlsx";
+import { downloadStyledWorkbook } from "@/lib/xlsx-brand";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,14 +11,14 @@ import { cn } from "@/lib/utils";
 
 const KEYS: (keyof ImportRow)[] = ["institution", "full_name", "ddi", "phone", "email", "job_title", "role", "product"];
 
-export function downloadTemplate() {
-  const ws = XLSX.utils.aoa_to_sheet([
-    [...TEMPLATE_COLUMNS],
-    ["Hospital Exemplo", "Maria Silva", "+55", "(11) 98765-4321", "maria@hospital.com.br", "Diretora de Operações", "Sponsor", "Agendamento com IA"],
+export async function downloadTemplate() {
+  await downloadStyledWorkbook("modelo-contatos-matria.xlsx", [
+    {
+      name: "Contatos",
+      columns: [...TEMPLATE_COLUMNS],
+      rows: [["Hospital Exemplo", "Maria Silva", "+55", "(11) 98765-4321", "maria@hospital.com.br", "Diretora de Operações", "Sponsor", "Agendamento com IA"]],
+    },
   ]);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Contatos");
-  XLSX.writeFile(wb, "modelo-contatos-matria.xlsx");
 }
 
 export async function parseFile(file: File): Promise<ImportRow[]> {
