@@ -45,3 +45,7 @@
 # Prompt 7 (abertura da pesquisa)
 - [x] 1. Assinatura girada 90 graus para a esquerda
 - [x] 2. Botao "Nao sou eu" com contorno, igual ao botao de cima
+- [ ] 3. Botao "Alterar" com fundo azul e texto branco
+- [ ] 4. Texto de agradecimento final revisado
+- [ ] 5. Assinatura um pouco mais a direita, centralizada sobre o nome
+- [ ] 6. Avaliar design dos e-mails enviados pela plataforma

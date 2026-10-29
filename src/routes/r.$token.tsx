@@ -214,7 +214,7 @@ function SurveyPage() {
         </p>
         <p className="mt-4 text-base leading-relaxed">Desde já, obrigado pelo seu tempo.</p>
         <div className="mt-8">
-          <img src={assinatura.url} alt="Assinatura de Eduardo Morelli" className="relative z-10 -mb-5 h-28 w-auto object-contain" />
+          <img src={assinatura.url} alt="Assinatura de Eduardo Morelli" className="relative z-10 -mb-5 ml-[30px] h-28 w-auto object-contain" />
           <p className="text-base text-primary">Eduardo Morelli</p>
           <p className="text-sm text-muted-foreground">COO - Matria</p>
         </div>
@@ -306,7 +306,7 @@ function SurveyPage() {
                           setStage("q");
                           goto(qi);
                         }}
-                        className="shrink-0 rounded-md px-2 py-1 text-sm text-primary hover:bg-highlight"
+                        className="shrink-0 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90"
                       >
                         Alterar
                       </button>
@@ -555,7 +555,9 @@ function ThankYou({ name, account }: { name: string; account?: string }) {
         <Check className="h-6 w-6" />
       </div>
       <h1 className="mt-6 text-3xl leading-tight">{name ? `Obrigado, ${name}.` : "Obrigado."}</h1>
-      <p className="mt-4 text-lg font-light leading-relaxed text-primary">Você vai receber da Matria, por escrito, o que ouvimos e o que vamos fazer a respeito.</p>
+      <p className="mt-4 text-lg font-light leading-relaxed text-primary">
+        Muito obrigado pelo seu tempo e pelo cuidado em responder. Suas respostas são fundamentais para a Matria evoluir a cada dia.
+      </p>
     </PhotoScreen>
   );
 }
