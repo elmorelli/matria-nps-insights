@@ -52,6 +52,13 @@ export function styleSheet(ws: Worksheet, columns: string[], rowCount: number) {
   ws.properties.tabColor = { argb: PRIMARY };
 }
 
+/** Monta uma folha a partir de linhas em objeto, preservando a ordem das colunas. */
+export function sheetFromObjects(name: string, rows: Record<string, Cell>[]): SheetSpec {
+  const columns: string[] = [];
+  rows.forEach((r) => Object.keys(r).forEach((k) => !columns.includes(k) && columns.push(k)));
+  return { name, columns, rows: rows.map((r) => columns.map((c) => r[c] ?? "")) };
+}
+
 export function addSheet(wb: Workbook, spec: SheetSpec): Worksheet {
   const ws = wb.addWorksheet(spec.name);
   ws.addRow(spec.columns);

@@ -29,7 +29,7 @@ describe("visual das planilhas", () => {
     const ws = await roundTrip();
     expect(ws.getCell("A2").font.color?.argb).toBe("FF021125");
     expect(ws.getCell("A3").fill.fgColor.argb).toBe("FFF2F7FF");
-    expect(ws.getCell("A2").fill.type).not.toBe("pattern");
+    expect(ws.getCell("A2").fill.pattern).not.toBe("solid");
   });
 
   it("cabeçalho congelado, filtros e larguras dentro do limite", async () => {
