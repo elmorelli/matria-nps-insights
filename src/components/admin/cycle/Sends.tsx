@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import * as XLSX from "xlsx";
+import { downloadStyledWorkbook, sheetFromObjects } from "@/lib/xlsx-brand";
 import { toast } from "sonner";
 import { Copy, Download, Link2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -86,7 +86,7 @@ export function Sends({ d, cycle }: { d: AllData; cycle: Cycle }) {
     toast.success(ok);
   };
 
-  const exportXlsx = () => {
+  const exportXlsx = async () => {
     const list = selected.size ? rows.filter((r) => selected.has(r.inv.id)) : rows;
     const data = list.map((r) => ({
       "Nome completo": r.contact.full_name,
@@ -97,9 +97,7 @@ export function Sends({ d, cycle }: { d: AllData; cycle: Cycle }) {
       Link: surveyLink(r.inv.token),
       Mensagem: message(r),
     }));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Envio");
-    XLSX.writeFile(wb, `envio-${cycle.name}.xlsx`);
+    await downloadStyledWorkbook(`envio-${cycle.name}.xlsx`, [sheetFromObjects("Envio", data)]);
   };
 
   const allSel = rows.length > 0 && rows.every((r) => selected.has(r.inv.id));

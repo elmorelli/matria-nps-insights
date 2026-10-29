@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useOptions, matchOption } from "@/lib/options";
+import { newWorkbook, styleSheet, writeWorkbook } from "@/lib/xlsx-brand";
 
 const COLS = ["Nome *", "Status *", "Tier *", "Tipo", "País", "IAD", "KAE", "Observações"] as const;
 type Row = { name: string; status: string; tier: string; segment: string; country: string; iad: string; kae: string; notes: string };
@@ -27,15 +28,12 @@ export function ClientImport({ onDone }: { onDone: () => void }) {
   };
 
   const download = async () => {
-    const ExcelJS = (await import("exceljs")).default;
-    const wb = new ExcelJS.Workbook();
+    const wb = await newWorkbook();
     const ws = wb.addWorksheet("Clientes");
     const ls = wb.addWorksheet("Listas", { state: "veryHidden" });
     ws.addRow([...COLS]);
-    ws.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" }, name: "Arial" };
-    ws.getRow(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF0057B8" } };
+    styleSheet(ws, [...COLS], 1000);
     ws.columns.forEach((c, i) => (c.width = i === 0 || i === 7 ? 36 : 18));
-    ws.views = [{ state: "frozen", ySplit: 1 }];
     KEYS.forEach((k, i) => {
       const vals = lists[k];
       if (!vals?.length) return;
@@ -53,13 +51,7 @@ export function ClientImport({ onDone }: { onDone: () => void }) {
         };
       }
     });
-    const buf = await wb.xlsx.writeBuffer();
-    const url = URL.createObjectURL(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "modelo-clientes-matria.xlsx";
-    a.click();
-    URL.revokeObjectURL(url);
+    await writeWorkbook(wb, "modelo-clientes-matria.xlsx");
   };
 
   const pick = async (f: File) => {
