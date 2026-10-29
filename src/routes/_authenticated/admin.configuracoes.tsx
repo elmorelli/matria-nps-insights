@@ -98,6 +98,11 @@ function AccessSection() {
     setBusy(true);
     try {
       if (editing) {
+        const orig = users.find((u) => u.id === editing);
+        if (orig && orig.email !== form.email.trim() && !confirm(`Atenção: você está ALTERANDO o usuário ${orig.name || orig.email}, não criando um novo. O e-mail dele vai mudar para ${form.email}. Para cadastrar outra pessoa, clique em Cancelar e use "Cadastrar usuário". Continuar mesmo assim?`)) {
+          setBusy(false);
+          return;
+        }
         await update({ data: { id: editing, ...form } });
         toast.success("Usuário atualizado.");
       } else {
@@ -139,6 +144,11 @@ function AccessSection() {
 
   return (
     <Card title="Cadastro de usuários" caption="Cada pessoa cadastrada vira uma linha na lista. Clique na situação (Ativo ou Inativo) para alternar, ou use os botões Alterar, Desativar e Excluir na linha. O seu acesso não pode ser desativado nem excluído.">
+      {editing && (
+        <p className="mb-4 rounded-md border border-primary bg-subtle px-4 py-3 text-sm text-primary">
+          Você está alterando os dados de <strong>{users.find((u) => u.id === editing)?.name || "um usuário"}</strong>. Para cadastrar outra pessoa, clique em Cancelar.
+        </p>
+      )}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div className="space-y-2">
           <Label htmlFor="acc-nm" className="text-primary">Nome</Label>
