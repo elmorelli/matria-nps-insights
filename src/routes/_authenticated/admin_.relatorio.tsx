@@ -102,7 +102,7 @@ function Report() {
         </div>
     </Page>,
 
-    <Page key="p3" n={4} title="NPS por instituição" caption={`Barras partem do zero. Tracejado marca a meta ${fmt(target.nps)}. n é o número de respostas.`}>
+    <Page key="p3" n={4} title="NPS por instituição" caption={`Barras partem do zero. Tracejado marca a meta ${fmt(target.nps)}. Ao lado de cada barra, o número de respostas.`}>
         <div className="columns-2 gap-10">
           <GroupBars items={main.byAccount.slice(0, 20)} target={target.nps} />
         </div>

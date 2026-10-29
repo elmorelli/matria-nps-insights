@@ -147,7 +147,7 @@ export function GroupBars({ items, target }: { items: GroupStat[]; target?: numb
             <div className="flex justify-between gap-2 text-sm">
               <span className="truncate">{a.name}</span>
               <span className={cn("shrink-0", a.n ? BAND_TEXT[band] : "text-muted-foreground")}>
-                {a.n ? fmt(a.nps) : "–"} <span className="text-muted-foreground">· n={a.n}</span>
+                {a.n ? fmt(a.nps) : "–"} <span className="text-muted-foreground">· {a.n} respostas</span>
               </span>
             </div>
             <div className="relative mt-1 h-2 rounded-full bg-offwhite">
@@ -171,7 +171,7 @@ export function DriversTable({ items }: { items: Driver[] }) {
           <tr>
             <th className="px-3 py-2 font-medium">Direcionador</th>
             <th className="px-3 py-2 text-right font-medium">Média</th>
-            <th className="px-3 py-2 text-right font-medium">n</th>
+            <th className="px-3 py-2 text-right font-medium">Respostas</th>
             <th className="px-3 py-2 text-right font-medium">Ainda não</th>
           </tr>
         </thead>

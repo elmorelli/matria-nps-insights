@@ -298,7 +298,7 @@ export function cycleReading(st: CycleStats, prev: CycleStats | null): string[] 
   const roles = st.byRole.filter((r) => r.n > 0);
   if (roles.length) {
     const worst = [...roles].sort((a, b) => (a.nps ?? 0) - (b.nps ?? 0))[0];
-    let p = `O papel com menor NPS é ${worst.name} (${fmt(worst.nps)}, n=${worst.n}).`;
+    let p = `O papel com menor NPS é ${worst.name} (${fmt(worst.nps)}, ${worst.n} respostas).`;
     const gaps: string[] = [];
     const accNames = [...new Set(st.answered.map((r) => r.account?.name ?? ""))];
     accNames.forEach((an) => {

@@ -63,8 +63,8 @@ function CardPdf() {
         <span className="text-sm text-muted-foreground">{[acc.segment, opts.countryLabel(acc.country), acc.iad && `IAD ${acc.iad}`, acc.kae && `KAE ${acc.kae}`].filter(Boolean).join(" · ")}</span>
       </div>
       <div className="mt-5 grid grid-cols-3 gap-3">
-        {kpi("NPS geral", fmt(tot.general.nps), `n=${tot.general.n}, todos os ciclos`, tot.general.nps != null ? BAND_TEXT[npsBand(tot.general.nps)] : "")}
-        {kpi("Último ciclo", fmt(latest?.nps), latest ? `${latest.cycle.name}, n=${latest.st.s.n}` : "Sem respostas", latest?.nps != null ? BAND_TEXT[npsBand(latest.nps)] : "")}
+        {kpi("NPS geral", fmt(tot.general.nps), `${tot.general.n} respostas, todos os ciclos`, tot.general.nps != null ? BAND_TEXT[npsBand(tot.general.nps)] : "")}
+        {kpi("Último ciclo", fmt(latest?.nps), latest ? `${latest.cycle.name}, ${latest.st.s.n} respostas` : "Sem respostas", latest?.nps != null ? BAND_TEXT[npsBand(latest.nps)] : "")}
         {kpi("Taxa acumulada", tot.rate != null ? `${tot.rate}%` : "–", `${tot.answered} de ${tot.invited} convidados`)}
       </div>
       <h2 className="mt-6 text-lg">Histórico de NPS</h2>
@@ -77,7 +77,7 @@ function CardPdf() {
       <table className="mt-2 w-full text-sm">
         <thead className="text-left text-primary">
           <tr className="border-b">
-            {["Ciclo", "n", "NPS", "Promotores", "Neutros", "Detratores", "Taxa"].map((h) => (
+            {["Ciclo", "Respostas", "NPS", "Promotores", "Neutros", "Detratores", "Taxa"].map((h) => (
               <th key={h} className="py-1.5 font-medium">
                 {h}
               </th>
