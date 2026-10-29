@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/admin/configuracoes")({
   component: SettingsPage,
 });
 
-const LISTS: ListKey[] = ["role", "product", "account_status", "account_tier", "account_type", "country", "iad", "kae"];
+const LISTS: ListKey[] = ["role", "product", "account_status", "account_tier", "account_type", "country", "iad", "kae", "block"];
 
 /** How many records use a list value. Items in use can only be deactivated. */
 function usage(d: AllData | undefined, list: ListKey, value: string) {
@@ -42,6 +42,8 @@ function usage(d: AllData | undefined, list: ListKey, value: string) {
       return d.accounts.filter((a) => a.iad === value).length;
     case "kae":
       return d.accounts.filter((a) => a.kae === value).length;
+    case "block":
+      return 0;
   }
 }
 

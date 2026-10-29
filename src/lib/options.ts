@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export type ListKey = "role" | "product" | "account_status" | "account_tier" | "account_type" | "country" | "iad" | "kae";
+export type ListKey = "role" | "product" | "account_status" | "account_tier" | "account_type" | "country" | "iad" | "kae" | "block";
 export type OptionRow = { id: string; list: ListKey; value: string; extra: { label?: string; ddi?: string; flag?: string }; position: number; active: boolean };
 
 export const LIST_LABEL: Record<ListKey, string> = {
@@ -13,6 +13,7 @@ export const LIST_LABEL: Record<ListKey, string> = {
   country: "País",
   iad: "IAD",
   kae: "KAE",
+  block: "Blocos do questionário",
 };
 
 export const optionsKey = ["option-lists"] as const;
