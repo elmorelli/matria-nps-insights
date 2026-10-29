@@ -28,6 +28,20 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [info, setInfo] = useState<string | null>(null);
+
+  const forgot = async () => {
+    setMsg(null);
+    setInfo(null);
+    if (!email) return setMsg("Digite seu e-mail no campo Usuário e clique de novo.");
+    setBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setBusy(false);
+    if (error) return setMsg("Não foi possível enviar agora. Tente de novo em alguns minutos.");
+    setInfo("Enviamos um link para o seu e-mail. Confira também a caixa de spam.");
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,9 +70,13 @@ function AuthPage() {
           </div>
         </div>
         {msg && <p className="mt-4 text-sm text-negative">{msg}</p>}
+        {info && <p className="mt-4 text-sm text-primary">{info}</p>}
         <Button type="submit" className="mt-6 w-full" disabled={busy}>
           Entrar
         </Button>
+        <button type="button" onClick={forgot} disabled={busy} className="mt-4 w-full text-sm text-primary underline">
+          Esqueci minha senha
+        </button>
       </form>
     </div>
   );
