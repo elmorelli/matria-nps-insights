@@ -214,8 +214,8 @@ function SurveyPage() {
         </p>
         <p className="mt-4 text-base leading-relaxed">Desde já, obrigado pelo seu tempo.</p>
         <div className="mt-8">
-          <img src={assinatura.url} alt="Assinatura de Eduardo Morelli" className="h-28 w-auto object-contain" />
-          <p className="mt-2 text-base text-primary">Eduardo Morelli</p>
+          <img src={assinatura.url} alt="Assinatura de Eduardo Morelli" className="relative z-10 -mb-5 h-28 w-auto object-contain" />
+          <p className="text-base text-primary">Eduardo Morelli</p>
           <p className="text-sm text-muted-foreground">COO - Matria</p>
         </div>
         <PrimaryButton className="mt-8" disabled={busy} onClick={confirm}>
