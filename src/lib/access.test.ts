@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canOpen, topRole } from "./access";
+import { ACCESS_ROLES, ROLE_LABEL, canManageUser, canOpen, topRole } from "./access";
 
 describe("tipos de acesso", () => {
   it("Administrador abre tudo", () => {
@@ -20,3 +20,13 @@ describe("tipos de acesso", () => {
     expect(topRole([])).toBe(null);
   });
 });
+
+describe("gestão de usuários na lista", () => {
+  for (const role of ACCESS_ROLES) {
+    it(`${ROLE_LABEL[role]} pode ser alterado, desativado ou excluído`, () => {
+      expect(canManageUser({ role, isMe: false })).toBe(true);
+      expect(canManageUser({ role, isMe: true })).toBe(true);
+    });
+  }
+});
+
