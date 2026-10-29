@@ -18,12 +18,12 @@
 - [x] 5. PDF com prévia e download real, ajustes finais
 
 # Prompt 4 (revisão 29/10)
-- [ ] 1. Banco: remover estágio, IAD/KAE, cidade fora, códigos de questionário, metas de programa
-- [ ] 2. Filtros com rótulo, "Todos" e "Limpar filtros"
-- [ ] 3. Login com título e logo maior
-- [ ] 4. Pesquisa: faixa azul, foto de fundo, tela de agradecimento
-- [ ] 5. Visão geral com três blocos e tabela de direcionadores
-- [ ] 6. Ciclos: cartões e detalhe sem estágio
-- [ ] 7. Clientes: cartões, campos editáveis, IAD/KAE, cobertura
-- [ ] 8. Questionários: código, criar, modal de edição, excluir
-- [ ] 9. Configurações: listas, metas de programa, imagem da prévia
+- [x] 1. Banco: remover estágio, IAD/KAE, cidade fora, códigos de questionário, metas de programa
+- [x] 2. Filtros com rótulo, "Todos" e "Limpar filtros"
+- [x] 3. Login com título e logo maior
+- [x] 4. Pesquisa: faixa azul, foto de fundo, tela de agradecimento
+- [x] 5. Visão geral com três blocos e tabela de direcionadores
+- [x] 6. Ciclos: cartões e detalhe sem estágio
+- [x] 7. Clientes: cartões, campos editáveis, IAD/KAE, cobertura
+- [x] 8. Questionários: código, criar, modal de edição, excluir
+- [x] 9. Configurações: listas, metas de programa, imagem da prévia
