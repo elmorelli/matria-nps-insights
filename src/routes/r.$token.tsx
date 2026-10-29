@@ -210,9 +210,10 @@ function SurveyPage() {
         <h1 className="text-2xl leading-snug">Olá{name ? `, ${name}` : ""}.</h1>
         <p className="mt-4 text-base leading-relaxed">
           Sou o Eduardo Morelli, COO da Matria e responsável pela experiência dos nossos clientes. Esta pesquisa leva {lead} e eu leio cada resposta
-          pessoalmente. O que você disser aqui volta para você por escrito, e falaremos posteriormente o que vamos fazer a respeito.
+          pessoalmente. O que você disser aqui volta para você por escrito.
         </p>
-        <div className="mt-8 border-t border-border pt-6">
+        <p className="mt-4 text-base leading-relaxed">Desde já, obrigado pelo seu tempo.</p>
+        <div className="mt-8">
           <img src={assinatura.url} alt="Assinatura de Eduardo Morelli" className="h-16 w-auto object-contain" />
           <p className="mt-2 text-base text-primary">Eduardo Morelli</p>
           <p className="text-sm text-muted-foreground">COO - Matria</p>
@@ -555,14 +556,13 @@ function ThankYou({ name, account }: { name: string; account?: string }) {
   );
 }
 
-/** Reduced blue band (logo, tagline, institution) over a full-bleed photo with a white card. */
+/** Reduced blue band (logo, institution) over a full-bleed photo with a white card. */
 function PhotoScreen({ account, photo, position, children }: { account: string; photo: string; position: string; children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="flex h-[88px] shrink-0 items-center justify-between gap-4 bg-primary bg-cover bg-center px-5 sm:h-[104px] sm:px-10" style={{ backgroundImage: `url(${feixeAzul.url})` }}>
-        <div className="flex flex-col justify-center">
-          <MatriaLogo variant="negativo" className="-my-2 h-14 self-start sm:h-16" />
-          <span className="-mt-1 text-xs font-light text-primary-foreground sm:text-sm">Data for better care.</span>
+        <div className="relative aspect-[4.167/1] h-11 shrink-0 overflow-hidden sm:h-16">
+          <MatriaLogo variant="negativo" className="absolute left-1/2 top-1/2 h-[219%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2" />
         </div>
         <p className="text-right text-lg font-light leading-tight text-primary-foreground sm:text-[22px]">{account}</p>
       </header>
