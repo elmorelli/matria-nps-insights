@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
+import { hasNps, npsRow } from "@/lib/nps-question";
 
 export const Route = createFileRoute("/_authenticated/admin/questionarios")({
   head: () => ({ meta: [{ title: "Questionários | Matria NPS" }, { name: "robots", content: "noindex" }] }),
@@ -168,13 +169,11 @@ function CreateDialog({ d, open, onClose, onCreated }: { d: AllData; open: boole
       setBusy(false);
       return toast.error("Não foi possível criar.");
     }
-    const src =
+    const copied =
       mode === "base"
         ? d.questions.filter((q) => q.questionnaire_id === base).map(({ id: _id, questionnaire_id: _q, ...rest }) => ({ ...rest, questionnaire_id: nq.id }))
-        : (() => {
-            const nps = d.questions.find((q) => q.key === "nps");
-            return nps ? [{ questionnaire_id: nq.id, position: 1, key: "nps", kind: "nps" as const, text: nps.text, required: true, block: nps.block, block_note: nps.block_note, min_chars: null }] : [];
-          })();
+        : [];
+    const src = hasNps(copied) ? copied : [npsRow(nq.id, 1), ...copied.map((q) => ({ ...q, position: q.position + 1 }))];
     if (src.length) {
       const { error: e2 } = await supabase.from("questions").insert(src);
       if (e2) toast.error("O questionário foi criado, mas as perguntas não foram copiadas.");
@@ -239,6 +238,14 @@ function Editor({ d, qid, locked, onChange }: { d: AllData; qid: string; locked:
   const [open, setOpen] = useState<string | null>(null);
   const [drag, setDrag] = useState<number | null>(null);
   const [newQ, setNewQ] = useState({ text: "", kind: "likert", block: qs[qs.length - 1]?.block ?? "", required: true });
+  const missingNps = !hasNps(qs);
+  const addNps = async () => {
+    await Promise.all(qs.map((q) => supabase.from("questions").update({ position: q.position + 1 }).eq("id", q.id)));
+    const { error } = await supabase.from("questions").insert(npsRow(qid, 1));
+    if (error) return toast.error("Não foi possível incluir a pergunta de NPS.");
+    toast.success("Pergunta de NPS incluída.");
+    onChange();
+  };
 
   const save = async (q: QuestionRow, patch: Partial<QuestionRow>) => {
     const { error } = await supabase.from("questions").update(patch).eq("id", q.id);
@@ -292,6 +299,14 @@ function Editor({ d, qid, locked, onChange }: { d: AllData; qid: string; locked:
         <p className="flex items-start gap-2 rounded-md bg-offwhite p-3 text-sm">
           <Lock className="mt-0.5 h-4 w-4 shrink-0" /> {LOCK_NOTE}
         </p>
+      )}
+      {missingNps && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-highlight p-3 text-sm text-info">
+          <span>Falta a pergunta de NPS (a nota de 0 a 10, com as cores) neste questionário.</span>
+          <Button size="sm" onClick={addNps}>
+            <Plus /> Incluir a pergunta de NPS
+          </Button>
+        </div>
       )}
       <p className="text-sm text-muted-foreground">Arraste pela alça para mudar a ordem. Clique na pergunta para editar.</p>
       <ol className="space-y-2">
