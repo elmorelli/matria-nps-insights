@@ -17,6 +17,7 @@ import { useOptions } from "@/lib/options";
 import { StatusTag, TierTag, accountTotals } from "@/components/admin/AccountTags";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { ClientImport } from "@/components/admin/ClientImport";
 
 export const Route = createFileRoute("/_authenticated/admin/clientes/")({
   head: () => ({ meta: [{ title: "Clientes | Matria NPS" }, { name: "robots", content: "noindex" }] }),
@@ -79,9 +80,12 @@ function ClientsPage() {
           <h1 className="text-2xl">Clientes</h1>
           <p className="mt-1 text-muted-foreground">{d?.accounts.length ?? 0} instituições.</p>
         </div>
-        <Button onClick={() => setForm({ ...EMPTY })}>
-          <Plus /> Nova instituição
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <ClientImport onDone={() => qc.invalidateQueries({ queryKey: allDataKey })} />
+          <Button onClick={() => setForm({ ...EMPTY })}>
+            <Plus /> Nova instituição
+          </Button>
+        </div>
       </div>
 
       {form && (
