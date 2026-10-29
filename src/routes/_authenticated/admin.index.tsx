@@ -132,7 +132,7 @@ function Overview() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <Card title="NPS ao longo dos ciclos" caption="Linha azul: NPS (n no ponto). Degraus: meta de cada ciclo. Tracejado: meta em uso.">
+        <Card title="NPS ao longo dos ciclos" caption="Linha azul: NPS (número de respostas no ponto). Degraus: meta de cada ciclo. Tracejado: meta em uso.">
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={trend} margin={{ left: -16, right: 16, top: 16 }}>
@@ -143,7 +143,7 @@ function Overview() {
                 <Line type="stepAfter" dataKey="Meta do ciclo" stroke="var(--foreground)" strokeWidth={1.5} dot={false} isAnimationActive={false} />
                 <ReferenceLine y={target.nps} stroke="var(--brand-light)" strokeDasharray="6 4" />
                 <Line dataKey="NPS" stroke="var(--primary)" strokeWidth={3} connectNulls isAnimationActive={false} label={({ x, y, index }: { x: number; y: number; index: number }) => (
-                  <text x={x} y={y - 10} textAnchor="middle" fontSize={11} fill="var(--foreground)">{trend[index]?.NPS != null ? `${fmt(trend[index].NPS)} ${trend[index].n ? `(n=${trend[index].n})` : "(referência)"}` : ""}</text>
+                  <text x={x} y={y - 10} textAnchor="middle" fontSize={11} fill="var(--foreground)">{trend[index]?.NPS != null ? `${fmt(trend[index].NPS)} ${trend[index].n ? `(${trend[index].n} respostas)` : "(referência)"}` : ""}</text>
                 )} />
               </ComposedChart>
             </ResponsiveContainer>
@@ -192,7 +192,7 @@ function Overview() {
                       {c ? (
                         <div className={cn("rounded-md px-2 py-2", BAND_BG[npsBand(c.nps ?? 0)])}>
                           <span className={cn("font-medium", BAND_TEXT[npsBand(c.nps ?? 0)])}>{fmt(c.nps)}</span>
-                          <span className="ml-1 text-xs text-muted-foreground">n={c.n}</span>
+                          <span className="ml-1 text-xs text-muted-foreground">{c.n} respostas</span>
                         </div>
                       ) : (
                         <span className="text-muted-foreground">–</span>
@@ -296,7 +296,7 @@ function Indicators({ nps, rate, n, target }: { nps: number | null; rate: number
         <p className="text-5xl font-light">{rate ?? "–"}{rate != null && "%"}</p>
         {rate != null && <Status ok={rate >= target.rate} />}
       </div>
-      <p className="col-span-2 text-sm text-muted-foreground">n = {n}</p>
+      <p className="col-span-2 text-sm text-muted-foreground">Respostas: {n}</p>
     </div>
   );
 }

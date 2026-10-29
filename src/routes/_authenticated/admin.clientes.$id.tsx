@@ -148,7 +148,7 @@ function ClientPage() {
           <table className="w-full text-sm">
             <thead className="sticky top-0 bg-subtle text-left">
               <tr>
-                {["Ciclo", "n", "NPS", "Promotores", "Neutros", "Detratores", ...driverKeys.map(([k]) => k)].map((h) => (
+                {["Ciclo", "Respostas", "NPS", "Promotores", "Neutros", "Detratores", ...driverKeys.map(([k]) => k)].map((h) => (
                   <th key={h} className="whitespace-nowrap px-3 py-2 font-medium">
                     {h}
                   </th>
