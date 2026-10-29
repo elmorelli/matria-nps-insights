@@ -156,7 +156,6 @@ function ListsSection() {
   const [tab, setTab] = useState<ListKey>("role");
   const [newVal, setNewVal] = useState("");
   const [newDdi, setNewDdi] = useState("");
-  const [newFlag, setNewFlag] = useState("");
   const items = rows.filter((r) => r.list === tab).sort((a, b) => a.position - b.position);
   const refresh = () => {
     qc.invalidateQueries({ queryKey: optionsKey });
@@ -167,13 +166,12 @@ function ListsSection() {
     const v = newVal.trim();
     if (!v) return;
     if (items.some((i) => i.value.toLowerCase() === v.toLowerCase())) return toast.error("Este item já existe.");
-    const extra = tab === "country" ? { label: v, ddi: newDdi.startsWith("+") ? newDdi : `+${newDdi.replace(/\D/g, "")}`, flag: newFlag } : {};
+    const extra = tab === "country" ? { label: v, ddi: newDdi.startsWith("+") ? newDdi : `+${newDdi.replace(/\D/g, "")}` } : {};
     const value = tab === "country" ? v.slice(0, 2).toUpperCase() : v;
     const { error } = await supabase.from("option_lists").insert({ list: tab, value, extra, position: (items.at(-1)?.position ?? 0) + 1 });
     if (error) return toast.error("Não foi possível adicionar.");
     setNewVal("");
     setNewDdi("");
-    setNewFlag("");
     refresh();
   };
 
@@ -325,42 +323,6 @@ function TemplatesSection() {
       <Button className="mt-4" onClick={save}>
         Salvar modelos
       </Button>
-    </Card>
-  );
-}
-
-function ProgramTargetsSection() {
-  const qc = useQueryClient();
-  const { data } = useSettings();
-  const [f, setF] = useState({ rate: "", nps: "" });
-  useEffect(() => {
-    if (data) setF({ rate: String(data.program_target_rate), nps: String(data.program_target_nps) });
-  }, [data]);
-  const save = async () => {
-    if (!data) return;
-    const rate = Number(f.rate), nps = Number(f.nps);
-    if (!f.rate || rate < 0 || rate > 100) return toast.error("A taxa de resposta vai de 0 a 100.");
-    if (!f.nps || nps < -100 || nps > 100) return toast.error("O NPS vai de -100 a 100.");
-    const { error } = await supabase.from("settings").update({ program_target_rate: rate, program_target_nps: nps, program_targets_set_at: new Date().toISOString().slice(0, 10) }).eq("id", data.id);
-    if (error) return toast.error("Não foi possível salvar.");
-    toast.success("Metas de programa salvas.");
-    qc.invalidateQueries({ queryKey: settingsKey });
-    qc.invalidateQueries({ queryKey: allDataKey });
-  };
-  return (
-    <Card title="Metas de programa" caption="Metas gerais da Matria, mostradas na Visão geral. As metas de cada ciclo continuam no próprio ciclo.">
-      <div className="flex flex-wrap items-end gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="pr">Taxa de resposta (%)</Label>
-          <Input id="pr" type="number" className="w-40" value={f.rate} onChange={(e) => setF({ ...f, rate: e.target.value })} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="pn">NPS</Label>
-          <Input id="pn" type="number" className="w-40" value={f.nps} onChange={(e) => setF({ ...f, nps: e.target.value })} />
-        </div>
-        <Button onClick={save}>Salvar metas</Button>
-      </div>
-      {data && <p className="mt-3 text-sm text-muted-foreground">Definidas em {new Date(data.program_targets_set_at + "T00:00").toLocaleDateString("pt-BR")}.</p>}
     </Card>
   );
 }
