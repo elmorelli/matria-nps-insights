@@ -68,7 +68,6 @@ function SettingsPage() {
         <p className="mt-1 text-muted-foreground">Listas de seleção, metas de programa, mensagens padrão, pesquisa e conta.</p>
       </div>
       <ListsSection />
-      <ProgramTargetsSection />
       <TemplatesSection />
       <SurveySection />
       <AccountSection />
@@ -255,7 +254,6 @@ function ListsSection() {
         {tab === "country" && (
           <>
             <Input placeholder="DDI, como +54" value={newDdi} onChange={(e) => setNewDdi(e.target.value)} className="w-32" />
-            <Input placeholder="Bandeira" value={newFlag} onChange={(e) => setNewFlag(e.target.value)} className="w-24" />
           </>
         )}
         <Button variant="outline" onClick={add}>
