@@ -62,3 +62,4 @@
 - [x] 4. Blocos do questionário configuráveis, começando com Sua nota, Relacionamento, Solução e Para fechar
 - [x] 5. Pergunta de NPS (nota de 0 a 10, com as cores) sempre presente: entra ao criar o questionário e há botão para incluí-la quando faltar
 - [x] 6. Excluir questionário voltou a funcionar com a pergunta de NPS dentro
+- [x] 7. Situação do usuário na lista vira clique (Ativo verde, Inativo vermelho); botão Excluir já existia
