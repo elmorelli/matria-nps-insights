@@ -237,7 +237,7 @@ function Editor({ d, qid, locked, onChange }: { d: AllData; qid: string; locked:
   const qn = d.questionnaires.find((q) => q.id === qid);
   const [open, setOpen] = useState<string | null>(null);
   const [drag, setDrag] = useState<number | null>(null);
-  const [newQ, setNewQ] = useState({ text: "", kind: "likert", block: qs[qs.length - 1]?.block ?? "" });
+  const [newQ, setNewQ] = useState({ text: "", kind: "likert", block: qs[qs.length - 1]?.block ?? "", required: true });
 
   const save = async (q: QuestionRow, patch: Partial<QuestionRow>) => {
     const { error } = await supabase.from("questions").update(patch).eq("id", q.id);
@@ -272,7 +272,7 @@ function Editor({ d, qid, locked, onChange }: { d: AllData; qid: string; locked:
       key,
       kind: newQ.kind as never,
       text: newQ.text.trim(),
-      required: newQ.kind !== "text",
+      required: newQ.required,
       block: newQ.block.trim(),
     });
     if (error) return toast.error("Não foi possível adicionar.");
@@ -315,7 +315,7 @@ function Editor({ d, qid, locked, onChange }: { d: AllData; qid: string; locked:
                 <button className="min-w-0 flex-1 text-left" onClick={() => setOpen(isOpen ? null : q.id)}>
                   <p className="truncate">{q.text}</p>
                   <p className="text-xs text-muted-foreground">
-                    {q.block} · {KIND_LABEL[q.kind]}
+                    {q.block} · {KIND_LABEL[q.kind]} · {q.required ? "Obrigatória" : "Opcional"}
                   </p>
                 </button>
                 {!isNps && (
@@ -347,6 +347,9 @@ function Editor({ d, qid, locked, onChange }: { d: AllData; qid: string; locked:
                 </option>
               ))}
             </select>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={newQ.required} onChange={(e) => setNewQ({ ...newQ, required: e.target.checked })} /> Obrigatória
+            </label>
             <Button size="sm" onClick={add}>
               <Plus /> Adicionar
             </Button>
