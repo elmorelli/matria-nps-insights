@@ -171,7 +171,7 @@ function ClientsPage() {
                 <div>
                   <dt className="text-xs text-muted-foreground">NPS geral</dt>
                   <dd className={cn("text-2xl font-light", gBand ? BAND_TEXT[gBand] : "text-muted-foreground")}>{fmt(tot.general.nps)}</dd>
-                  <dd className="text-xs text-muted-foreground">n={tot.general.n}</dd>
+                  <dd className="text-xs text-muted-foreground">{tot.general.n} respostas</dd>
                 </div>
                 <div>
                   <dt className="text-xs text-muted-foreground">Último ciclo</dt>
