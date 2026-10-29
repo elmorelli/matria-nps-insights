@@ -4,7 +4,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { allDataKey, allDataQuery, EMPTY_FILTERS, cycleStats, fmt } from "@/lib/analytics";
+import { cn } from "@/lib/utils";
+import { allDataKey, allDataQuery, attainment, EMPTY_FILTERS, cycleStats, fmt } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,30 +80,26 @@ function CyclesPage() {
                       {new Date(c.start_date + "T12:00").toLocaleDateString("pt-BR")}
                       {c.end_date ? ` até ${new Date(c.end_date + "T12:00").toLocaleDateString("pt-BR")}` : " · sem data de término"}
                     </p>
-                    {qn && <p className="text-sm text-muted-foreground">{qn.name} · versão {qn.version}</p>}
+                    {qn && <p className="text-sm text-muted-foreground">{qn.code} · {qn.name}</p>}
                   </div>
                   <span className={c.closed ? "rounded-full bg-offwhite px-3 py-1 text-sm text-muted-foreground" : "rounded-full bg-positive-bg px-3 py-1 text-sm text-positive"}>{c.closed ? "Encerrado" : "Em coleta"}</span>
                 </div>
-                <dl className="mt-6 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
-                  <div>
-                    <dt className="text-muted-foreground">Meta de NPS</dt>
-                    <dd className="mt-1 text-xl font-light">{fmt(Number(c.target_nps))}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Meta de resposta</dt>
-                    <dd className="mt-1 text-xl font-light">{c.target_response_rate}%</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">NPS</dt>
-                    <dd className="mt-1 text-xl font-light">{fmt(st.nps)}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Respostas</dt>
-                    <dd className="mt-1 text-xl font-light">
-                      {st.s.n} de {st.rows.length}
-                    </dd>
-                  </div>
+                <dl className="mt-6 grid grid-cols-2 gap-4">
+                  {([
+                    ["NPS", fmt(st.nps), st.nps, Number(c.target_nps), `Meta ${fmt(Number(c.target_nps))}`],
+                    ["Taxa de resposta", st.rate != null ? `${st.rate}%` : "–", st.rate, Number(c.target_response_rate), `Meta ${c.target_response_rate}%`],
+                  ] as const).map(([l, v, raw, t, meta]) => {
+                    const a = attainment(raw, t);
+                    return (
+                      <div key={l}>
+                        <dt className="text-sm text-muted-foreground">{l}</dt>
+                        <dd className={cn("mt-1 text-4xl font-light", a === "positive" ? "text-positive" : a === "attention" ? "text-attention" : a === "negative" ? "text-negative" : "text-muted-foreground")}>{v}</dd>
+                        <dd className="text-xs text-muted-foreground">{meta}</dd>
+                      </div>
+                    );
+                  })}
                 </dl>
+                <p className="mt-3 text-sm text-muted-foreground">{st.s.n} respostas de {st.rows.length} convites</p>
               </Link>
             );
           })}
