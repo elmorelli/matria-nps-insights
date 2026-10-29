@@ -31,7 +31,6 @@ export function Respondents({ d, cycle }: { d: AllData; cycle: Cycle }) {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<string | null>(null);
   const questions = questionsOf(d, cycle);
-  const stageOf = (product: string, accountId: string) => d.accountProducts.find((ap) => ap.account_id === accountId && ap.product === product)?.mom_stage ?? "Sem estágio";
   const rows = useMemo(() => {
     const t = q.trim().toLowerCase();
     return cycleRows(d, cycle.id, f).filter((r) => !t || [r.contact.full_name, r.account?.name, r.reason].some((s) => (s ?? "").toLowerCase().includes(t)));
@@ -39,10 +38,12 @@ export function Respondents({ d, cycle }: { d: AllData; cycle: Cycle }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
-        <Input placeholder="Buscar por nome, instituição ou palavra" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs bg-background" />
-        <FiltersBar d={d} f={f} set={setF} />
-      </div>
+      <FiltersBar d={d} f={f} set={setF} extraActive={!!q} onClearExtra={() => setQ("")}>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Buscar</span>
+          <Input placeholder="Nome, instituição ou palavra" value={q} onChange={(e) => setQ(e.target.value)} className="w-64 bg-background" />
+        </label>
+      </FiltersBar>
       <p className="text-sm text-muted-foreground">
         {rows.length} convidados · {rows.filter((r) => r.answered).length} responderam. Clique em uma linha para ler as respostas.
       </p>
@@ -50,7 +51,7 @@ export function Respondents({ d, cycle }: { d: AllData; cycle: Cycle }) {
         <table className="w-full text-sm">
           <thead className="sticky top-0 z-10 bg-subtle text-left">
             <tr>
-              {["", "Nome", "Instituição", "Cargo", "Papel", "Estágios e produtos", "Status", "Envio e lembretes", "Abertura", "NPS", "Duração"].map((h) => (
+              {["", "Nome", "Instituição", "Cargo", "Papel", "Produtos", "Status", "Envio e lembretes", "Abertura", "NPS", "Duração"].map((h) => (
                 <th key={h} className="whitespace-nowrap px-3 py-3 font-medium">
                   {h}
                 </th>
@@ -75,7 +76,7 @@ export function Respondents({ d, cycle }: { d: AllData; cycle: Cycle }) {
                     <td className="px-3 py-3">
                       {r.contact.contact_products.map((p) => (
                         <div key={p.id} className="whitespace-nowrap">
-                          {stageOf(p.product, r.contact.account_id)} <span className="text-muted-foreground">· {p.product}</span>
+                          {p.product}
                         </div>
                       ))}
                     </td>

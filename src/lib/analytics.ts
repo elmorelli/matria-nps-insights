@@ -1,11 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
 import { npsOf, npsBand, promotersNeeded, answersNeeded, type NpsSummary, type Band } from "@/lib/nps";
-import { STAGES } from "@/lib/contacts";
 
 /* ---------- loading ---------- */
 
 export async function fetchAll() {
-  const [cy, ac, co, inv, qs, qn, ap, ol] = await Promise.all([
+  const [cy, ac, co, inv, qs, qn, ap, ol, st] = await Promise.all([
     supabase.from("cycles").select("*").order("start_date"),
     supabase.from("accounts").select("*").order("name"),
     supabase.from("contacts").select("*, contact_products(id,product)").order("full_name"),
@@ -14,8 +13,9 @@ export async function fetchAll() {
     supabase.from("questionnaires").select("*").order("version"),
     supabase.from("account_products").select("*").order("product"),
     supabase.from("option_lists").select("list,value,position,active").eq("list", "role").order("position"),
+    supabase.from("settings").select("program_target_rate,program_target_nps,program_targets_set_at").eq("id", 1).maybeSingle(),
   ]);
-  for (const r of [cy, ac, co, inv, qs, qn, ap, ol]) if (r.error) throw r.error;
+  for (const r of [cy, ac, co, inv, qs, qn, ap, ol, st]) if (r.error) throw r.error;
   return {
     cycles: cy.data!,
     accounts: ac.data!,
@@ -25,6 +25,7 @@ export async function fetchAll() {
     questionnaires: qn.data!,
     accountProducts: ap.data!,
     roles: ol.data!.map((r) => r.value),
+    program: { rate: Number(st.data?.program_target_rate ?? 75), nps: Number(st.data?.program_target_nps ?? 80), setAt: st.data?.program_targets_set_at ?? null },
   };
 }
 export type AllData = Awaited<ReturnType<typeof fetchAll>>;
@@ -40,22 +41,21 @@ export const allDataQuery = { queryKey: allDataKey, queryFn: fetchAll };
 
 /* ---------- filters ---------- */
 
-export type Filters = { account: string; role: string; stage: string; product: string; country: string; showTest: boolean };
-export const EMPTY_FILTERS: Filters = { account: "", role: "", stage: "", product: "", country: "", showTest: false };
+export type Filters = { account: string; role: string; product: string; country: string; tier: string; type: string; iad: string; kae: string; showTest: boolean };
+export const EMPTY_FILTERS: Filters = { account: "", role: "", product: "", country: "", tier: "", type: "", iad: "", kae: "", showTest: false };
+export const FILTER_KEYS = ["account", "role", "product", "country", "tier", "type", "iad", "kae"] as const;
+export const hasActiveFilters = (f: Filters) => FILTER_KEYS.some((k) => f[k]);
 
-/** Stages a contact inherits from the institution's contracted products (account_products), at the time of analysis. */
-export function contactStages(d: Pick<AllData, "accountProducts">, c: Contact): string[] {
-  const mine = new Set(c.contact_products.map((p) => p.product));
-  return [...new Set(d.accountProducts.filter((ap) => ap.account_id === c.account_id && mine.has(ap.product)).map((ap) => ap.mom_stage as string))];
-}
-
-export function matches(c: Contact, acc: Account | undefined, f: Filters, d?: Pick<AllData, "accountProducts">) {
+export function matches(c: Contact, acc: Account | undefined, f: Filters, _d?: unknown) {
   if (!f.showTest && c.is_test) return false;
   if (f.account && c.account_id !== f.account) return false;
   if (f.role && c.papel !== f.role) return false;
-  if (f.stage && d && !contactStages(d, c).includes(f.stage)) return false;
   if (f.product && !c.contact_products.some((p) => p.product === f.product)) return false;
   if (f.country && acc?.country !== f.country) return false;
+  if (f.tier && acc?.tier !== f.tier) return false;
+  if (f.type && acc?.segment !== f.type) return false;
+  if (f.iad && acc?.iad !== f.iad) return false;
+  if (f.kae && acc?.kae !== f.kae) return false;
   return true;
 }
 
@@ -63,9 +63,12 @@ export function describeFilters(f: Filters, d: AllData) {
   const parts: string[] = [];
   if (f.account) parts.push(`Instituição: ${d.accounts.find((a) => a.id === f.account)?.name}`);
   if (f.role) parts.push(`Papel: ${f.role}`);
-  if (f.stage) parts.push(`Estágio: ${f.stage}`);
   if (f.product) parts.push(`Produto: ${f.product}`);
-  if (f.country) parts.push(`País: ${f.country === "BR" ? "Brasil" : "México"}`);
+  if (f.country) parts.push(`País: ${f.country === "BR" ? "Brasil" : f.country === "MX" ? "México" : f.country}`);
+  if (f.tier) parts.push(`Tier: ${f.tier}`);
+  if (f.type) parts.push(`Tipo: ${f.type}`);
+  if (f.iad) parts.push(`IAD: ${f.iad}`);
+  if (f.kae) parts.push(`KAE: ${f.kae}`);
   parts.push(f.showTest ? "Com dados de teste" : "Sem dados de teste");
   return parts.join(" · ");
 }
@@ -193,8 +196,6 @@ export function cycleStats(d: AllData, cycle: Cycle, f: Filters) {
     funnel: [["Base válida", base], ["Links gerados", rows.length], ["Enviados", sent], ["Abertos", opened], ["Respondidos", answered.length]] as [string, number][],
     byAccount: groupBy(rows, (r) => [r.account?.name ?? "Sem instituição"]).sort((a, b) => (a.nps ?? 0) - (b.nps ?? 0)),
     byRole: rolesOf(d, rows).map((role) => groupBy(rows.filter((r) => r.contact.papel === role), () => [role])[0] ?? { name: role, ...npsOf([]) }),
-    byStage: STAGES.map((st) => groupBy(rows.filter((r) => contactStages(d, r.contact).includes(st)), () => [st])[0] ?? { name: st, ...npsOf([]) }),
-    multiStage: rows.filter((r) => r.answered && contactStages(d, r.contact).length > 1).length,
     byProduct: groupBy(rows, (r) => [...new Set(r.contact.contact_products.map((p) => p.product))]).sort((a, b) => (a.nps ?? 0) - (b.nps ?? 0)),
     drivers: drivers(rows, qs),
     questions: qs,
@@ -235,6 +236,23 @@ export function targetFor(selected: Cycle[]) {
     averaged: true,
     label: "Meta média dos ciclos selecionados",
   };
+}
+
+/** Pooled view over several cycles: all answers together, rate over the summed valid base. */
+export function pooled(stats: CycleStats[]) {
+  const scores = stats.flatMap((s) => s.answered.map((r) => r.score!));
+  const s = npsOf(scores);
+  const base = stats.reduce((a, x) => a + x.base, 0);
+  if (!s.n && stats.length === 1) return { nps: stats[0].nps, rate: stats[0].rate, n: 0 };
+  return { nps: s.n ? s.nps : null, rate: base ? Math.round((s.n / base) * 100) : null, n: s.n };
+}
+
+/** Attainment color rule: at/above target positive, within 10 points attention, else negative. */
+export function attainment(value: number | null | undefined, target: number): "positive" | "attention" | "negative" | null {
+  if (value == null) return null;
+  if (value >= target) return "positive";
+  if (value >= target - 10) return "attention";
+  return "negative";
 }
 
 /* ---------- labels ---------- */
@@ -335,8 +353,3 @@ export function accountHistory(d: AllData, accountId: string) {
 }
 
 
-/** Caption for the by-stage chart: responses from people whose products sit at different stages count once per stage. */
-export function stageCaption(st: { multiStage: number }) {
-  const base = "Estágio herdado dos produtos contratados pela instituição.";
-  return st.multiStage ? `${base} ${st.multiStage} ${st.multiStage === 1 ? "resposta conta" : "respostas contam"} em mais de um estágio, uma vez por estágio.` : base;
-}

@@ -14,3 +14,10 @@ describe("target rule", () => {
     expect(t).toMatchObject({ nps: 55, rate: 75, averaged: true, label: "Meta média dos ciclos selecionados" });
   });
 });
+
+import { attainment as att } from "@/lib/analytics";
+describe("attainment color rule", () => {
+  it("positive at or above target", () => expect(att(80, 80)).toBe("positive"));
+  it("attention within 10 points below", () => expect(att(70, 80)).toBe("attention"));
+  it("negative more than 10 points below", () => expect(att(69, 80)).toBe("negative"));
+});

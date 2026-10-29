@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { accountHistory, allDataKey, allDataQuery, fmt } from "@/lib/analytics";
 import { npsBand } from "@/lib/nps";
 import { BAND_TEXT } from "@/components/admin/charts";
-import { Select } from "@/components/admin/FiltersBar";
+import { ClearFilters, Select } from "@/components/admin/FiltersBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/admin/clientes/")({
   component: ClientsPage,
 });
 
-const EMPTY = { name: "", status: "", tier: "", segment: "", country: "BR", city: "", owner_name: "", estimated_annual_revenue: "", notes: "" };
+const EMPTY = { name: "", status: "", tier: "", segment: "", country: "BR", iad: "", kae: "", owner_name: "", estimated_annual_revenue: "", notes: "" };
 
 function ClientsPage() {
   const qc = useQueryClient();
@@ -34,20 +34,22 @@ function ClientsPage() {
   const [fTier, setFTier] = useState("");
   const opts = useOptions();
   const [fCountry, setFCountry] = useState("");
+  const [fIad, setFIad] = useState("");
+  const [fKae, setFKae] = useState("");
   const [form, setForm] = useState<typeof EMPTY | null>(null);
 
   const list = useMemo(() => {
     if (!d) return [];
     const t = q.trim().toLowerCase();
     return d.accounts
-      .filter((a) => (!t || a.name.toLowerCase().includes(t)) && (!fSeg || a.segment === fSeg) && (!fCountry || a.country === fCountry) && (!fStatus || a.status === fStatus) && (!fTier || a.tier === fTier))
+      .filter((a) => (!t || a.name.toLowerCase().includes(t)) && (!fSeg || a.segment === fSeg) && (!fCountry || a.country === fCountry) && (!fStatus || a.status === fStatus) && (!fTier || a.tier === fTier) && (!fIad || a.iad === fIad) && (!fKae || a.kae === fKae))
       .map((a) => {
         const hist = accountHistory(d, a.id);
         const latest = [...hist].reverse().find((h) => h.nps !== null);
         return { a, hist, latest, tot: accountTotals(hist) };
       })
       .sort((x, y) => (x.tot.general.nps ?? 999) - (y.tot.general.nps ?? 999));
-  }, [d, q, fSeg, fCountry, fStatus, fTier]);
+  }, [d, q, fSeg, fCountry, fStatus, fTier, fIad, fKae]);
 
   const create = async () => {
     if (!form?.name.trim()) return toast.error("Informe o nome.");
@@ -58,7 +60,8 @@ function ClientsPage() {
       tier: form.tier,
       segment: form.segment || null,
       country: form.country || null,
-      city: form.city || null,
+      iad: form.iad || null,
+      kae: form.kae || null,
       owner_name: form.owner_name || null,
       estimated_annual_revenue: form.estimated_annual_revenue ? Number(form.estimated_annual_revenue) : null,
       notes: form.notes || null,
@@ -86,7 +89,6 @@ function ClientsPage() {
           {(
             [
               ["name", "Nome"],
-              ["city", "Cidade"],
               ["owner_name", "Responsável na Matria"],
               ["estimated_annual_revenue", "Receita anual estimada"],
             ] as const
@@ -101,6 +103,8 @@ function ClientsPage() {
               ["status", "Status", opts.values("account_status").map((v) => [v, v])],
               ["tier", "Tier", opts.values("account_tier").map((v) => [v, v])],
               ["segment", "Tipo", opts.values("account_type").map((v) => [v, v])],
+              ["iad", "IAD", opts.values("iad").map((v) => [v, v])],
+              ["kae", "KAE", opts.values("kae").map((v) => [v, v])],
               ["country", "País", opts.countries.map((c) => [c.value, `${c.extra.flag ?? ""} ${c.extra.label ?? c.value}`])],
             ] as const
           ).map(([k, l, o]) => (
@@ -132,12 +136,23 @@ function ClientsPage() {
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2">
-        <Input placeholder="Buscar instituição" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs bg-background" />
-        <Select value={fStatus} onChange={setFStatus} label="Todos os status" options={opts.values("account_status").map((s) => [s, s])} />
-        <Select value={fTier} onChange={setFTier} label="Todos os Tiers" options={opts.values("account_tier").map((s) => [s, s])} />
-        <Select value={fSeg} onChange={setFSeg} label="Todos os tipos" options={opts.values("account_type").map((s) => [s, s])} />
-        <Select value={fCountry} onChange={setFCountry} label="Todos os países" options={opts.countries.map((c) => [c.value, c.extra.label ?? c.value])} />
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Buscar</span>
+          <Input placeholder="Nome da instituição" value={q} onChange={(e) => setQ(e.target.value)} className="w-64 bg-background" />
+        </label>
+        <Select value={fStatus} onChange={setFStatus} label="Status" options={opts.values("account_status").map((s) => [s, s])} />
+        <Select value={fTier} onChange={setFTier} label="Tier" options={opts.values("account_tier").map((s) => [s, s])} />
+        <Select value={fSeg} onChange={setFSeg} label="Tipo" options={opts.values("account_type").map((s) => [s, s])} />
+        <Select value={fCountry} onChange={setFCountry} label="País" options={opts.countries.map((c) => [c.value, c.extra.label ?? c.value])} />
+        <Select value={fIad} onChange={setFIad} label="IAD" options={opts.values("iad").map((s) => [s, s])} />
+        <Select value={fKae} onChange={setFKae} label="KAE" options={opts.values("kae").map((s) => [s, s])} />
+        <ClearFilters
+          show={!!(fStatus || fTier || fSeg || fCountry || fIad || fKae || q)}
+          onClear={() => {
+            setQ(""); setFStatus(""); setFTier(""); setFSeg(""); setFCountry(""); setFIad(""); setFKae("");
+          }}
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -146,12 +161,12 @@ function ClientsPage() {
           const lBand = latest?.nps != null ? npsBand(latest.nps) : null;
           return (
             <Link key={a.id} to="/admin/clientes/$id" params={{ id: a.id }} className="flex flex-col rounded-lg border bg-background p-5 hover:border-primary">
-              <div className="flex flex-wrap gap-1.5">
+              <h2 className="truncate text-lg font-medium">{a.name}</h2>
+              <p className="text-sm text-muted-foreground">{[a.segment, opts.countryLabel(a.country)].filter(Boolean).join(" · ") || "Tipo e país não informados"}</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
                 <StatusTag value={a.status} />
                 <TierTag value={a.tier} tiers={opts.values("account_tier")} />
               </div>
-              <h2 className="mt-3 truncate text-lg">{a.name}</h2>
-              <p className="text-sm text-muted-foreground">{[a.segment, opts.countryLabel(a.country)].filter(Boolean).join(" · ")}</p>
               <dl className="mt-4 grid grid-cols-3 gap-2">
                 <div>
                   <dt className="text-xs text-muted-foreground">NPS geral</dt>

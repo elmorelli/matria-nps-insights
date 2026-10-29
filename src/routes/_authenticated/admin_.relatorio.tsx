@@ -7,10 +7,9 @@ import { BAND_TEXT, CorrelationChart, Distribution, DriversTable, GroupBars, His
 import { MatriaLogo } from "@/components/MatriaLogo";
 import { PdfViewer, pdfDate } from "@/components/admin/PdfViewer";
 import feixe from "@/assets/feixe-azul.webp.asset.json";
-import { stageCaption } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
-type S = { cycles?: string; account?: string; role?: string; stage?: string; product?: string; country?: string; test?: string };
+type S = { cycles?: string; account?: string; role?: string; product?: string; country?: string; tier?: string; type?: string; iad?: string; kae?: string; test?: string };
 
 export const Route = createFileRoute("/_authenticated/admin_/relatorio")({
   validateSearch: (s: Record<string, unknown>): S => Object.fromEntries(Object.entries(s).filter(([, v]) => typeof v === "string" || typeof v === "number").map(([k, v]) => [k, String(v)])) as S,
@@ -37,7 +36,7 @@ function Page({ title, caption, children, n }: { title: string; caption?: string
 function Report() {
   const s = Route.useSearch();
   const { data: d } = useQuery(allDataQuery);
-  const f: Filters = { ...EMPTY_FILTERS, account: s.account ?? "", role: s.role ?? "", stage: s.stage ?? "", product: s.product ?? "", country: s.country ?? "", showTest: s.test === "1" };
+  const f: Filters = { ...EMPTY_FILTERS, account: s.account ?? "", role: s.role ?? "", product: s.product ?? "", country: s.country ?? "", tier: s.tier ?? "", type: s.type ?? "", iad: s.iad ?? "", kae: s.kae ?? "", showTest: s.test === "1" };
   const ids = (s.cycles ?? "").split(",").filter(Boolean);
 
   const r = useMemo(() => {
@@ -49,7 +48,7 @@ function Report() {
     const prev = pc ? cycleStats(d, pc, f) : null;
     return { sel, stats, main, prev, target: targetFor(sel) };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [d, s.cycles, s.account, s.role, s.stage, s.product, s.country, s.test]);
+  }, [d, s.cycles, s.account, s.role, s.product, s.country, s.tier, s.type, s.iad, s.kae, s.test]);
 
   if (!d || !r) return <p className="p-8">Preparando o relatório...</p>;
   const { sel, main, prev, target } = r;
@@ -70,6 +69,7 @@ function Report() {
         <p className="text-xl font-light">Pesquisa de NPS relacional</p>
         <h1 className="mt-2 text-6xl font-light leading-tight text-primary-foreground">{title}</h1>
         <p className="mt-6 text-base">Período: {period}</p>
+        <p className="mt-1 text-sm">Questionário: {[...new Set(sel.map((c) => d.questionnaires.find((q) => q.id === c.questionnaire_id)).filter(Boolean).map((q) => `${q!.code} ${q!.name}`))].join(", ") || "–"}</p>
         <p className="mt-1 text-sm">Filtros: {describeFilters(f, d)}</p>
         <p className="mt-1 text-sm">
           {target.label}: NPS {fmt(target.nps)} e taxa de resposta {target.rate}%
@@ -108,15 +108,15 @@ function Report() {
         </div>
     </Page>,
 
-    <Page key="p4" n={5} title="NPS por papel e por estágio" caption={`Comparação entre papéis do contato e estágios do MOM no ciclo. ${stageCaption(main)}`}>
+    <Page key="p4" n={5} title="NPS por papel e por produto" caption="Comparação entre papéis do contato e produtos no ciclo.">
         <div className="grid grid-cols-2 gap-10">
           <div>
             <p className="mb-3 text-muted-foreground">Por papel</p>
             <GroupBars items={main.byRole} target={target.nps} />
           </div>
           <div>
-            <p className="mb-3 text-muted-foreground">Por estágio MOM</p>
-            <GroupBars items={main.byStage} target={target.nps} />
+            <p className="mb-3 text-muted-foreground">Por produto</p>
+            <GroupBars items={main.byProduct} target={target.nps} />
           </div>
         </div>
     </Page>,

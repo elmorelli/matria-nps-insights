@@ -4,8 +4,7 @@ import type { accountHistory } from "@/lib/analytics";
 
 const STATUS_STYLE: Record<string, string> = {
   Ativo: "bg-green-light text-green-dark",
-  POC: "bg-sky-light text-primary",
-  Implantação: "bg-sky-light text-primary",
+  Inativo: "bg-offwhite text-muted-foreground",
   Churn: "bg-pink-light text-wine",
   Suspenso: "bg-peach text-orange",
 };

@@ -104,7 +104,7 @@ export function Sends({ d, cycle }: { d: AllData; cycle: Cycle }) {
       </div>
       <div className="flex flex-wrap gap-2">
         <Input placeholder="Buscar por nome ou instituição" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs bg-background" />
-        <Select value={fStatus} onChange={setFStatus} label="Todos os status" options={Object.entries(STATUS_LABEL)} />
+        <Select value={fStatus} onChange={setFStatus} label="Status" options={Object.entries(STATUS_LABEL)} />
         <FiltersBar d={d} f={f} set={setF} />
       </div>
       <TableWrap>

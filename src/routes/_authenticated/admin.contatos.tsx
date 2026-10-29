@@ -11,7 +11,7 @@ import { ContactSheet } from "@/components/admin/ContactSheet";
 import type { Contact } from "@/lib/analytics";
 import { ImportDialog, downloadTemplate, parseFile } from "@/components/admin/ImportDialog";
 import { ContactsTable } from "@/components/admin/ContactsTable";
-import { Select } from "@/components/admin/FiltersBar";
+import { ClearFilters, Select } from "@/components/admin/FiltersBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -80,14 +80,18 @@ function ContactsPage() {
           <Plus /> Adicionar contato
         </Button>
       </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <Input placeholder="Buscar por nome, instituição, e-mail" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs bg-background" />
-        <Select value={fAcc} onChange={setFAcc} label="Todas as instituições" options={(d?.accounts ?? []).map((a) => [a.id, a.name])} />
-        <Select value={fRole} onChange={setFRole} label="Todos os papéis" options={opts.values("role").map((r) => [r, r])} />
-        <Select value={fStatus} onChange={setFStatus} label="Todas as situações" options={Object.entries(CONTACT_STATUS_LABEL)} />
-        <label className="flex items-center gap-2 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Buscar</span>
+          <Input placeholder="Nome, instituição, e-mail" value={q} onChange={(e) => setQ(e.target.value)} className="w-64 bg-background" />
+        </label>
+        <Select value={fAcc} onChange={setFAcc} label="Instituição" options={(d?.accounts ?? []).map((a) => [a.id, a.name])} />
+        <Select value={fRole} onChange={setFRole} label="Papel" options={opts.values("role").map((r) => [r, r])} />
+        <Select value={fStatus} onChange={setFStatus} label="Situação" options={Object.entries(CONTACT_STATUS_LABEL)} />
+        <label className="flex h-9 items-center gap-2 text-sm text-muted-foreground">
           <input type="checkbox" checked={hideTest} onChange={(e) => setHideTest(e.target.checked)} /> Ocultar dados de teste
         </label>
+        <ClearFilters show={!!(q || fAcc || fRole || fStatus)} onClear={() => { setQ(""); setFAcc(""); setFRole(""); setFStatus(""); }} />
       </div>
       {d && <ContactsTable d={d} contacts={rows} />}
       {d && <ContactSheet d={d} contact={editing} onClose={() => setEditing(undefined)} />}
