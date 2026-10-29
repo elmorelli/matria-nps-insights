@@ -40,3 +40,4 @@
 - [x] 3. Texto final revisado e agradecimento "Desde já, obrigado pelo seu tempo."
 - [x] 4. Assinatura girada 180 graus e linha acima dela retirada
 - [x] 5. Frase "Data for better care." retirada da faixa azul da pesquisa
+- [x] 6. Logo maior e em mais destaque na faixa azul da pesquisa
