@@ -60,7 +60,7 @@ function CardPdf() {
       <div className="flex flex-wrap gap-1.5">
         <StatusTag value={acc.status} />
         <TierTag value={acc.tier} tiers={opts.values("account_tier")} />
-        <span className="text-sm text-muted-foreground">{[acc.segment, opts.countryLabel(acc.country), acc.city].filter(Boolean).join(" · ")}</span>
+        <span className="text-sm text-muted-foreground">{[acc.segment, opts.countryLabel(acc.country), acc.iad && `IAD ${acc.iad}`, acc.kae && `KAE ${acc.kae}`].filter(Boolean).join(" · ")}</span>
       </div>
       <div className="mt-5 grid grid-cols-3 gap-3">
         {kpi("NPS geral", fmt(tot.general.nps), `n=${tot.general.n}, todos os ciclos`, tot.general.nps != null ? BAND_TEXT[npsBand(tot.general.nps)] : "")}
@@ -105,7 +105,6 @@ function CardPdf() {
             {products.map((p) => (
               <li key={p.id} className="flex justify-between border-b py-1">
                 <span>{p.product}</span>
-                <span className="text-primary">{p.mom_stage}</span>
               </li>
             ))}
             {!products.length && <li className="text-muted-foreground">Nenhum produto.</li>}
