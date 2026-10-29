@@ -98,6 +98,11 @@ function AccessSection() {
     setBusy(true);
     try {
       if (editing) {
+        const orig = users?.find((u) => u.id === editing);
+        if (orig && orig.email !== form.email.trim() && !confirm(`Atenção: você está ALTERANDO o usuário ${orig.name || orig.email}, não criando um novo. O e-mail dele vai mudar para ${form.email}. Para cadastrar outra pessoa, clique em Cancelar e use "Cadastrar usuário". Continuar mesmo assim?`)) {
+          setBusy(false);
+          return;
+        }
         await update({ data: { id: editing, ...form } });
         toast.success("Usuário atualizado.");
       } else {
