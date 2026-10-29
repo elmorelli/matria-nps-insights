@@ -69,3 +69,8 @@
 - [x] 2. Bloco "Conta" retirado de Configurações, porque o cadastro de usuários já faz isso
 - [x] 3. Clientes: botões "Planilha modelo" e "Importar planilha", com conferência linha a linha
 - [x] 4. Todas as planilhas baixadas (modelos e exportações) com o mesmo visual: cabeçalho azul-marinho com letra branca, linhas zebradas, cabeçalho congelado e filtros
+
+# Prompt 10 (sem limites de acesso e imagem da prévia)
+- [x] 1. Cadastro de usuários sem limites: qualquer linha, de qualquer tipo, pode ser alterada, desativada ou excluída, inclusive a sua, com aviso antes de mexer no próprio acesso
+- [x] 2. Imagem da prévia: "Data for better care." logo abaixo da logo da Matria e "Pesquisa NPS" abaixo dela
+

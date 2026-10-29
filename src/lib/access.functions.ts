@@ -91,7 +91,6 @@ export const updateAccess = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     if (data.password && data.password.length < 8) throw new Error("A senha precisa ter pelo menos 8 caracteres.");
-    if (data.id === context.userId && data.role !== "admin") throw new Error("Você não pode tirar o seu próprio acesso de administrador.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.id, {
       email: data.email,
@@ -109,7 +108,6 @@ export const setAccessActive = createServerFn({ method: "POST" })
   .inputValidator((i) => z.object({ id: z.string().uuid(), active: z.boolean() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    if (data.id === context.userId) throw new Error("Você não pode desativar o seu próprio acesso.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.id, { ban_duration: data.active ? "none" : "876000h" });
     if (error) throw new Error("Não foi possível alterar.");
@@ -121,7 +119,6 @@ export const removeAccess = createServerFn({ method: "POST" })
   .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    if (data.id === context.userId) throw new Error("Você não pode remover o seu próprio acesso.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.from("user_roles").delete().eq("user_id", data.id);
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.id);
