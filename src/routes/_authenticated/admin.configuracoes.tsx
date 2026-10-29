@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ArrowDown, ArrowUp, Plus } from "lucide-react";
+import { ArrowDown, ArrowUp, Pencil, Plus, Power, Save, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { allDataKey, allDataQuery, type AllData } from "@/lib/analytics";
 import { LIST_LABEL, optionsKey, optionsQuery, type ListKey, type OptionRow } from "@/lib/options";
@@ -12,7 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
-import { listAccess, addAccess, removeAccess } from "@/lib/access.functions";
+import { listAccess, addAccess, updateAccess, setAccessActive, removeAccess } from "@/lib/access.functions";
+import { ACCESS_ROLES, ROLE_HINT, ROLE_LABEL, type AccessRole } from "@/lib/access";
 
 export const Route = createFileRoute("/_authenticated/admin/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações | Matria NPS" }, { name: "robots", content: "noindex" }] }),
@@ -75,74 +76,142 @@ function SettingsPage() {
   );
 }
 
+type AccessUser = Awaited<ReturnType<typeof listAccess>>[number];
+const EMPTY_FORM = { name: "", jobTitle: "", email: "", password: "", role: "viewer" as AccessRole };
+
 function AccessSection() {
   const qc = useQueryClient();
   const list = useServerFn(listAccess);
   const add = useServerFn(addAccess);
+  const update = useServerFn(updateAccess);
+  const setActive = useServerFn(setAccessActive);
   const remove = useServerFn(removeAccess);
   const { data: users = [] } = useQuery({ queryKey: ["access"], queryFn: () => list() });
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [pw, setPw] = useState("");
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [editing, setEditing] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const create = async () => {
-    if (pw.length < 8) return toast.error("A senha precisa ter pelo menos 8 caracteres.");
+  const refresh = () => qc.invalidateQueries({ queryKey: ["access"] });
+  const set = (k: keyof typeof EMPTY_FORM, v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  const save = async () => {
+    if (!form.name.trim()) return toast.error("Informe o nome.");
+    if (!editing && form.password.length < 8) return toast.error("A senha precisa ter pelo menos 8 caracteres.");
     setBusy(true);
     try {
-      await add({ data: { email, name, password: pw } });
-      toast.success("Acesso criado. Envie o e-mail e a senha para a pessoa.");
-      setEmail("");
-      setName("");
-      setPw("");
-      qc.invalidateQueries({ queryKey: ["access"] });
+      if (editing) {
+        await update({ data: { id: editing, ...form } });
+        toast.success("Usuário atualizado.");
+      } else {
+        await add({ data: form });
+        toast.success("Usuário criado. Envie o e-mail e a senha para a pessoa.");
+      }
+      setForm(EMPTY_FORM);
+      setEditing(null);
+      refresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Não foi possível criar o acesso.");
+      toast.error(e instanceof Error ? e.message : "Não foi possível salvar.");
     }
     setBusy(false);
   };
-  const del = async (id: string, label: string) => {
-    if (!confirm(`Remover o acesso de ${label}?`)) return;
+  const edit = (u: AccessUser) => {
+    setEditing(u.id);
+    setForm({ name: u.name, jobTitle: u.jobTitle, email: u.email, password: "", role: u.role });
+  };
+  const toggle = async (u: AccessUser) => {
     try {
-      await remove({ data: { id } });
-      toast.success("Acesso removido.");
-      qc.invalidateQueries({ queryKey: ["access"] });
+      await setActive({ data: { id: u.id, active: !u.active } });
+      toast.success(u.active ? "Usuário desativado." : "Usuário reativado.");
+      refresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Não foi possível remover.");
+      toast.error(e instanceof Error ? e.message : "Não foi possível alterar.");
     }
   };
+  const del = async (u: AccessUser) => {
+    if (!confirm(`Excluir o usuário ${u.name || u.email}? Esta ação não pode ser desfeita.`)) return;
+    try {
+      await remove({ data: { id: u.id } });
+      toast.success("Usuário excluído.");
+      if (editing === u.id) { setEditing(null); setForm(EMPTY_FORM); }
+      refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível excluir.");
+    }
+  };
+
   return (
-    <Card title="Acessos ao painel" caption="Pessoas que podem entrar no painel. Todas têm o mesmo acesso. A pessoa pode trocar a senha depois em Configurações ou em Esqueci minha senha.">
-      <div className="divide-y rounded-md border">
-        {users.map((u) => (
-          <div key={u.id} className="flex items-center justify-between gap-3 px-4 py-3">
-            <div>
-              <p>{u.name || u.email} {u.isMe && <span className="text-sm text-muted-foreground">(você)</span>}</p>
-              <p className="text-sm text-muted-foreground">{u.email}</p>
-            </div>
-            {!u.isMe && (
-              <Button variant="outline" size="sm" onClick={() => del(u.id, u.name || u.email)}>
-                Remover
-              </Button>
-            )}
-          </div>
-        ))}
-      </div>
-      <div className="mt-6 grid gap-4 md:grid-cols-4 md:items-end">
+    <Card title="Cadastro de usuários" caption="Pessoas que podem entrar no painel e o que cada uma pode ver.">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div className="space-y-2">
           <Label htmlFor="acc-nm" className="text-primary">Nome</Label>
-          <Input id="acc-nm" value={name} onChange={(e) => setName(e.target.value)} />
+          <Input id="acc-nm" value={form.name} onChange={(e) => set("name", e.target.value)} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="acc-jt" className="text-primary">Cargo</Label>
+          <Input id="acc-jt" value={form.jobTitle} onChange={(e) => set("jobTitle", e.target.value)} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="acc-em" className="text-primary">E-mail</Label>
-          <Input id="acc-em" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Input id="acc-em" type="email" value={form.email} onChange={(e) => set("email", e.target.value)} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="acc-pw" className="text-primary">Senha inicial</Label>
-          <Input id="acc-pw" type="text" autoComplete="off" value={pw} onChange={(e) => setPw(e.target.value)} />
+          <Label htmlFor="acc-pw" className="text-primary">{editing ? "Nova senha (deixe em branco para manter)" : "Senha"}</Label>
+          <Input id="acc-pw" type="text" autoComplete="off" value={form.password} onChange={(e) => set("password", e.target.value)} />
         </div>
-        <Button onClick={create} disabled={busy || !email}>
-          <Plus className="h-4 w-4" /> Adicionar acesso
-        </Button>
+        <div className="space-y-2">
+          <Label htmlFor="acc-tp" className="text-primary">Tipo</Label>
+          <select id="acc-tp" value={form.role} onChange={(e) => set("role", e.target.value)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+            {ACCESS_ROLES.map((r) => (
+              <option key={r} value={r}>{ROLE_LABEL[r]} ({ROLE_HINT[r]})</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-end gap-2">
+          <Button onClick={save} disabled={busy || !form.email}>
+            {editing ? <><Save className="h-4 w-4" /> Salvar alterações</> : <><Plus className="h-4 w-4" /> Cadastrar usuário</>}
+          </Button>
+          {editing && (
+            <Button variant="outline" onClick={() => { setEditing(null); setForm(EMPTY_FORM); }}>Cancelar</Button>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-6 overflow-x-auto rounded-md border">
+        <table className="w-full text-sm">
+          <thead className="bg-subtle text-left text-primary">
+            <tr>
+              <th className="px-4 py-3 font-semibold">Nome</th>
+              <th className="px-4 py-3 font-semibold">Cargo</th>
+              <th className="px-4 py-3 font-semibold">E-mail</th>
+              <th className="px-4 py-3 font-semibold">Tipo</th>
+              <th className="px-4 py-3 font-semibold">Situação</th>
+              <th className="px-4 py-3 text-right font-semibold">Ações</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {users.map((u) => (
+              <tr key={u.id} className={cn(!u.active && "text-muted-foreground")}>
+                <td className="px-4 py-3">{u.name || "Sem nome"} {u.isMe && <span className="text-muted-foreground">(você)</span>}</td>
+                <td className="px-4 py-3">{u.jobTitle || "Não informado"}</td>
+                <td className="px-4 py-3">{u.email}</td>
+                <td className="px-4 py-3">{ROLE_LABEL[u.role]}</td>
+                <td className="px-4 py-3">{u.active ? "Ativo" : "Desativado"}</td>
+                <td className="px-4 py-3">
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" size="sm" onClick={() => edit(u)}><Pencil className="h-4 w-4" /> Alterar</Button>
+                    {!u.isMe && (
+                      <>
+                        <Button variant="outline" size="sm" onClick={() => toggle(u)}>
+                          <Power className="h-4 w-4" /> {u.active ? "Desativar" : "Reativar"}
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => del(u)}><Trash2 className="h-4 w-4" /> Excluir</Button>
+                      </>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </Card>
   );
