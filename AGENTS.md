@@ -11,7 +11,7 @@
 
 ## Matria NPS
 - Public survey reads/writes only through security-definer RPCs (survey_status, survey_confirm, survey_decline, survey_submit_by_token); the token is the only credential and anon has no table grants. /r/teste is a client-only preview that saves nothing. Why: links are public, data must not be.
-- Questions come from the cycle's questionnaire (questionnaires/questions tables); answers go to response_answers keyed by stable question key. responses.q1_nps/q2_reason stay as the fixed NPS anchor, legacy q3..q12 columns are still filled for compatibility. The 'nps' question is locked by a DB trigger. Why: questionnaire versions must stay comparable across cycles.
+- Questions come from the cycle's questionnaire (questionnaires/questions tables); answers go to response_answers keyed by stable question key. responses.q1_nps/q2_reason stay as the fixed NPS anchor, legacy q3..q12 columns are still filled for compatibility. Every questionnaire always contains the 'nps' question (canonical copy in src/lib/nps-question.ts, inserted on creation and via the editor's repair button), and a DB trigger keeps it uneditable and undeletable on its own while still letting it go with its questionnaire. Why: questionnaire versions must stay comparable across cycles, and the NPS score is read from that question.
 - Message templates and targets live on each cycle; the settings table is deprecated.
 - Admin pages query tables directly from the browser; RLS allows only users with the admin role in user_roles.
 - Follow-ups are created by a database trigger on response insert, so SLA rules live in SQL.

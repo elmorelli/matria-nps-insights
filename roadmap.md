@@ -54,3 +54,11 @@
 - [x] Tela "E-mails" no painel com a prévia do e-mail de redefinir senha
 - [x] Layout do e-mail com a cara da Matria (faixa azul, logo, botão azul, rodapé)
 - [ ] Conectar o domínio de envio (qualina.com.br) para o e-mail sair com este visual
+
+# Prompt 8 (começar do zero, blocos e pergunta de NPS)
+- [x] 1. Configurações com cadastro e remoção de acessos ao painel
+- [x] 2. Fundo azul em movimento na tela de entrada e na de nova senha
+- [x] 3. Base zerada, mantendo só o acesso do Eduardo
+- [x] 4. Blocos do questionário configuráveis, começando com Sua nota, Relacionamento, Solução e Para fechar
+- [x] 5. Pergunta de NPS (nota de 0 a 10, com as cores) sempre presente: entra ao criar o questionário e há botão para incluí-la quando faltar
+- [x] 6. Excluir questionário voltou a funcionar com a pergunta de NPS dentro
