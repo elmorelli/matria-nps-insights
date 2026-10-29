@@ -31,4 +31,4 @@
 # Prompt 5 (tela de entrada)
 - [x] 1. Retirar o título "NPS Matria"
 - [x] 2. Logo grande e centralizada acima do texto da plataforma
-- [ ] 3. Logo com a mesma largura do quadro de login
+- [x] 3. Logo com a mesma largura do quadro de login
