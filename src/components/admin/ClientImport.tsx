@@ -169,7 +169,7 @@ export function ClientImport({ onDone }: { onDone: () => void }) {
                     {KEYS.slice(0, 7).map((k) => (
                       <td key={k} className="px-2 py-1">{r[k]}</td>
                     ))}
-                    <td className={errs[i].length ? "px-2 py-1 text-destructive" : "px-2 py-1 text-success"}>{errs[i].length ? errs[i].join(", ") : "Pronta"}</td>
+                    <td className={errs[i].length ? "px-2 py-1 text-destructive" : "px-2 py-1 text-primary"}>{errs[i].length ? errs[i].join(", ") : "Pronta"}</td>
                   </tr>
                 ))}
               </tbody>
