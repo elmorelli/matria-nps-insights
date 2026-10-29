@@ -8,7 +8,6 @@ import { firstName } from "@/lib/contacts";
 import { cn } from "@/lib/utils";
 import { getSurveyMeta, DEFAULT_META } from "@/lib/survey-meta.functions";
 import feixeAzul from "@/assets/feixe-azul.webp.asset.json";
-import feixeOff from "@/assets/feixe-offwhite.webp.asset.json";
 import fotoMaos from "@/assets/medico-maos-paciente.webp.asset.json";
 import fotoMedica from "@/assets/medica-paciente-02.webp.asset.json";
 
@@ -16,12 +15,13 @@ export const Route = createFileRoute("/r/$token")({
   loader: () => getSurveyMeta(),
   head: ({ loaderData }) => {
     const m = loaderData ?? { origin: "", ...DEFAULT_META };
+    const ogTitle = `Pesquisa NPS Matria. ${m.title.replace(/^Pesquisa( NPS)? Matria\.?\s*/i, "")}`.replace(/\.\s*$/, "");
     const img = m.origin ? `${m.origin}/og-pesquisa.jpg` : undefined;
     return {
       meta: [
-        { title: m.title },
+        { title: ogTitle },
         { name: "description", content: m.description },
-        { property: "og:title", content: m.title },
+        { property: "og:title", content: ogTitle },
         { property: "og:description", content: m.description },
         { property: "og:type", content: "website" },
         ...(img
