@@ -7,7 +7,6 @@ import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 import { supabase } from "@/integrations/supabase/client";
 import { accountHistory, allDataKey, allDataQuery, fmt, fmt1, type Account, type AllData } from "@/lib/analytics";
 import { npsBand } from "@/lib/nps";
-import { STAGES } from "@/lib/contacts";
 import { useOptions } from "@/lib/options";
 import { ContactSheet } from "@/components/admin/ContactSheet";
 import { StatusTag, TierTag } from "@/components/admin/AccountTags";
@@ -70,7 +69,7 @@ function ClientPage() {
           <StatusTag value={acc.status} />
           <TierTag value={acc.tier} tiers={opts.values("account_tier")} />
         </div>
-        <Editable className="mt-2 text-3xl font-light text-primary" value={acc.name} onSave={(v) => v.trim() && update({ name: v.trim() })} />
+        <Editable className="mt-2 h-auto text-3xl font-light text-primary" value={acc.name} onSave={(v) => v.trim() && update({ name: v.trim() })} />
         <div className="mt-4 grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
           <Field label="Status">
             <OptSelect value={acc.status} options={opts.values("account_status")} onChange={(v) => v && update({ status: v })} />
@@ -84,8 +83,11 @@ function ClientPage() {
           <Field label="País">
             <OptSelect value={acc.country} options={opts.countries.map((c) => c.value)} labels={Object.fromEntries(opts.countries.map((c) => [c.value, c.extra.label ?? c.value]))} onChange={(v) => update({ country: v || null })} />
           </Field>
-          <Field label="Cidade">
-            <Editable value={acc.city ?? ""} onSave={(v) => update({ city: v || null })} />
+          <Field label="IAD">
+            <OptSelect value={acc.iad} options={opts.values("iad")} onChange={(v) => update({ iad: v || null })} />
+          </Field>
+          <Field label="KAE">
+            <OptSelect value={acc.kae} options={opts.values("kae")} onChange={(v) => update({ kae: v || null })} />
           </Field>
           <Field label="Responsável na Matria">
             <Editable value={acc.owner_name ?? ""} onSave={(v) => update({ owner_name: v || null })} />
@@ -100,6 +102,8 @@ function ClientPage() {
       </section>
 
       <ProductsBlock d={d} accountId={acc.id} onChanged={refresh} />
+
+      <Coverage hist={hist} activeContacts={contacts.filter((c) => c.status === "active" && !c.is_test).length} />
 
       <Card
         title="Contatos"
@@ -247,7 +251,7 @@ function Editable({ value, onSave, className }: { value: string; onSave: (v: str
       onChange={(e) => setV(e.target.value)}
       onBlur={() => v !== value && onSave(v)}
       onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
-      className={cn("w-full rounded border border-transparent bg-transparent px-1 py-1 hover:border-border focus:border-primary focus:outline-none", className)}
+      className={cn("h-9 w-full rounded-md border border-input bg-background px-3 py-1 placeholder:text-muted-foreground hover:border-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40", className)}
     />
   );
 }
@@ -255,7 +259,7 @@ function Editable({ value, onSave, className }: { value: string; onSave: (v: str
 function OptSelect({ value, options, labels, onChange }: { value: string | null; options: string[]; labels?: Record<string, string>; onChange: (v: string) => void }) {
   const list = value && !options.includes(value) ? [...options, value] : options;
   return (
-    <select value={value ?? ""} onChange={(e) => onChange(e.target.value)} className="w-full rounded border border-transparent bg-transparent px-1 py-1 text-primary hover:border-border">
+    <select value={value ?? ""} onChange={(e) => onChange(e.target.value)} className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 hover:border-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40">
       <option value="">Não informado</option>
       {list.map((o) => (
         <option key={o} value={o}>
@@ -271,12 +275,6 @@ function ProductsBlock({ d, accountId, onChanged }: { d: AllData; accountId: str
   const [adding, setAdding] = useState("");
   const rows = d.accountProducts.filter((p) => p.account_id === accountId);
   const available = opts.values("product").filter((p) => !rows.some((r) => r.product === p));
-  const setStage = async (id: string, mom_stage: string) => {
-    const { error } = await supabase.from("account_products").update({ mom_stage: mom_stage as never }).eq("id", id);
-    if (error) return toast.error("Não foi possível salvar.");
-    toast.success("Estágio atualizado.");
-    onChanged();
-  };
   const add = async () => {
     if (!adding) return;
     const { error } = await supabase.from("account_products").insert({ account_id: accountId, product: adding });
@@ -290,16 +288,11 @@ function ProductsBlock({ d, accountId, onChanged }: { d: AllData; accountId: str
     onChanged();
   };
   return (
-    <Card title="Produtos contratados" caption="O estágio vale para todos os contatos da instituição que usam o produto.">
+    <Card title="Produtos contratados">
       <ul className="divide-y rounded-lg border">
         {rows.map((r) => (
           <li key={r.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
             <span className="min-w-40 flex-1 text-primary">{r.product}</span>
-            <select value={r.mom_stage} onChange={(e) => setStage(r.id, e.target.value)} className="h-9 rounded-md border bg-background px-3 text-sm print:border-0">
-              {STAGES.map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
             <span className="text-xs text-muted-foreground">desde {new Date(r.updated_at).toLocaleDateString("pt-BR")}</span>
             <button onClick={() => remove(r.id)} className="text-sm text-muted-foreground hover:text-negative print:hidden">
               Remover
@@ -321,6 +314,42 @@ function ProductsBlock({ d, accountId, onChanged }: { d: AllData; accountId: str
           </Button>
         </div>
       )}
+    </Card>
+  );
+}
+
+function Coverage({ hist, activeContacts }: { hist: ReturnType<typeof accountHistory>; activeContacts: number }) {
+  const rows = hist.filter((h) => h.st.rows.length);
+  const last = rows[rows.length - 1];
+  return (
+    <Card title="Cobertura" caption={`${activeContacts} contatos ativos hoje. Alerta quando há menos de 2 respostas no ciclo mais recente.`}>
+      {last && last.st.answered.length < 2 && (
+        <p className="mb-3 rounded-md bg-attention-bg p-3 text-sm">Cobertura baixa: {last.st.answered.length} {last.st.answered.length === 1 ? "resposta" : "respostas"} no {last.cycle.name}.</p>
+      )}
+      <TableWrap className="max-h-none">
+        <table className="w-full text-sm">
+          <thead className="bg-subtle text-left">
+            <tr>
+              {["Ciclo", "Convidados", "Responderam", "Cobertura"].map((h) => (
+                <th key={h} className="whitespace-nowrap px-3 py-2 font-medium">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((h) => (
+              <tr key={h.cycle.id} className="border-t">
+                <td className="px-3 py-2">{h.cycle.name}</td>
+                <td className="px-3 py-2">{h.st.base}</td>
+                <td className="px-3 py-2">{h.st.answered.length}</td>
+                <td className="px-3 py-2">{h.st.base ? Math.round((h.st.answered.length / h.st.base) * 100) : 0}%</td>
+              </tr>
+            ))}
+            {!rows.length && (
+              <tr><td colSpan={4} className="px-3 py-6 text-center text-muted-foreground">Ainda sem convites para esta instituição.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </TableWrap>
     </Card>
   );
 }
