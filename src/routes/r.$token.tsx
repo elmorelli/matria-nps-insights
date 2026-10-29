@@ -306,7 +306,7 @@ function SurveyPage() {
                           setStage("q");
                           goto(qi);
                         }}
-                        className="shrink-0 rounded-md px-2 py-1 text-sm text-primary hover:bg-highlight"
+                        className="shrink-0 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90"
                       >
                         Alterar
                       </button>
