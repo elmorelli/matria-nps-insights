@@ -59,7 +59,7 @@ function AuthPage() {
         <MatriaLogo variant="negativo" className="h-11" />
       </div>
       <div className="flex w-full max-w-[400px] flex-col items-center pt-20 sm:pt-0">
-      <p className="mt-1 text-center text-[15px] text-primary-foreground sm:pt-0">Plataforma de coleta e acompanhamento de NPS</p>
+      <p className="mt-1 text-center text-[15px] text-primary-foreground">Plataforma de coleta e acompanhamento de NPS</p>
       <form onSubmit={submit} className="mt-6 w-full rounded-lg border bg-background p-8">
         <div className="space-y-4">
           <div className="space-y-2">
